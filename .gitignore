@@ -1,0 +1,41 @@
+# Secrets: real values live only in gitignored .env files and ~/.gradle/gradle.properties
+# (docs/ulap-reference.md §10). Templates end in .example and are committed.
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.jks
+*.keystore
+
+# Gradle / Kotlin build output
+.gradle/
+build/
+.kotlin/
+local.properties
+
+# Android
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Files that can hold user data (journal notes, check-ins): never commit them
+*.hprof
+*.dump
+*.dump.age
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Claude Code: agents, skills and settings.json are shared and committed.
+# Personal settings, hooks and the MCP file (absolute paths) are not (docs/ulap-reference.md §11).
+.claude/settings.local.json
+.claude/hooks/
+.mcp.json
+
+# graphify output (rebuilt locally)
+graphify-out/
