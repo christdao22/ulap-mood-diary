@@ -17,7 +17,7 @@ Last updated: November 4, 2026
 | Phase | Name | Status | Done |
 |---|---|---|---|
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
-| 1 | Project setup | ⬜ Not started | 0 / 17 |
+| 1 | Project setup | 🟡 In progress | 1 / 17 |
 | 2 | Offline check-in | ⬜ Not started | 0 / 24 |
 | 3 | Logs | ⬜ Not started | 0 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
@@ -43,6 +43,8 @@ A task is complete only when:
 - [ ] It follows the voice guide (validate → offer, no judgment words)
 - [ ] No journal notes, tokens or passwords appear in any log
 - [ ] Docs are updated if behavior or the API changed, following [README §17](README.md#17-documentation)
+
+**Phase 1 exception:** until the CI tasks are ticked, a setup task is done when it works locally and is committed to `main`. Skip rules that don't apply to it (e.g. strings, voice guide).
 
 ---
 
@@ -84,7 +86,7 @@ Spec: [README §5–§8](README.md#5-folder-structure) · [Technical plan §4](d
 
 ### Repository
 - [ ] Create the Git repository with `main` as the protected branch
-- [ ] Add `README.md`, `PHASES.md`, `docs/`, `.editorconfig`, `.gitignore`
+- [x] Add `README.md`, `PHASES.md`, `docs/`, `.editorconfig`, `.gitignore`
 - [ ] Add the PR template and a short `CONTRIBUTING.md` that links to [README §12](README.md#12-contributing-guidelines)
 - [ ] Choose a license (or keep "All rights reserved" for now)
 - [ ] Decide the proposed changes D1–D14 in [Repo reference §13](docs/ulap-reference.md#13-decision-log), then update the listed docs
