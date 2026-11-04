@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "xerj": {
+      "command": "xerj",
+      "args": ["mcp", "--disable-feedback"],
+      "env": { "XERJ_URL": "http://localhost:9200", "XERJ_DISABLE_FEEDBACK": "true" }
+    }
+  }
+}

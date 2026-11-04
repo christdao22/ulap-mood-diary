@@ -127,6 +127,9 @@ Details: [`docs/technical-plan.md`](docs/technical-plan.md) · [`docs/api-spec.m
 ulap/
 ├── README.md                          # start here
 ├── PHASES.md                          # progress tracker (checkboxes)
+├── CLAUDE.md                          # rules for Claude Code sessions
+├── .claude/                           # shared agents, skills, settings.json (docs/ulap-reference.md §11)
+├── .mcp.example.json                  # copy to .mcp.json (gitignored) for the XERJ MCP server
 ├── LICENSE
 ├── CONTRIBUTING.md                    # short file that links to README §12
 ├── .editorconfig

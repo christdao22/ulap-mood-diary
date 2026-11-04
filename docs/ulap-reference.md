@@ -469,21 +469,29 @@ Copy `start-xerj.ps1`, `refresh-indexes.ps1` and `refresh-indexes-worker.ps1` on
 Copy it to `.mcp.json` (gitignored) and use the full path to `xerj.exe` if it isn't on `PATH`.
 
 ### 11.6 Permissions
-macro-tracker had no permissions block anywhere (MT §6). For Ulap, commit a small `.claude/settings.json` that allows the routine commands and asks for the rest:
+macro-tracker had no permissions block anywhere (MT §6). Ulap commits a small [`.claude/settings.json`](../.claude/settings.json) that allows the routine commands and asks for the rest:
 ```json
 {
   "permissions": {
     "allow": [
-      "Bash(./gradlew:*)",
-      "Bash(docker compose:*)",
-      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)"
+      "Bash(./gradlew *)", "PowerShell(./gradlew *)", "PowerShell(.\\gradlew *)",
+      "Bash(docker compose *)", "PowerShell(docker compose *)"
     ],
-    "ask": ["Bash(git commit:*)", "Bash(git push:*)"],
-    "deny": ["Read(infra/.env*)", "Read(**/*.jks)"]
+    "ask": [
+      "Bash(git commit *)", "Bash(git push *)",
+      "PowerShell(git commit *)", "PowerShell(git push *)"
+    ],
+    "deny": [
+      "Read(.env)", "Read(.env.*)", "Read(!.env.example)", "Read(!.env.*.example)",
+      "Read(*.jks)", "Read(*.keystore)"
+    ]
   }
 }
 ```
-Leave out `infra/.env.example`-style templates from the deny rule if Claude needs to read them (the `.env*` pattern also blocks `.example` files, so narrow it if needed). Check the current Claude Code settings docs for the exact rule syntax before committing.
+- Rules use the space form (`Bash(cmd *)`, which also matches the bare command). On Windows, Claude Code has a PowerShell tool next to Bash, so each command gets both forms.
+- Read-only git commands (`status`, `diff`, `log`) are built into Claude Code's read-only set, so they need no rule.
+- A bare filename like `Read(.env)` matches at any depth. The `!` rules carve the committed `.example` templates back out, the same as `.gitignore`.
+- Deny rules block Claude's file tools, not every shell command, so they're a guard rail, not a security boundary. Real secrets stay out of the repo (§10).
 
 ### 11.7 Memory
 Memory is keyed by project path, so start fresh for Ulap:
