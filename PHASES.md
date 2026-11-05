@@ -17,7 +17,7 @@ Last updated: November 5, 2026
 | Phase | Name | Status | Done |
 |---|---|---|---|
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
-| 1 | Project setup | 🟡 In progress | 3 / 18 |
+| 1 | Project setup | 🟡 In progress | 4 / 18 |
 | 2 | Offline check-in | ⬜ Not started | 0 / 24 |
 | 3 | Logs | ⬜ Not started | 0 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
@@ -85,7 +85,7 @@ A task is complete only when:
 Spec: [README §5–§8](README.md#5-folder-structure) · [Technical plan §4](docs/technical-plan.md#4-project-structure)
 
 ### Repository
-- [ ] Create the Git repository with `main` as the protected branch
+- [x] Create the Git repository with `main` as the protected branch
 - [x] Add `README.md`, `PHASES.md`, `docs/`, `.editorconfig`, `.gitignore`
 - [x] Add the Claude Code setup: `CLAUDE.md`, agents and skills in `.claude/`, `.claude/settings.json`, `.mcp.example.json` ([Repo reference §11](docs/ulap-reference.md#11-claude-code-setup-for-ulap))
 - [x] Add the PR template and a short `CONTRIBUTING.md` that links to [README §12](README.md#12-contributing-guidelines)
