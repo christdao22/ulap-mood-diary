@@ -12,6 +12,8 @@ on:
       - "shared/**"
       - "build-logic/**"
       - "gradle/**"
+      - "gradlew"
+      - "gradlew.bat"
       - "config/**"
       - "infra/**"
       - "*.gradle.kts"
