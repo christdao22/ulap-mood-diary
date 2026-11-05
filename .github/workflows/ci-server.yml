@@ -1,0 +1,61 @@
+# Server CI (ulap-reference.md §9): the shared module's tests on every target, the server's tests
+# against a real PostgreSQL (Testcontainers, on the runner's Docker), formatting and detekt.
+# The same command runs locally (Docker must be running):
+#   ./gradlew :shared:allTests :server:test spotlessCheck detekt -PwarningsAsErrors=true
+name: ci-server
+
+on:
+  push:
+    branches: [main]
+    paths: &server-paths
+      - "server/**"
+      - "shared/**"
+      - "build-logic/**"
+      - "gradle/**"
+      - "config/**"
+      - "infra/**"
+      - "*.gradle.kts"
+      - "gradle.properties"
+      - ".github/workflows/ci-server.yml"
+  pull_request:
+    paths: *server-paths
+
+concurrency:
+  group: ci-server-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  server:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Test and check
+        run: ./gradlew :shared:allTests :server:test spotlessCheck detekt -PwarningsAsErrors=true
+
+      # The image the deploy runbook pushes must still build (docs/runbooks/deploy.md).
+      - name: Server image builds
+        run: |
+          ./gradlew :server:buildFatJar
+          docker build -f server/Dockerfile -t ulap-server:ci .
+
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: server-reports
+          path: |
+            server/build/reports/
+            shared/build/reports/
+          retention-days: 7

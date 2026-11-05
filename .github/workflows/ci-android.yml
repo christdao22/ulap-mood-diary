@@ -1,0 +1,74 @@
+# Android CI (ulap-reference.md §9): formatting, static analysis, Android Lint, unit tests and a
+# debug build whenever the app, the shared module or the build changes. The same command runs
+# locally:
+#   ./gradlew spotlessCheck detekt :androidApp:lintDebug test assembleDebug -PwarningsAsErrors=true
+name: ci-android
+
+on:
+  push:
+    branches: [main]
+    paths: &android-paths
+      - "androidApp/**"
+      - "core/**"
+      - "feature/**"
+      - "shared/**"
+      - "build-logic/**"
+      - "gradle/**"
+      - "config/**"
+      - "*.gradle.kts"
+      - "gradle.properties"
+      - ".editorconfig"
+      - ".github/workflows/ci-android.yml"
+  pull_request:
+    paths: *android-paths
+
+# A newer push to the same branch cancels the run still in progress.
+concurrency:
+  group: ci-android-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # The job name is the status check GitHub shows, and the one branch rules can require.
+  android:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      # Actions are pinned to a commit SHA; the comment names the release (ulap-reference.md §9).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The JDK Gradle runs on (gradle/gradle-daemon-jvm.properties asks for 25).
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      # Caches downloaded dependencies and build outputs between runs; read-only on pull requests.
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      # `test` includes the server's Testcontainers tests; ubuntu runners have Docker.
+      - name: Check, test and build
+        run: ./gradlew spotlessCheck detekt :androidApp:lintDebug test assembleDebug -PwarningsAsErrors=true
+
+      # A changed Room entity regenerates its schema JSON during the build. If that differs from
+      # the committed file, the schema wasn't committed (ulap-reference.md §5).
+      - name: Room schemas are committed
+        run: |
+          changes=$(git status --porcelain -- core/database/schemas)
+          if [ -n "$changes" ]; then
+            echo "::error::Room schema files changed in the build but are not committed:"
+            echo "$changes"
+            exit 1
+          fi
+
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: android-reports
+          path: |
+            **/build/reports/
+            build/reports/
+          retention-days: 7

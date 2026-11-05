@@ -1,0 +1,4 @@
+# server/Dockerfile only copies the fat JAR, so send nothing else to the Docker build
+# (no sources, no .env, no build caches).
+*
+!server/build/libs/server-all.jar

@@ -1,0 +1,36 @@
+# Local development (README §6.3, docs/local-services.md): host ports and Mailpit.
+# The ports avoid 5432 / 8025 / 1025, which other local projects use (D13).
+# The password below is for this laptop only and matches .env.example.
+services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: ulap
+    ports: ["${POSTGRES_HOST_PORT:-5434}:5432"]
+
+  migrate:
+    environment:
+      DATABASE_PASSWORD: ulap
+
+  # Usually you run the server with ./gradlew :server:run instead. This is for trying the image:
+  # it reads the same root .env, with the database and mail hosts pointed inside the network.
+  server:
+    env_file:
+      - path: ../.env
+        required: false
+    environment:
+      APP_ENV: development
+      DATABASE_PASSWORD: ulap
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+    ports: ["${SERVER_HOST_PORT:-8080}:8080"]
+    depends_on:
+      mailpit:
+        condition: service_started
+
+  # Catches every email the server sends (verification, reset). Inbox at http://localhost:8026.
+  mailpit:
+    image: axllent/mailpit:v1.33.0
+    ports:
+      - "${MAILPIT_UI_PORT:-8026}:8025"
+      - "${MAILPIT_SMTP_PORT:-1026}:1025"
+    restart: unless-stopped

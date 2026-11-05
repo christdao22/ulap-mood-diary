@@ -1,0 +1,20 @@
+#!/bin/sh
+# Formats the Kotlin you're about to commit (ulap-reference.md §10). Turn it on once per clone:
+#   git config core.hooksPath .githooks
+# It runs spotlessApply only when .kt or .kts files are staged, then stages the formatted result.
+# A file that is only partly staged gets fully staged, so commit whole files when Kotlin changes.
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR -- '*.kt' '*.kts')
+[ -z "$staged" ] && exit 0
+
+echo "pre-commit: formatting staged Kotlin with spotlessApply"
+./gradlew --quiet spotlessApply || {
+    echo "pre-commit: spotlessApply failed. Fix the error above, or commit with --no-verify only if you must."
+    exit 1
+}
+
+# Stage the formatted versions of the files that were staged (one per line, spaces allowed).
+echo "$staged" | while IFS= read -r file; do
+    [ -f "$file" ] && git add -- "$file"
+done
+exit 0

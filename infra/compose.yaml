@@ -1,0 +1,89 @@
+# Base services for every environment (ulap-reference.md §8.1). Always run with an overlay:
+#   dev:   docker compose -f infra/compose.yaml -f infra/compose.dev.yaml up -d postgres mailpit
+#   later: compose.prod.yaml for staging and production (docs/runbooks/deploy.md)
+#
+# Image tags are exact versions, so dev runs what the VPS runs (ulap-reference.md §10).
+# Bump them here, for every environment at once. The Testcontainers tests use the same Postgres tag.
+name: ulap
+
+# The server and migrate run the same image, built from the fat JAR:
+#   ./gradlew :server:buildFatJar   (then compose builds server/Dockerfile)
+x-server-build: &server-build
+  context: ..
+  dockerfile: server/Dockerfile
+
+# The server needs no writable files except /tmp, no Linux capabilities and no way to gain
+# privileges, so take them all away.
+x-hardening: &hardening
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  tmpfs: [/tmp]
+
+# How the server and migrate reach Postgres inside the Compose network.
+x-database-env: &database-env
+  DATABASE_URL: jdbc:postgresql://postgres:5432/ulap
+  DATABASE_USER: ulap
+  DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-}
+
+services:
+  postgres:
+    image: postgres:17.11-alpine3.24
+    environment:
+      POSTGRES_USER: ulap
+      # Empty unless infra/.env (staging, production) or compose.dev.yaml sets it. The Postgres
+      # image refuses to initialise with an empty password, so a forgotten value fails loudly.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      POSTGRES_DB: ulap
+      TZ: UTC
+      PGTZ: UTC
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ulap -d ulap"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # One-off Flyway run (D4). Staging and production run it on its own before `up -d --wait`:
+  #   docker compose run --rm migrate
+  # In development the server migrates on startup instead (README §6.4).
+  migrate:
+    image: ${SERVER_IMAGE:-ulap-server:local}
+    build: *server-build
+    <<: *hardening
+    entrypoint: ["java", "-cp", "/app/app.jar", "app.ulap.server.migrate.MigrateKt"]
+    environment:
+      <<: *database-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  server:
+    image: ${SERVER_IMAGE:-ulap-server:local}
+    build: *server-build
+    <<: *hardening
+    # Every other server variable (README §8) comes from infra/.env on the VPS. AppConfig stops the
+    # server with a list of missing names, so nothing starts half-configured.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      <<: *database-env
+      APP_ENV: ${APP_ENV:-production}
+    healthcheck:
+      # Liveness only: /health never touches the database (api-spec.md §9.1).
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/v1/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

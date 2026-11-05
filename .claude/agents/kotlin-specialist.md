@@ -24,7 +24,7 @@ The stack, per the current docs:
 - `shared` (KMP `commonMain`): models, mood catalog, response rules, validation, `@Serializable` DTOs, `kotlinx-datetime`
 - Room (offline source of truth), WorkManager (sync), DataStore (settings), Ktor Client, Hilt (Android modules only; `shared` has no DI library), Credential Manager
 
-Decisions in ulap-reference §13 change this stack. Already accepted: D1 (`core:*` + `feature:*` modules), D2 (Hilt), D3 (the whole Room database in SQLCipher, on Room 2.8, not Room 3), D6 (full resync on `resetRequired`), D7 (UUIDv7 from `Ids.newId()`), D8 (`SyncTriggers`, `FAILED` after 10 errors, 30 s backoff) and D10 (Spotless + detekt). Still check the Status column for D9 (Vico charts). Until a decision is **Accepted**, follow the current docs.
+Decisions in ulap-reference §13 change this stack. Already accepted: D1 (`core:*` + `feature:*` modules), D2 (Hilt), D3 (the whole Room database in SQLCipher, on Room 2.8, not Room 3), D6 (full resync on `resetRequired`), D7 (UUIDv7 from `Ids.newId()`), D8 (`SyncTriggers`, `FAILED` after 10 errors, 30 s backoff) D9 (Vico for the stress trend chart), D10 (Spotless + detekt), D11 (Sentry with PII off) and D12 (Baseline Profile after v1). A new decision (D15 on) stays Proposed until accepted. Until then, follow the current docs.
 
 Boundary rules:
 

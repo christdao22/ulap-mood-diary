@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Server logs (README §7.1). Lines carry the request id, method, path and status, never a
+     request or response body, a journal note, a token or a password. Don't add a body logger. -->
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%X{requestId:-}] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+    <!-- Quiet libraries that are chatty at INFO. -->
+    <logger name="com.zaxxer.hikari" level="WARN" />
+    <logger name="io.netty" level="WARN" />
+    <logger name="org.flywaydb" level="INFO" />
+    <logger name="org.testcontainers" level="WARN" />
+    <logger name="tc" level="WARN" />
+</configuration>

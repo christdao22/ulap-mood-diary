@@ -1,0 +1,30 @@
+# Files graphify should skip: no useful relationships, or not meant to be read.
+# Same pattern syntax as .gitignore.
+
+# Secrets and local-only config (never read these)
+.env
+.env.*
+!.env.example
+local.properties
+.mcp.json
+.mcp.example.json
+.xerjignore
+*.jks
+*.keystore
+
+# Build output and caches
+build/
+.gradle/
+.kotlin/
+.idea/
+graphify-out/
+
+# Gradle wrapper boilerplate
+gradlew
+gradlew.bat
+gradle/wrapper/
+
+# Generated and legal text
+LICENSE
+.gitattributes
+*.lock

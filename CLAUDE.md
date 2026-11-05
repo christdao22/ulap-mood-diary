@@ -5,7 +5,7 @@ Offline-first mood diary. Android (Kotlin, Compose) + Ktor server + Kotlin Multi
 ## Read first
 - What to build next: PHASES.md (tick boxes only when the Definition of Done is met, including its Phase 1 exception)
 - How it works: docs/technical-plan.md · API: docs/api-spec.md · UI and tone: docs/design-spec.md
-- Repo tooling and decisions: docs/ulap-reference.md. Decisions D1–D14 (§13) are proposed until marked Accepted. Until then, the other docs win.
+- Repo tooling and decisions: docs/ulap-reference.md. D1–D14 (§13) are all accepted. A new decision starts as Proposed, and until it's accepted the other docs win.
 - Each topic has one owner doc (README §17). If code and docs disagree, say so. Don't silently pick one.
 
 ## Rules
@@ -28,7 +28,8 @@ From README §6 (D4, D10 and D13 are accepted).
 - Local services: `docker compose -f infra/compose.yaml -f infra/compose.dev.yaml up -d postgres mailpit` (PostgreSQL on 5434, Mailpit at http://localhost:8026)
 - Server: `./gradlew :server:run`, then check http://localhost:8080/v1/health
 - Android: `./gradlew :androidApp:installDebug`
-- Gradle isn't set up yet. It arrives with the Phase 1 "Gradle and modules" tasks.
+- Ports, URLs and dev logins: docs/local-services.md
+- Server tests and `./gradlew build` need Docker running (Testcontainers).
 
 ## Agents and skills
 - `kotlin-specialist`: Android and `shared` code (the default for Kotlin changes)

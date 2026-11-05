@@ -236,6 +236,7 @@ At most **one primary button per screen**. When stress ≥ 8, show only the prim
 - **Horizontal bar (mood frequency, triggers, what helped):** 10dp track in `lineSoft`, pill radius. Fill: zone color (moods), `ink3` (triggers), Green strong (what helped). Value on the right, tabular.
 - **Stress chip:** pill 46dp wide, band colors from §2.3.
 - Every chart has a text title and a one-line subtitle explaining the scale.
+- **Library (D9):** the stress trend chart uses **Vico** (Compose). Bars get their band color one by one, and the chart's TalkBack text is the summary sentence in §11, set on the chart's semantics. The horizontal bars and the stress chip are plain Compose rows, so they need no chart library. If Vico can't color single bars or carry the summary, draw the trend with Compose `Canvas` instead and record that in [ulap-reference §13](ulap-reference.md#13-decision-log).
 
 ### 6.16 Switch
 - Material 3 Switch. On: Green strong track. Off: `outlineButton` track.

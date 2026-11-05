@@ -1,0 +1,46 @@
+# Changes to detekt's default rules (buildUponDefaultConfig = true in build.gradle.kts).
+# Keep this short: every entry should say why the default doesn't fit.
+
+naming:
+  FunctionNaming:
+    # Composables are named like classes (MoodTile).
+    ignoreAnnotated: ['Composable']
+  TopLevelPropertyNaming:
+    # Compose code names top-level constants like classes (LightColors).
+    constantPattern: '[A-Z][A-Za-z0-9_]*'
+
+complexity:
+  CyclomaticComplexMethod:
+    # A `when` that maps each case of a sealed type to one value (an error to its message) is
+    # a lookup table, not branching logic.
+    ignoreSimpleWhenEntries: true
+  LongParameterList:
+    # Composables take many parameters (modifier, state, callbacks) by design. A worker's
+    # @AssistedInject constructor takes WorkManager's Context and WorkerParameters on top of
+    # its own dependencies.
+    ignoreAnnotated: ['Composable', 'AssistedInject']
+    # Test row builders take every field as an optional parameter, so each test names only
+    # the fields it is about. core:testing holds the builders tests share.
+    excludes: ['**/test/**', '**/androidTest/**', '**/core/testing/**']
+  TooManyFunctions:
+    # DAOs and API interfaces are lists of queries and endpoints; the Room database is a
+    # list of its DAOs, and a Hilt module a list of its bindings.
+    ignoreAnnotated: ['Dao', 'Database', 'Module']
+    # A repository implementing its interface has as many functions as the interface asks.
+    ignoreOverridden: true
+
+style:
+  MaxLineLength:
+    # ktlint (Spotless) already enforces line length, with the same limit.
+    active: false
+  MagicNumber:
+    # Previews and tests are full of sample numbers, and the design tokens (colors, type
+    # sizes) are numbers by definition: each one is already named where it is declared.
+    ignoreAnnotated: ['Preview']
+    # A number that is the value of a named property (`val STRESS_RANGE = 1..10`) is
+    # named where it is declared, which is the point of the rule.
+    ignorePropertyDeclaration: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/core/designsystem/**/theme/**']
+  UnusedPrivateMember:
+    # @Preview functions are private and only Android Studio calls them.
+    ignoreAnnotated: ['Preview']

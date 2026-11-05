@@ -69,7 +69,7 @@ Versions are macro-tracker's pinned versions on 2026-11-04 (MT §3). Use them as
 | Compose BOM | 2026.09.00 | Same | |
 | Navigation Compose | 2.10.2, type-safe `@Serializable` routes | Same | |
 | Lifecycle | 2.11.0 | Same | |
-| Charts | **Vico 3.3.1** | Compose Canvas (docs) | D9: consider Vico |
+| Charts | **Vico 3.3.1** | Vico (D9 accepted) | Stress trend chart. Horizontal bars stay plain Compose. |
 | DI | **Hilt 2.60.1** | Hilt in Android, none in `:shared` | D2 accepted |
 | Room / SQLCipher / androidx.sqlite | 2.8.5 / 4.20.0 / 2.7.1 | Room (docs) + column encryption | D3 (accepted): full SQLCipher |
 | Crypto | Tink 1.24.0 | Keystore (docs) | Tink wraps keys with Keystore |
@@ -78,8 +78,8 @@ Versions are macro-tracker's pinned versions on 2026-11-04 (MT §3). Use them as
 | HTTP client | Retrofit 3.0.0 / OkHttp 5.5.1 + openapi-generator | **Ktor Client** | Keep Ktor (KMP) |
 | Serialization / coroutines | 1.12.0 / 1.11.0 | Same | |
 | Google sign-in | Credentials 1.6.0 / googleid 1.2.1 | Same | `GetGoogleIdOption` |
-| Crash reporting | Sentry Android 8.62.0 | "crash reporting without personal data" ([Phases 8](../PHASES.md#phase-8-privacy-safety-and-polish)) | D11 |
-| Startup | Baseline Profile module | Not planned | D12 |
+| Crash reporting | Sentry Android 8.62.0 | Sentry, Android and server (D11 accepted) | PII off, bodies and `note` scrubbed ([Phases 8](../PHASES.md#phase-8-privacy-safety-and-polish)) |
+| Startup | Baseline Profile module | After v1 (D12 accepted) | [Phases 11](../PHASES.md#phase-11-after-v1-backlog) |
 | Tests | JUnit 4, Robolectric 4.17, MockWebServer, room-testing, work-testing, Compose UI test | JUnit, Room, Compose UI test, Testcontainers | Ktor has `MockEngine` instead of MockWebServer |
 | Lint | Spotless 8.10.4 + ktlint 1.8.0 + compose-rules 0.6.8, detekt 1.23.8, Android Lint | Same | D10 accepted |
 | Server runtime | Node 24, Hono 4.13 | **Ktor** (JVM 17+) | Pick the latest stable Ktor 3.x |
@@ -88,7 +88,7 @@ Versions are macro-tracker's pinned versions on 2026-11-04 (MT §3). Use them as
 | Queue / cache | BullMQ + Redis | None in v1 | §6.6 |
 | Postgres | `postgres:17.11-alpine3.24` | Same tag | Exact tags (MT §5) |
 | Dev mail | Mailpit v1.27 | Mailpit | Different ports (D13) |
-| Ingress | Cloudflare Tunnel | Not decided (docs: "any JVM host") | D14 |
+| Ingress | Cloudflare Tunnel | Same, own hostnames (D14 accepted) | [Deploy runbook](runbooks/deploy.md) |
 | Backup | pg_dump + age + rclone → R2, nightly | "Daily encrypted backups, expire within 30 days" | Same tooling, 30-day lifecycle |
 
 ---
@@ -173,7 +173,7 @@ Keep the attribution comments macro-tracker has on code adapted from `android/no
 | `ulap.apiUrl.debug` | `http://10.0.2.2:8080/v1` | `ulap.apiBaseUrl` in `local.properties` |
 | `ulap.apiUrl.staging` / `ulap.apiUrl.release` | `https://staging-api.ulap.app/v1` / `https://api.ulap.app/v1` | — |
 | `ulap.googleWebClientId` | Web client ID | same key, moves to `~/.gradle/gradle.properties` |
-| `ulap.sentryDsn` | (if D11) | — |
+| `ulap.sentryDsn` | Sentry DSN (D11). Empty: the app reports nothing. | — |
 | `ulap.versionCode` | set by CI | — |
 | `ulap.upload.*` | keystore path, passwords, alias | `ULAP_KEYSTORE_*` in README §7.2 |
 
@@ -316,8 +316,8 @@ macro-tracker's rule: **"Run the migrations as their own step first"** on deploy
 - The VPS holds only the age **public** key. The private key is in a password manager plus an offline copy.
 - Restore drill monthly and before risky migrations. Record the result in `docs/runbooks/restore-drill.md`.
 
-### 8.4 Hosting (D14)
-macro-tracker runs on a VPS behind a token-managed **Cloudflare Tunnel** (no open ports), with images in **GHCR** tagged by the 12-character commit SHA, and rollback by pointing the image variable at the previous tag. Proposal: run Ulap on the **same VPS** as a separate Compose project, with its own tunnel hostname (`api.ulap.app`, `staging-api.ulap.app`), Postgres container and backup bucket.
+### 8.4 Hosting (D14, accepted)
+macro-tracker runs on a VPS behind a token-managed **Cloudflare Tunnel** (no open ports), with images in **GHCR** tagged by the 12-character commit SHA, and rollback by pointing the image variable at the previous tag. Accepted: run Ulap on the **same VPS** as a separate Compose project, with its own tunnel hostname (`api.ulap.app`, `staging-api.ulap.app`), Postgres container and backup bucket. Steps: [Deploy runbook](runbooks/deploy.md).
 
 ### 8.5 Local ports (D13)
 macro-tracker and another local project already use **5432, 5433, 6379, 6380, 3000, 8025, 9000, 9010, 9011, 45432, 46379**. Ulap's ports (accepted) avoid them:
@@ -339,7 +339,7 @@ Adapted from macro-tracker's three workflows (MT §9). All three keep `concurren
 |---|---|---|
 | `ci-android.yml` | push to `main` / PR touching `androidApp/**`, `core/**`, `feature/**`, `shared/**`, `build-logic/**`, `gradle/**`, itself | JDK 25 → `setup-gradle` → `./gradlew spotlessCheck detekt :androidApp:lintDebug test assembleDebug -PwarningsAsErrors=true` → fail if `core/database/schemas` changed (uncommitted Room schema) → upload reports on failure |
 | `ci-server.yml` | push / PR touching `server/**`, `shared/**`, `build-logic/**`, `gradle/**`, itself | JDK 25 → `./gradlew :shared:allTests :server:test spotlessCheck detekt` (Testcontainers needs Docker, which `ubuntu-24.04` runners have) |
-| `release-android.yml` | tag `android-v*` | Environment `production` → check `MAJOR.MINOR.PATCH` → `versionCode = 1000 + run_number` → decode upload keystore → `bundleRelease` with `-Pulap.*` → R8 mapping to Sentry (if D11) → upload AAB to the Play **internal** track → GitHub release → delete the key |
+| `release-android.yml` | tag `android-v*` | Environment `production` → check `MAJOR.MINOR.PATCH` → `versionCode = 1000 + run_number` → decode upload keystore → `bundleRelease` with `-Pulap.*` → R8 mapping to Sentry (D11) → upload AAB to the Play **internal** track → GitHub release → delete the key |
 
 Contract safety without OpenAPI: because the DTOs live in `:shared`, a breaking change fails to compile in both the app and the server. Add `SyncContractTest` in `:server` that decodes the JSON examples from [API §8](api-spec.md#8-sync-endpoints-) with the shared DTOs, playing the role of macro-tracker's `SpecExamplesTest`.
 
@@ -421,7 +421,7 @@ Offline-first mood diary. Android (Kotlin, Compose) + Ktor server + Kotlin Multi
 - Conventional Commits (README §12 scopes). The user runs the commit. Don't commit unless asked.
 ```
 
-Until D4, D10 and D13 are accepted, the commands in [README §6](../README.md#6-getting-started-development) are the current ones. Adjust this file to match when they're accepted.
+The committed [CLAUDE.md](../CLAUDE.md) is the live version. It grew from this draft and wins where they differ.
 
 ### 11.2 Agents **[adapt]**
 
@@ -511,9 +511,9 @@ In this order, following macro-tracker's advice (MT §10):
 
 | Doc | When | Based on |
 |---|---|---|
-| `docs/local-services.md` | The day the first container runs (Phase 1) | macro-tracker's: every URL, port, dev login, where each secret lives, ports to leave alone |
+| `docs/local-services.md` (added) | The day the first container runs (Phase 1) | macro-tracker's: every URL, port, dev login, where each secret lives, ports to leave alone |
 | `docs/runbooks/google-sign-in.md` | Phase 6 | Web client + one Android client per build type (debug, staging, release), with SHA-1s and troubleshooting |
-| `docs/runbooks/deploy.md` | Before the first staging deploy | VPS, tunnel, GHCR images by SHA, migrate → up → `/ready`, rollback |
+| `docs/runbooks/deploy.md` (added as a plan, D14) | Before the first staging deploy | VPS, tunnel, GHCR images by SHA, migrate → up → `/ready`, rollback |
 | `docs/runbooks/backup.md` | Before any real user | age keys, bucket, lifecycle 30 days, heartbeat, key rotation |
 | `docs/runbooks/restore-drill.md` | Before any real user | Monthly drill, results log |
 | `docs/runbooks/release-android.md` | Before the first Play upload | Upload key, tag release, closed test, staged rollout |
@@ -537,14 +537,14 @@ Status: **Proposed** (the current docs win) · **Accepted** (update the listed d
 | D6 | Add `resetRequired` to `/sync/pull` for cursors older than the 90-day tombstone purge | **Yes.** Without it, a long-offline phone keeps deleted check-ins forever. | API §8.3, Technical plan §8, Phases 7 | **Accepted** (2026-11-05) |
 | D7 | UUIDv7 ids from `:shared` | **Yes** (same UUID format, better index locality) | Technical plan §6, API §5.3 | **Accepted** (2026-11-05) |
 | D8 | `SyncTriggers` observes pending rows (repositories never schedule sync). Rows become `FAILED` after 10 internal errors. Backoff starts at 30 s. | **Yes** | Technical plan §8, README §10, Phases 7 | **Accepted** (2026-11-05) |
-| D9 | Charts: Compose Canvas (current) **or** Vico | **Vico** (used in macro-tracker). Check that it supports the band colors and TalkBack summaries in Design spec §6.15. | Design spec §6.15, Phases 4 | Proposed |
+| D9 | Charts: Compose Canvas (current) **or** Vico | **Vico** (used in macro-tracker). Check that it supports the band colors and TalkBack summaries in Design spec §6.15. | Design spec §6.15, Phases 4 | **Accepted** (2026-11-05) |
 | D10 | Lint: ktlint tasks (current) **or** Spotless + ktlint + compose-rules + detekt + Android Lint with `warningsAsErrors` | **macro-tracker's set.** `ktlintCheck/Format` become `spotlessCheck/Apply`, plus `detekt`. | README §6.7, §12, Phases 1 | **Accepted** (2026-11-05) |
-| D11 | Crash reporting: Sentry (Android + server) with PII off and body scrubbing | **Yes**, with `sendDefaultPii = false` and a `beforeSend` that drops request bodies and any field named `note` | Phases 8, README §14 | Proposed |
-| D12 | Baseline Profile module | **Later** (after v1), when startup is measured | Phases 11 | Proposed |
+| D11 | Crash reporting: Sentry (Android + server) with PII off and body scrubbing | **Yes**, with `sendDefaultPii = false` and a `beforeSend` that drops request bodies and any field named `note` | Phases 8, README §14 | **Accepted** (2026-11-05) |
+| D12 | Baseline Profile module | **Later** (after v1), when startup is measured | Phases 11 | **Accepted** (2026-11-05) |
 | D13 | Dev config: ports 8080 / 5434 / 8026 / 1026, `ulap.apiUrl.<buildType>` in `~/.gradle/gradle.properties`, add a `staging` build type, `.githooks/pre-commit` | **Yes**, to run beside macro-tracker without clashes | README §6, §7.2, §8, §15, Phases 1 | **Accepted** (2026-11-05) |
-| D14 | Hosting: same VPS as macro-tracker, separate Compose project, own Cloudflare Tunnel hostnames, images in GHCR by commit SHA | **Yes** | README §7.1, new `docs/runbooks/deploy.md` | Proposed |
+| D14 | Hosting: same VPS as macro-tracker, separate Compose project, own Cloudflare Tunnel hostnames, images in GHCR by commit SHA | **Yes** | README §7.1, new `docs/runbooks/deploy.md` | **Accepted** (2026-11-05) |
 
-To decide: reply with, for example, "Accept D1, D3, D5–D8, D10, D13; reject D2." Then the listed docs get updated together and this table's status changes.
+All fourteen decisions were accepted on 2026-11-05. A new decision gets the next number (D15) and starts as **Proposed**.
 
 ---
 

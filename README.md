@@ -4,7 +4,7 @@
 
 > 📚 **Ulap docs:** **README** · [Phases](PHASES.md) · [Technical plan](docs/technical-plan.md) · [API reference](docs/api-spec.md) · [Design spec](docs/design-spec.md) · [Repo reference](docs/ulap-reference.md)
 
-![status](https://img.shields.io/badge/status-pre--alpha-orange) ![platform](https://img.shields.io/badge/platform-Android-3DDC84) ![kotlin](https://img.shields.io/badge/Kotlin-Multiplatform-7F52FF) ![server](https://img.shields.io/badge/server-Ktor-087CFA)
+[![ci-android](https://github.com/christdao22/ulap-mood-diary/actions/workflows/ci-android.yml/badge.svg)](https://github.com/christdao22/ulap-mood-diary/actions/workflows/ci-android.yml) [![ci-server](https://github.com/christdao22/ulap-mood-diary/actions/workflows/ci-server.yml/badge.svg)](https://github.com/christdao22/ulap-mood-diary/actions/workflows/ci-server.yml) ![status](https://img.shields.io/badge/status-pre--alpha-orange) ![platform](https://img.shields.io/badge/platform-Android-3DDC84) ![kotlin](https://img.shields.io/badge/Kotlin-Multiplatform-7F52FF) ![server](https://img.shields.io/badge/server-Ktor-087CFA)
 
 ---
 
@@ -98,6 +98,7 @@ After saving, the app responds **sympathetically**: it validates the feeling, of
 | Build | **Gradle** (Kotlin DSL) with a version catalog (`gradle/libs.versions.toml`) and `ulap.*` convention plugins in `build-logic/` |
 | Code quality | **Spotless** + ktlint, **compose-rules**, **detekt**, **Android Lint** (warnings fail the build in CI) |
 | Local infra | **Docker Compose** (PostgreSQL, Mailpit for test emails) |
+| Crash reporting | **Sentry** on Android and the server, with personal data off (decision D11) |
 | CI | GitHub Actions (build, lint, tests) |
 
 ---
@@ -124,7 +125,7 @@ Details: [`docs/technical-plan.md`](docs/technical-plan.md) · [`docs/api-spec.m
 
 ## 5. Folder structure
 
-Android is split into `core:*` and `feature:*` modules (decision D1 in [ulap-reference §13](docs/ulap-reference.md#13-decision-log)). Nothing below exists until the Phase 1 "Gradle and modules" tasks create it.
+Android is split into `core:*` and `feature:*` modules (decision D1 in [ulap-reference §13](docs/ulap-reference.md#13-decision-log)). Phase 1 created every module below, most of them still empty. Items marked *(planned)* arrive with later phases.
 
 ```
 ulap/
@@ -141,6 +142,8 @@ ulap/
 │   ├── workflows/                     # ci-android.yml, ci-server.yml, release-android.yml
 │   └── pull_request_template.md
 ├── .env.example                       # copy to .env for ./gradlew :server:run
+├── .dockerignore                      # the server image gets only the fat JAR
+├── local.properties                   # Android SDK path, written by Android Studio (gitignored)
 ├── settings.gradle.kts                # includeBuild("build-logic"), every module, typesafe accessors
 ├── build.gradle.kts                   # plugins apply false; Spotless + detekt for every module
 ├── gradle.properties                  # build settings only. No URLs, client IDs or secrets.
@@ -154,7 +157,9 @@ ulap/
 │   ├── technical-plan.md              # architecture, DB, sync, phase summary
 │   ├── design-spec.md                 # colors, type, components, Ulap, tone
 │   ├── api-spec.md                    # every endpoint, request and response
-│   └── ulap-reference.md              # reuse plan from macro-tracker, Claude Code setup, decision log
+│   ├── ulap-reference.md              # reuse plan from macro-tracker, Claude Code setup, decision log
+│   ├── local-services.md              # local URLs, ports, dev logins
+│   └── runbooks/deploy.md             # VPS, tunnel, migrate → up → /ready, rollback
 │
 ├── shared/                            # Kotlin Multiplatform module (no DI, no Android)
 │   └── src/
@@ -210,16 +215,18 @@ ulap/
     └── src/
         ├── main/
         │   ├── kotlin/app/ulap/server/
-        │   │   ├── Application.kt     # Ktor module, plugins, routing
-        │   │   ├── config/            # AppConfig (reads env vars)
-        │   │   ├── auth/              # Google verify, email/password, JWT, refresh
-        │   │   ├── users/             # /me routes
-        │   │   ├── sync/              # /sync/push, /sync/pull, merge rules
-        │   │   ├── mail/              # verification + reset emails
-        │   │   ├── db/                # Exposed tables, transactions
-        │   │   └── common/            # ApiException, error mapping, rate limits
+        │   │   ├── Application.kt     # main() and the Ktor module: plugins, routing
+        │   │   ├── AppDeps.kt         # config + database handed to module(), so tests pass their own
+        │   │   ├── config/            # AppConfig (reads env vars, names every missing one)
+        │   │   ├── common/            # ApiException, error mapping, request ids (rate limits planned)
+        │   │   ├── db/                # HikariCP pool, Flyway; Exposed tables (planned)
+        │   │   ├── health/            # GET /v1/health, GET /v1/ready
+        │   │   ├── migrate/           # main() for the one-off `migrate` service (D4)
+        │   │   ├── auth/              # (planned) Google verify, email/password, JWT, refresh
+        │   │   ├── users/             # (planned) /me routes
+        │   │   ├── sync/              # (planned) /sync/push, /sync/pull, merge rules
+        │   │   └── mail/              # (planned) verification + reset emails
         │   └── resources/
-        │       ├── application.conf
         │       ├── logback.xml        # no request bodies in logs
         │       └── db/migration/      # Flyway: V1__init.sql, V2__…
         └── test/                      # route tests with testApplication + Testcontainers
@@ -238,18 +245,18 @@ ulap/
 
 | Tool | Version | Notes |
 |---|---|---|
-| JDK | **17+** | Temurin recommended. Set `JAVA_HOME`. |
-| Android Studio | Latest stable | With the Android SDK and an emulator (API 26+) |
-| Docker + Docker Compose | Latest | Runs PostgreSQL and Mailpit locally |
+| JDK | **17+** | Only to start Gradle. Gradle then downloads the JDK 25 it runs on (`gradle/gradle-daemon-jvm.properties`). |
+| Android Studio | 2026.2.1 or later | Must support AGP 9.4.1. With the Android SDK (platform 37) and an emulator (API 26+). |
+| Docker + Docker Compose | Latest | Runs PostgreSQL and Mailpit locally, and the server tests (Testcontainers) |
 | Git | any | |
 | (Optional) Google Cloud project | – | Needed only to test Sign in with Google |
 
 ### 6.2 Clone and set up
 
 ```bash
-git clone https://github.com/<your-org>/ulap.git
-cd ulap
-cp .env.example .env          # fill in the values (see §8)
+git clone https://github.com/christdao22/ulap-mood-diary.git
+cd ulap-mood-diary
+cp .env.example .env          # works as is for local development (see §8)
 git config core.hooksPath .githooks   # formats staged Kotlin with spotlessApply before each commit
 ```
 
@@ -370,6 +377,8 @@ graphify update .                                # re-extract code files into gr
 
 ### 7.1 Server
 
+**Where it runs (decision D14):** the same VPS as macro-tracker, as its own Compose project (`ulap-staging`, `ulap-prod`) behind its own Cloudflare Tunnel hostnames (`staging-api.ulap.app`, `api.ulap.app`). Images go to GHCR, tagged by the 12-character commit SHA. Step by step: [docs/runbooks/deploy.md](docs/runbooks/deploy.md). The commands below show the pieces.
+
 **Build the image**
 ```bash
 ./gradlew :server:buildFatJar
@@ -448,6 +457,7 @@ docker run -d --name ulap-server -p 8080:8080 --env-file .env.production ulap-se
 | `MAIL_FROM` | `Ulap <hello@ulap.app>` | ✅ | |
 | `APP_LINK_BASE` | `https://ulap.app` | ✅ | Base URL for verify and reset links |
 | `MIN_ANDROID_VERSION_CODE` | `1` | | Below this → `426 APP_UPDATE_REQUIRED` |
+| `SENTRY_DSN` | `https://…@….ingest.sentry.io/…` | | Crash reports (D11). Empty sends nothing. |
 
 ### Android (`~/.gradle/gradle.properties`, never committed)
 
@@ -459,6 +469,7 @@ User-level Gradle properties, read with `providers.gradleProperty`. CI passes th
 | `ulap.apiUrl.staging` / `ulap.apiUrl.release` | `https://api.ulap.app/v1` | API base URL for `staging` / `release` |
 | `ulap.googleWebClientId` | `123…apps.googleusercontent.com` | Web client ID used by Credential Manager |
 | `ulap.upload.*` | see [§7.2](#72-android-release) | Release signing (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`) |
+| `ulap.sentryDsn` | `https://…@….ingest.sentry.io/…` | Crash reports (D11). Empty sends nothing. |
 
 ---
 
@@ -631,6 +642,7 @@ Thank you for helping make Ulap kinder and better. 💙
 - Mood and journal data is **sensitive personal information**. Handle it in line with the **Philippine Data Privacy Act of 2012 (RA 10173)**: privacy notice, consent at onboarding, a clear purpose, and **NPC** registration where required.
 - **On the device:** the whole Room database (moods, stress, triggers and notes) is encrypted with **SQLCipher**. Its random passphrase is wrapped by Tink with an Android Keystore key and kept out of backups. Android cloud backup of the database is off. If the Keystore key is lost, the database starts empty and synced check-ins come back from the server ([Technical plan §6](docs/technical-plan.md#encryption-of-the-phone-database)).
 - **On the server:** encrypted disk and backups, plus application-level AES-256-GCM for notes. Every query is filtered by the token's user ID.
+- **Crash reports** go to Sentry with `sendDefaultPii = false`. A `beforeSend` hook drops request bodies and any `note` or `triggerOther` field, so a crash report never carries journal text, emails or tokens (decision D11).
 - **No ads, no analytics on journal content, no selling or sharing data.**
 - **Deletion:** Account → *Delete account and all data* deletes everything on the server and wipes the phone.
 - **Safety:** *Hopeless* shows the **NCMH Crisis Hotline 1553** (the call button opens the dialer). The hotline is hard-coded so it works offline.
@@ -685,7 +697,9 @@ Each topic has **one owner document**. Other documents summarize it and link to 
 | [docs/technical-plan.md](docs/technical-plan.md) | Scope, architecture, domain model and response rules, database schemas, sync design, reports logic, languages, privacy, mood names and message keys (appendices) | You're designing or changing how something works |
 | [docs/api-spec.md](docs/api-spec.md) | Endpoints, headers, request and response shapes, errors, tokens, rate limits | You're building or calling the server |
 | [docs/design-spec.md](docs/design-spec.md) | Colors, type, components, screen layouts, the Ulap mascot, motion, voice and tone, accessibility | You're building UI or writing app text |
-| [docs/ulap-reference.md](docs/ulap-reference.md) | What Ulap reuses from macro-tracker, repo tooling, Claude Code setup, and the decision log (D1–D14) | You're setting up the repo or tooling, or deciding a proposed change |
+| [docs/local-services.md](docs/local-services.md) | Local URLs, ports and dev logins | You need an address or a password for the local stack |
+| [docs/runbooks/deploy.md](docs/runbooks/deploy.md) | Getting the server onto the VPS, deploying and rolling back | You're deploying staging or production |
+| [docs/ulap-reference.md](docs/ulap-reference.md) | What Ulap reuses from macro-tracker, repo tooling, Claude Code setup, and the decision log (D1–D14, all accepted) | You're setting up the repo or tooling, or deciding a new change |
 | Mockup canvas | Clickable visual reference | https://claude.ai/artifact/Ecjc7A7vEuqp2xtL3mbaiy |
 
 **Keeping the docs in sync**

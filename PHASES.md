@@ -17,7 +17,7 @@ Last updated: November 5, 2026
 | Phase | Name | Status | Done |
 |---|---|---|---|
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
-| 1 | Project setup | 🟡 In progress | 5 / 18 |
+| 1 | Project setup | 🟡 In progress | 15 / 18 |
 | 2 | Offline check-in | ⬜ Not started | 0 / 25 |
 | 3 | Logs | ⬜ Not started | 0 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
@@ -27,7 +27,7 @@ Last updated: November 5, 2026
 | 8 | Privacy, safety and polish | ⬜ Not started | 0 / 22 |
 | 9 | Testing and beta | ⬜ Not started | 0 / 15 |
 | 10 | Release v1.0 | ⬜ Not started | 0 / 15 |
-| 11 | After v1 (backlog) | ⬜ Planned | 0 / 12 |
+| 11 | After v1 (backlog) | ⬜ Planned | 0 / 13 |
 
 Update the **Done** column and **Status** (⬜ Not started · 🟡 In progress · ✅ Complete) whenever you tick boxes.
 
@@ -75,7 +75,7 @@ A task is complete only when:
 - [x] [Technical plan](docs/technical-plan.md)
 - [x] [Design spec](docs/design-spec.md)
 - [x] [API reference](docs/api-spec.md) and [README](README.md)
-- [x] [Repo reference](docs/ulap-reference.md): reuse plan from macro-tracker (decisions D1–D14 still to decide)
+- [x] [Repo reference](docs/ulap-reference.md): reuse plan from macro-tracker (decisions D1–D14, accepted in Phase 1)
 
 ---
 
@@ -90,20 +90,20 @@ Spec: [README §5–§8](README.md#5-folder-structure) · [Technical plan §4](d
 - [x] Add the Claude Code setup: `CLAUDE.md`, agents and skills in `.claude/`, `.claude/settings.json`, `.mcp.example.json` ([Repo reference §11](docs/ulap-reference.md#11-claude-code-setup-for-ulap))
 - [x] Add the PR template and a short `CONTRIBUTING.md` that links to [README §12](README.md#12-contributing-guidelines)
 - [x] Choose a license (or keep "All rights reserved" for now)
-- [ ] Decide the proposed changes D1–D14 in [Repo reference §13](docs/ulap-reference.md#13-decision-log), then update the listed docs
+- [x] Decide the proposed changes D1–D14 in [Repo reference §13](docs/ulap-reference.md#13-decision-log), then update the listed docs
 
 ### Gradle and modules
-- [ ] Create the Kotlin Multiplatform project: `shared`, `androidApp`, `server`, the `core:*` and `feature:*` modules, and the `ulap.*` convention plugins in `build-logic/`. Build types `debug`, `staging`, `release`.
-- [ ] Set up the version catalog (`gradle/libs.versions.toml`) with the latest stable versions
-- [ ] Set up Spotless (ktlint + compose-rules), detekt and Android Lint, plus the `.githooks/pre-commit` hook
-- [ ] `androidApp` runs an empty Compose screen on the emulator
-- [ ] `server` runs with `GET /v1/health` → `{"status":"ok"}`
+- [x] Create the Kotlin Multiplatform project: `shared`, `androidApp`, `server`, the `core:*` and `feature:*` modules, and the `ulap.*` convention plugins in `build-logic/`. Build types `debug`, `staging`, `release`.
+- [x] Set up the version catalog (`gradle/libs.versions.toml`) with the latest stable versions
+- [x] Set up Spotless (ktlint + compose-rules), detekt and Android Lint, plus the `.githooks/pre-commit` hook
+- [x] `androidApp` runs an empty Compose screen on the emulator
+- [x] `server` runs with `GET /v1/health` → `{"status":"ok"}`
 
 ### Local infrastructure
-- [ ] `infra/compose.yaml` + `infra/compose.dev.yaml` with PostgreSQL (port 5434), Mailpit (8026 / 1026) and a one-off `migrate` service
-- [ ] `.env.example` with every server variable
-- [ ] Flyway set up, with an empty `V1__init.sql` migration that runs on startup in dev and through the `migrate` service in staging and production
-- [ ] The build reads `ulap.apiUrl.<buildType>` and `ulap.googleWebClientId` from `~/.gradle/gradle.properties`
+- [x] `infra/compose.yaml` + `infra/compose.dev.yaml` with PostgreSQL (port 5434), Mailpit (8026 / 1026) and a one-off `migrate` service
+- [x] `.env.example` with every server variable
+- [x] Flyway set up, with an empty `V1__init.sql` migration that runs on startup in dev and through the `migrate` service in staging and production
+- [x] The build reads `ulap.apiUrl.<buildType>` and `ulap.googleWebClientId` from `~/.gradle/gradle.properties`
 
 ### CI
 - [ ] GitHub Actions (`ci-android.yml`, `ci-server.yml`): Spotless, detekt, Android Lint and unit tests on every pull request
@@ -199,7 +199,7 @@ Spec: [Technical plan §10](docs/technical-plan.md#10-reports-calculated-on-the-
 ### UI
 - [ ] Segmented control and a period label with previous/next arrows
 - [ ] Stat tiles (2×2 grid)
-- [ ] Stress trend bar chart with gridlines, band colors and a legend
+- [ ] Stress trend bar chart with gridlines, band colors and a legend, built with Vico (D9; [Design spec §6.15](docs/design-spec.md#615-charts))
 - [ ] Horizontal bar lists (moods, triggers, what helped)
 - [ ] Ulap insight bubble
 - [ ] Not-enough-data state (fewer than 3 check-ins)
@@ -355,7 +355,7 @@ Spec: [Technical plan §13](docs/technical-plan.md#13-safety-privacy-and-store-r
 - [ ] App icon (Ulap) tested at 48dp
 - [ ] Polished Ulap illustration set for onboarding and the store
 - [ ] Performance: cold start < 2 seconds on a mid-range phone, smooth scrolling in Logs
-- [ ] Crash reporting set up without personal data (no notes, no emails)
+- [ ] Crash reporting with Sentry on Android and the server (D11): `sendDefaultPii = false`, a `beforeSend` that drops request bodies and any field named `note` or `triggerOther`, no emails
 
 **Phase 8 complete when:** an accessibility and safety review passes with no blocking issues.
 
@@ -431,6 +431,7 @@ Spec: [Technical plan §16](docs/technical-plan.md#16-plans-for-later-versions)
 - [ ] iPhone: Sign in with Apple (`POST /auth/apple`)
 - [ ] More languages (e.g. Hiligaynon, Ilocano)
 - [ ] Accessibility study with real TalkBack users
+- [ ] Baseline Profile module, once cold start is measured on a mid-range phone (D12)
 
 ---
 

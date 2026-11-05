@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug only: allows plain HTTP to the local server, which runs without TLS (README §6.5).
+     Every host is allowed because a phone on Wi-Fi reaches the computer by its LAN IP, and this
+     file can't name an IP range. Lint's InsecureBaseConfiguration is expected here and only here:
+     staging and release use src/main/res/xml, which forbids cleartext. -->
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <base-config
+        cleartextTrafficPermitted="true"
+        tools:ignore="InsecureBaseConfiguration">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

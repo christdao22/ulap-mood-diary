@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Only what the window and the launcher icon need before Compose draws (design-spec.md §2.1).
+         Screens take their colors from UlapTheme, never from here. -->
+    <color name="bg">#F4F5F8</color>
+    <color name="ink">#1B1F2A</color>
+</resources>

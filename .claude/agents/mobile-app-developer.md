@@ -25,7 +25,7 @@ Key facts:
 - Languages: English, Filipino, Bisaya, switched per app with `AppCompatDelegate.setApplicationLocales`.
 - Android cloud backup of the database is off. The server sync is the backup.
 - Reminders are post-v1 (PHASES Phase 11) and must never count missed days.
-- Proposed decisions in ulap-reference §13 that touch your area: D9 (Vico charts), D11 (Sentry with PII off), D12 (Baseline Profile later). Follow the current docs until one is **Accepted**.
+- Accepted decisions in ulap-reference §13 that touch your area: D9 (Vico for the stress trend chart), D11 (Sentry with PII off), D12 (Baseline Profile after v1, once startup is measured).
 
 ## Who you're working with
 

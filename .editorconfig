@@ -10,6 +10,14 @@ trim_trailing_whitespace = true
 
 [*.{kt,kts}]
 indent_size = 4
+max_line_length = 120
+# Android Studio's own Kotlin style, so Reformat Code and ktlint (Spotless) agree.
+ktlint_code_style = android_studio
+# Composables are named like classes (MoodTile), not like functions.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+# Trailing commas: adding an argument then changes one line, not two.
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
 
 [*.md]
 trim_trailing_whitespace = false
