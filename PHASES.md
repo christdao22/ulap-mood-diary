@@ -8,7 +8,7 @@ Track progress by ticking boxes: change `- [ ]` to `- [x]` when a task is **done
 
 **Legend:** `- [x]` complete · `- [ ]` not started or in progress · 🔒 needs two-reviewer approval (auth, sync, encryption, safety)
 
-Last updated: November 4, 2026
+Last updated: November 5, 2026
 
 ---
 
@@ -17,7 +17,7 @@ Last updated: November 4, 2026
 | Phase | Name | Status | Done |
 |---|---|---|---|
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
-| 1 | Project setup | 🟡 In progress | 2 / 18 |
+| 1 | Project setup | 🟡 In progress | 3 / 18 |
 | 2 | Offline check-in | ⬜ Not started | 0 / 24 |
 | 3 | Logs | ⬜ Not started | 0 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
@@ -88,7 +88,7 @@ Spec: [README §5–§8](README.md#5-folder-structure) · [Technical plan §4](d
 - [ ] Create the Git repository with `main` as the protected branch
 - [x] Add `README.md`, `PHASES.md`, `docs/`, `.editorconfig`, `.gitignore`
 - [x] Add the Claude Code setup: `CLAUDE.md`, agents and skills in `.claude/`, `.claude/settings.json`, `.mcp.example.json` ([Repo reference §11](docs/ulap-reference.md#11-claude-code-setup-for-ulap))
-- [ ] Add the PR template and a short `CONTRIBUTING.md` that links to [README §12](README.md#12-contributing-guidelines)
+- [x] Add the PR template and a short `CONTRIBUTING.md` that links to [README §12](README.md#12-contributing-guidelines)
 - [ ] Choose a license (or keep "All rights reserved" for now)
 - [ ] Decide the proposed changes D1–D14 in [Repo reference §13](docs/ulap-reference.md#13-decision-log), then update the listed docs
 
