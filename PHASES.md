@@ -17,7 +17,7 @@ Last updated: November 5, 2026
 | Phase | Name | Status | Done |
 |---|---|---|---|
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
-| 1 | Project setup | 🟡 In progress | 15 / 18 |
+| 1 | Project setup | ✅ Complete | 18 / 18 |
 | 2 | Offline check-in | ⬜ Not started | 0 / 25 |
 | 3 | Logs | ⬜ Not started | 0 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
@@ -79,7 +79,7 @@ A task is complete only when:
 
 ---
 
-## Phase 1: Project setup
+## Phase 1: Project setup ✅ (Nov 2026)
 
 **Goal:** an empty project that builds, runs and tests locally and in CI.
 Spec: [README §5–§8](README.md#5-folder-structure) · [Technical plan §4](docs/technical-plan.md#4-project-structure) · [Repo reference §4](docs/ulap-reference.md#4-android-build-setup)
@@ -106,9 +106,9 @@ Spec: [README §5–§8](README.md#5-folder-structure) · [Technical plan §4](d
 - [x] The build reads `ulap.apiUrl.<buildType>` and `ulap.googleWebClientId` from `~/.gradle/gradle.properties`
 
 ### CI
-- [ ] GitHub Actions (`ci-android.yml`, `ci-server.yml`): Spotless, detekt, Android Lint and unit tests on every pull request
-- [ ] Server tests run with Testcontainers in CI
-- [ ] Build status badge in the README
+- [x] GitHub Actions (`ci-android.yml`, `ci-server.yml`): Spotless, detekt, Android Lint and unit tests on every pull request
+- [x] Server tests run with Testcontainers in CI
+- [x] Build status badge in the README
 
 **Phase 1 complete when:** a new developer can clone the repo, follow the README, and see the app and the server running in under 30 minutes.
 

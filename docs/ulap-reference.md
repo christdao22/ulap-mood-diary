@@ -550,7 +550,7 @@ All fourteen decisions were accepted on 2026-11-05. A new decision gets the next
 
 ## 14. Setup checklist
 
-Maps onto [PHASES.md, Phase 1](../PHASES.md#phase-1-project-setup). Times are macro-tracker's estimates.
+Maps onto [PHASES.md, Phase 1](../PHASES.md#phase-1-project-setup--nov-2026). Times are macro-tracker's estimates.
 
 **A. Repo skeleton (≈1 hour)**
 1. `git init`. Copy `.editorconfig` and `.gitattributes` (drop the graphify merge-driver line).
