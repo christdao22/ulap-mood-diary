@@ -16,6 +16,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -29,6 +30,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import app.ulap.core.designsystem.mascot.MoodFace
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.shared.model.Zone
 import kotlin.test.Test
@@ -62,7 +64,7 @@ class ComponentsTest {
         show {
             MoodTile(
                 name = "Worried",
-                stressText = "Stress 8",
+                face = MoodFace.WORRIED,
                 zone = Zone.RED,
                 contentDescription = TILE_DESCRIPTION,
                 onClick = { taps++ },
@@ -73,8 +75,31 @@ class ComponentsTest {
             .assertHasClickAction()
             .assertHeightIsAtLeast(52.dp)
             .performClick()
-        // The two visible lines are replaced by the sentence, so TalkBack doesn't read them too.
-        compose.onNodeWithText("Stress 8").assertDoesNotExist()
+        // The visible name is replaced by the sentence, so TalkBack doesn't read it twice, and the
+        // face is decorative: the sentence is the only thing on the tile TalkBack reads.
+        compose.onNodeWithText("Worried").assertDoesNotExist()
+        compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ContentDescription))
+            .assertCountEquals(1)
+        assertEquals(1, taps)
+    }
+
+    @Test
+    fun `a mood tile without a face (Ulap off) still opens on tap`() {
+        var taps = 0
+        show {
+            MoodTile(
+                name = "Worried",
+                face = null,
+                zone = Zone.RED,
+                contentDescription = TILE_DESCRIPTION,
+                onClick = { taps++ },
+            )
+        }
+
+        compose.onNodeWithContentDescription(TILE_DESCRIPTION)
+            .assertHeightIsAtLeast(52.dp)
+            .performClick()
+        compose.onNodeWithText("Worried", useUnmergedTree = true).assertExists()
         assertEquals(1, taps)
     }
 
@@ -83,7 +108,7 @@ class ComponentsTest {
         show(fontScale = 2f) {
             MoodTile(
                 name = "Overwhelmed",
-                stressText = "Stress 9",
+                face = MoodFace.OVERWHELMED,
                 zone = Zone.RED,
                 contentDescription = TILE_DESCRIPTION,
                 onClick = {},
@@ -91,8 +116,8 @@ class ComponentsTest {
             )
         }
 
-        // Two lines at 200% are taller than the 52dp minimum.
-        compose.onNodeWithContentDescription(TILE_DESCRIPTION).assertHeightIsAtLeast(70.dp)
+        // The face plus the name at 200% is well past the 52dp minimum.
+        compose.onNodeWithContentDescription(TILE_DESCRIPTION).assertHeightIsAtLeast(80.dp)
     }
 
     @Test

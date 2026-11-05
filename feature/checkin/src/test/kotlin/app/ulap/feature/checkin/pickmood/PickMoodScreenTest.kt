@@ -96,6 +96,16 @@ class PickMoodScreenTest {
     }
 
     @Test
+    fun `with Ulap turned off, every mood is still there and still reads the same`() {
+        show(showUlap = false)
+        MoodCatalog.all.forEach { mood ->
+            val name = context.getString(mood.nameRes)
+            assertEquals(1, compose.onAllNodesWithText(name, useUnmergedTree = true).fetchSemanticsNodes().size)
+        }
+        compose.onNodeWithContentDescription("Worried. Red Zone. Default stress 8.").assertHasClickAction()
+    }
+
+    @Test
     fun `tapping a tile hands its mood code to the next screen`() {
         show()
         val name = context.getString(R.string.mood_burned_out)

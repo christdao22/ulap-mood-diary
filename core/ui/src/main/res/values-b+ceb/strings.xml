@@ -17,7 +17,6 @@
     <string name="greeting_evening">Maayong gabii</string>
     <string name="pick_mood_question">Unsa imong gibati karon?</string>
     <string name="pick_mood_reassurance">Okay ra bisan unsa imong tubag.</string>
-    <string name="mood_tile_stress">Stress %1$d</string>
     <string name="mood_tile_description">%1$s. %2$s. Sugod nga stress %3$d.</string>
 
     <!-- Zones (technical-plan.md §5) -->

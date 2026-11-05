@@ -17,7 +17,6 @@
     <string name="greeting_evening">Magandang gabi</string>
     <string name="pick_mood_question">Ano ang nararamdaman mo ngayon?</string>
     <string name="pick_mood_reassurance">Okay lang ang kahit anong sagot.</string>
-    <string name="mood_tile_stress">Stress %1$d</string>
     <string name="mood_tile_description">%1$s. %2$s. Panimulang stress %3$d.</string>
 
     <!-- Zones (technical-plan.md §5) -->

@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.ulap.core.designsystem.mascot.MoodFace
 import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.shared.model.Zone
@@ -91,7 +92,7 @@ private fun ZoneSectionPreview() {
         ) {
             MoodTile(
                 name = "Worried",
-                stressText = "Stress 8",
+                face = MoodFace.WORRIED,
                 zone = Zone.RED,
                 contentDescription = "Worried",
                 onClick = {},

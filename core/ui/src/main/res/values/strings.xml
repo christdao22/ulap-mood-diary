@@ -15,8 +15,6 @@
     <string name="greeting_evening">Good evening</string>
     <string name="pick_mood_question">How are you feeling right now?</string>
     <string name="pick_mood_reassurance">Any answer is okay.</string>
-    <!-- Under each mood tile: its default stress (design-spec.md §6.1). -->
-    <string name="mood_tile_stress">Stress %1$d</string>
     <!-- TalkBack for a mood tile (design-spec.md §11): mood, zone, default stress. -->
     <string name="mood_tile_description">%1$s. %2$s. Default stress %3$d.</string>
 

@@ -151,7 +151,9 @@ Flat. Separate surfaces with a **1dp `line` border**, not shadows. The only "sha
 ### 6.1 Mood tile
 - Size: fills 1/3 of the row (3-column grid), min height **52dp**, radius 12, padding 8×10.
 - Background: zone **tint**, no border.
-- Content: mood name (`label` 14, ink) + "Stress N" (`caption` 11, `#4A5162`).
+- Content: the mood's face (§8.7, 46dp wide), then the mood name (`label` 14, ink), both centered, 4dp apart.
+- When the user turns Ulap off (§8.5), the tile shows the name only, left-aligned.
+- The tile doesn't show the default stress. The Details slider starts at it (§7.3), and TalkBack still reads it.
 - Pressed: 96% scale for 100ms. Tapping opens Details (no selected state on the grid).
 - Accessibility: "Worried. Red zone. Default stress 8."
 
@@ -260,7 +262,7 @@ No account screen in onboarding.
 
 ### 7.2 Check in · Pick a mood
 - Top: Ulap (neutral, 88dp, floating) + speech bubble: "Good afternoon, {name}" / **"How are you feeling right now?"** / "Any answer is okay."
-- Four zone section cards with 3-column mood tiles.
+- Four zone section cards with 3-column mood tiles, each with its mood face (§8.7).
 - Guest users: greeting without a name ("Good afternoon").
 - The greeting follows the time blocks in [Technical plan §10](technical-plan.md#10-reports-calculated-on-the-phone) (`TimeOfDay` in `shared`): Morning → "Good morning", Afternoon → "Good afternoon", Evening and Night → "Good evening".
 
@@ -341,6 +343,7 @@ A small, soft cloud. Calm, kind, a little playful. Ulap is a **companion, not a 
 
 | Place | Size (width) |
 |---|---|
+| Mood tile face (§8.7) | 46dp |
 | Report bubble | 64dp |
 | Details header | 82dp |
 | Pick-mood greeting | 88dp |
@@ -353,11 +356,51 @@ A small, soft cloud. Calm, kind, a little playful. Ulap is a **companion, not a 
 - ❌ Never cries, panics, rages, or looks sick.
 - ❌ Never reacts to missed days or to how often the user logs.
 - ❌ Never appears decorative on the hotline card.
-- The user can turn Ulap off. All messages still appear, without the character.
+- The user can turn Ulap off. All messages still appear, without the character, and mood tiles drop their faces.
 - Content description: "Ulap the cloud, {expression description}" (e.g. "Ulap looking concerned but calm").
 
 ### 8.6 Later: Ulap illustration set
-For the store listing and onboarding, commission or draw a polished version that keeps the same silhouette, colors and the six expressions. Keep it **original**: no resemblance to existing cloud mascots.
+For the store listing and onboarding, commission or draw a polished version that keeps the same silhouette, colors, the six expressions and the 25 mood faces (§8.7). Keep it **original**: no resemblance to existing cloud mascots.
+
+### 8.7 Mood faces
+Each of the 25 moods has its own small Ulap face, shown on its mood tile (§6.1).
+
+- **Construction:** Ulap's body and cheeks (§8.2) with face parts like §8.3's. No shadow and no float.
+- **Size:** 46dp wide. The viewBox is cropped to x 2–128, y 6–94 (126 × 88), so the cloud fills the width.
+- **Thicker lines at this size:** face strokes 4.4, body stroke 3.2, eye dots r + 0.5, extra lines × 1.35.
+- **Extras** sit in the empty top corners. Their colors are existing tokens: heart `heart`; sparkle, star and arrow Yellow strong; leaf and breeze `leaf`; drop Blue strong at 50%; steam puff `lineSoft` with a `ulapStroke` line; faraway cloud `ulapBody` with an `outlineButton` line; scribble, "z", battery and motion lines `placeholder`.
+- **Softened (§8.5):** no tears, no open shouting mouths, nothing that looks sick. Anger is a small steam puff, never red marks.
+- **Hopeless** uses the `quiet` face unchanged, with no extra. Worried, Excited and Calm also reuse `concerned`, `happy` and `calm` unchanged.
+- The face is decorative. TalkBack reads only the tile's sentence (§11).
+- **Paths:** `MoodFace.kt` in `core/designsystem/.../mascot/` is the reference. [`design/mood-faces.html`](design/mood-faces.html) draws the same faces. Change both together.
+
+| Mood | Eyes | Brows | Mouth | Extra |
+|---|---|---|---|---|
+| Panicked | Wide dots | Raised high | Small "o" | none |
+| Overwhelmed | Squeezed (> <) | none | Wavy | none |
+| Anxious | Dots, glancing aside | Inner ends raised | Soft line | Sweat drop |
+| Angry | Dots | Inner ends lowered | Small frown | Steam puff |
+| Worried | `concerned` | `concerned` | `concerned` | none |
+| Frustrated | Half-closed | Slightly lowered | Slanted line | Scribble |
+| Nervous | Dots | Slightly raised | Zigzag | none |
+| Irritated | Dots | Flat, low | Pulled to one side | none |
+| Restless | Dots, glancing up | none | Short slanted line | Motion lines |
+| Hopeless | `quiet` | none | `quiet` | none |
+| Burned out | Heavy lids | none | Flat | Low battery |
+| Sad | Dots | none | Soft frown | none |
+| Lonely | Dots, looking up at the extra | none | Slight frown | Small faraway cloud |
+| Guilty | Dots, looking down | Inner ends raised | Small wobble | none |
+| Disappointed | Lowered lids, looking down | none | Small frown | none |
+| Tired | Closed (as `gentle`) | none | Small yawn | "z z" |
+| Bored | Flat lines | none | Flat | none |
+| Excited | `happy` | none | `happy` | Sparkles |
+| Motivated | Dots | Arched | Wide smile | Up arrow |
+| Proud | Smiling arcs | none | Smile | Star |
+| Happy | Dots | none | Open smile | none |
+| Content | Smiling arcs | none | Small smile | none |
+| Grateful | Closed | none | Small smile | Heart |
+| Relaxed | Closed | none | Easy smile | Breeze |
+| Calm | `calm` | none | `calm` | Leaf |
 
 ---
 
@@ -425,7 +468,7 @@ These match the `after_*` keys in [Technical plan, Appendix B](technical-plan.md
 - Text contrast ≥ 4.5:1 (§2.5).
 - Zone is never shown by color alone: there's always the zone name, a dot plus a label, or a stripe plus the mood name.
 - TalkBack:
-  - Mood tile: "{Mood}. {Zone}. Default stress {n}."
+  - Mood tile: "{Mood}. {Zone}. Default stress {n}." The mood face (§8.7) is decorative and not read.
   - Slider: "Stress, 8 of 10, high."
   - Chart: a summary sentence ("Daily average stress this week. Highest Monday, 6.8. Lowest Sunday, 2.4.").
   - Ulap: a content description per expression. Mark it decorative when it's next to a bubble that already says the same thing.
@@ -498,10 +541,10 @@ val ButtonShape = RoundedCornerShape(14.dp)
 
 - Zone, Mood and other domain types come from the shared module ([Technical plan §5](technical-plan.md#5-shared-domain-model)).
 - Map Material roles: `primary = Ink`, `onPrimary = White`, `background = Bg`, `surface = Surface`, `outline = LineStrong`, `outlineVariant = Line`.
-- The sketch above is simplified. The code in `core/designsystem/.../theme/` differs in three ways. `UlapColors` is a class holding every §2 token (including stress bands and the mascot), read through `UlapTheme.colors`, so dark mode can be a second instance. `overline` maps to `labelMedium`. The other Material roles are filled from the neutrals, so no Material purple shows through. Three colors used in §6.1 and §8 are tokens too: `mutedOnTint` (#4A5162), `ulapBody` (#FFFFFF) and `leaf` (#3E9A6A).
+- The sketch above is simplified. The code in `core/designsystem/.../theme/` differs in three ways. `UlapColors` is a class holding every §2 token (including stress bands and the mascot), read through `UlapTheme.colors`, so dark mode can be a second instance. `overline` maps to `labelMedium`. The other Material roles are filled from the neutrals, so no Material purple shows through. Three more colors are tokens too: `mutedOnTint` (#4A5162, secondary text on a zone tint), `ulapBody` (#FFFFFF) and `leaf` (#3E9A6A).
 - The fonts are Google Fonts' variable files (`res/font/`), with weights picked in `Type.kt`. Figtree also loads 700 for bold numbers inside text.
 - §5 describes the four tab icons but gives no paths. `UlapIcons.kt` (`core/designsystem/.../icon/`) draws them on a 22-unit grid with the 1.8 stroke, and is the reference until a designer replaces them.
-- §8.3 names the heart, sparkle and leaf accents but gives no paths. The paths `Ulap.kt` draws are the reference until the illustration set (§8.6) replaces them.
+- §8.3 names the heart, sparkle and leaf accents but gives no paths. The paths `Ulap.kt` draws are the reference until the illustration set (§8.6) replaces them. The same goes for the mood faces (§8.7) and `MoodFace.kt`.
 - Build Ulap as one `@Composable fun Ulap(expression: UlapExpression, size: Dp, float: Boolean)` drawing with `Canvas` and the paths in §8.2–8.3 (or as six vector drawables).
 
 ---

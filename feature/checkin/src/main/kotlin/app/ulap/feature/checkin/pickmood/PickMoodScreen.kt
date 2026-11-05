@@ -22,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.ulap.core.designsystem.component.MoodTile
 import app.ulap.core.designsystem.component.UlapSays
 import app.ulap.core.designsystem.component.ZoneSection
+import app.ulap.core.designsystem.mascot.MoodFace
 import app.ulap.core.designsystem.mascot.UlapExpression
 import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
@@ -70,25 +71,38 @@ internal fun PickMoodContent(
         }
         // Zone's declaration order is the display order (technical-plan.md §5).
         items(Zone.entries, key = { it.name }) { zone ->
-            ZoneMoods(zone = zone, onMoodClick = onMoodClick)
+            ZoneMoods(zone = zone, showFaces = uiState.showUlap, onMoodClick = onMoodClick)
         }
     }
 }
 
 @Composable
-private fun ZoneMoods(zone: Zone, onMoodClick: (moodCode: String) -> Unit) {
+private fun ZoneMoods(zone: Zone, showFaces: Boolean, onMoodClick: (moodCode: String) -> Unit) {
     val zoneName = stringResource(zone.nameRes)
     ZoneSection(zone = zone, title = zoneName, descriptor = stringResource(zone.descriptorRes)) {
         Column(verticalArrangement = Arrangement.spacedBy(UlapSpacing.MoodGridGap)) {
             MoodCatalog.inZone(zone).chunked(COLUMNS).forEach { row ->
-                MoodRow(moods = row, zone = zone, zoneName = zoneName, onMoodClick = onMoodClick)
+                MoodRow(
+                    moods = row,
+                    zone = zone,
+                    zoneName = zoneName,
+                    showFaces = showFaces,
+                    onMoodClick = onMoodClick,
+                )
             }
         }
     }
 }
 
+/** Each tile shows its mood face (design-spec.md §8.7), or the name only when Ulap is off (§8.5). */
 @Composable
-private fun MoodRow(moods: List<Mood>, zone: Zone, zoneName: String, onMoodClick: (moodCode: String) -> Unit) {
+private fun MoodRow(
+    moods: List<Mood>,
+    zone: Zone,
+    zoneName: String,
+    showFaces: Boolean,
+    onMoodClick: (moodCode: String) -> Unit,
+) {
     // IntrinsicSize.Min lets every tile in a row match the tallest one when a long name wraps.
     Row(
         modifier = Modifier.height(IntrinsicSize.Min),
@@ -98,7 +112,7 @@ private fun MoodRow(moods: List<Mood>, zone: Zone, zoneName: String, onMoodClick
             val name = stringResource(mood.nameRes)
             MoodTile(
                 name = name,
-                stressText = stringResource(R.string.mood_tile_stress, mood.defaultStress),
+                face = if (showFaces) MoodFace.forMood(mood.code) else null,
                 zone = zone,
                 contentDescription = stringResource(R.string.mood_tile_description, name, zoneName, mood.defaultStress),
                 onClick = { onMoodClick(mood.code) },

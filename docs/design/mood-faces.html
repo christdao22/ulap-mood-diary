@@ -76,14 +76,14 @@
   </div>
 
   <h2>Every face, large</h2>
-  <p class="lead">Orange tags mark the faces I'm least sure about and would like your opinion on.</p>
   <div id="big"></div>
 </main>
 
 <script>
 const C = {
   ink:'#1B1F2A', body:'#FFFFFF', stroke:'#C3CAD6', cheek:'rgba(246,180,174,0.7)', heart:'#E7848A',
-  yellow:'#E9AE1F', leaf:'#3E9A6A', green:'#267A4C', muted:'#8A91A0', drop:'#8FB0EC', puff:'#E4E7ED',
+  // Same tokens as the app (design-spec §8.7): placeholder, Blue strong at 50%, lineSoft.
+  yellow:'#E9AE1F', leaf:'#3E9A6A', green:'#267A4C', muted:'#6B7282', drop:'rgba(47,98,201,0.5)', puff:'#EEF0F4',
 };
 const BODY = 'M30 90 A22 22 0 0 1 24 47 A30 30 0 0 1 80 30 A26 26 0 0 1 112 60 A20 20 0 0 1 104 90 Z';
 
@@ -120,6 +120,7 @@ const P = {
   battery: { stroke: C.muted, w: 2, d: 'M103 15 H117 Q119 15 119 17 V24 Q119 26 117 26 H103 Q101 26 101 24 V17 Q101 15 103 15 Z M121.5 18.5 V22.5' },
   batteryBar: { fill: C.muted, d: 'M104 18 H108 V23 H104 Z' },
   motion: { stroke: C.muted, w: 2.2, d: 'M18 30 Q13 36 18 42 M10 32 Q6 37 10 42' },
+  farCloud: { fill: C.body, stroke: '#A9B1BF', w: 1.8, d: 'M12 33 A4 4 0 0 1 11 25 A6.5 6.5 0 0 1 23 21.5 A5 5 0 0 1 29 28 A3.5 3.5 0 0 1 27 33 Z' },
 };
 
 // zone, name, default stress, face, note, flag
@@ -127,7 +128,7 @@ const MOODS = [
   ['RED', 'Panicked', 10, { dots: dots(61, 4.3), strokes: ['M47 53 L58 49', 'M74 49 L85 53', 'M62.5 75.5 A3.5 3.5 0 1 0 69.5 75.5 A3.5 3.5 0 1 0 62.5 75.5'] },
     'Wide eyes, brows up, small "o" mouth. Startled, not screaming.'],
   ['RED', 'Overwhelmed', 9, { strokes: ['M51 59 L58 62 L51 65', 'M81 59 L74 62 L81 65', 'M58 75 Q62 72 66 75 Q70 78 74 75'] },
-    'Squeezed eyes and a wavy mouth.', 'Squeezed eyes: too strong?'],
+    'Squeezed eyes and a wavy mouth.'],
   ['RED', 'Anxious', 9, { dots: dots(63, 3.5, 2), strokes: [...CONCERN_BROWS, 'M61 76 Q66 73 71 76'], props: ['drop'] },
     'Worried brows, eyes glancing aside, a sweat drop.'],
   ['RED', 'Angry', 8, { dots: dots(62.5), strokes: ['M47 52 L58 56', 'M74 56 L85 52', 'M60 76 Q66 73 72 76'], props: ['steam'] },
@@ -144,13 +145,13 @@ const MOODS = [
     'Eyes glancing up, motion lines on the side.'],
 
   ['BLUE', 'Hopeless', 8, { dots: dots(62, 3), strokes: ['M62 74 L70 74'] },
-    'Ulap\'s existing "quiet" face, exactly as on the Hopeless response screen. No prop.', 'Safety: please confirm'],
+    'Ulap\'s existing "quiet" face, exactly as on the Hopeless response screen. No prop.'],
   ['BLUE', 'Burned out', 8, { fills: ['M50.5 62 L59.5 62 Q55 67.5 50.5 62 Z', 'M72.5 62 L81.5 62 Q77 67.5 72.5 62 Z'], strokes: ['M61 75 L71 75'], props: ['battery', 'batteryBar'] },
     'Heavy eyelids, flat mouth, a low battery.'],
   ['BLUE', 'Sad', 6, { dots: dots(63), strokes: ['M60 77 Q66 72 72 77'] },
     'Soft frown. No tears.'],
-  ['BLUE', 'Lonely', 6, { dots: dots(63, 3.3, -2.5), strokes: ['M62 75.5 Q66 74.5 70 75.5'] },
-    'Eyes looking off to the side, small mouth.', 'Hard to tell from Sad?'],
+  ['BLUE', 'Lonely', 6, { dots: [[52.5, 60.5, 3.3], [74.5, 60.5, 3.3]], strokes: ['M62 76 Q66 73.5 70 76'], props: ['farCloud'] },
+    'Looking up at a small cloud far away, a slight frown.'],
   ['BLUE', 'Guilty', 6, { dots: dots(65, 3.2), strokes: [...CONCERN_BROWS, 'M62 76 Q64 74 66 76 Q68 78 70 76'] },
     'Eyes looking down, brows up, a small wobble.'],
   ['BLUE', 'Disappointed', 5, { dots: [[55, 65, 2.8], [77, 65, 2.8]], strokes: ['M50 62.5 L60 60.5', 'M72 60.5 L82 62.5','M61 76.5 Q66 73.5 71 76.5'] },
