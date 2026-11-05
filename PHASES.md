@@ -87,7 +87,7 @@ Spec: [README §5–§8](README.md#5-folder-structure) · [Technical plan §4](d
 ### Repository
 - [x] Create the Git repository with `main` as the protected branch
 - [x] Add `README.md`, `PHASES.md`, `docs/`, `.editorconfig`, `.gitignore`
-- [x] Add the Claude Code setup: `CLAUDE.md`, agents and skills in `.claude/`, `.claude/settings.json`, `.mcp.example.json` ([Repo reference §11](docs/ulap-reference.md#11-claude-code-setup-for-ulap))
+- [x] Add the Claude Code setup: `CLAUDE.md`, agents and skills in `.claude/`, `.claude/settings.json` ([Repo reference §11](docs/ulap-reference.md#11-claude-code-setup-for-ulap))
 - [x] Add the PR template and a short `CONTRIBUTING.md` that links to [README §12](README.md#12-contributing-guidelines)
 - [x] Choose a license (or keep "All rights reserved" for now)
 - [x] Decide the proposed changes D1–D14 in [Repo reference §13](docs/ulap-reference.md#13-decision-log), then update the listed docs

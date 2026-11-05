@@ -138,7 +138,7 @@ ulap/
 ├── .editorconfig · .gitattributes · .gitignore
 ├── .githooks/pre-commit               # runs spotlessApply on staged Kotlin (§6.2 turns it on)
 ├── .github/
-│   ├── workflows/                     # ci-android.yml, ci-server.yml, release-android.yml
+│   ├── workflows/                     # ci-android.yml, ci-server.yml; release-android.yml (planned)
 │   └── pull_request_template.md
 ├── .env.example                       # copy to .env for ./gradlew :server:run
 ├── .dockerignore                      # the server image gets only the fat JAR
@@ -165,7 +165,7 @@ ulap/
 │       ├── commonMain/kotlin/app/ulap/shared/
 │       │   ├── model/                 # CheckIn, Mood, Zone, Trigger, SupportType
 │       │   ├── catalog/MoodCatalog.kt # 25 moods + default energy/stress
-│       │   ├── rules/                 # ResponseRules, StressLabels, Insights
+│       │   ├── rules/                 # ResponseRules, StressLabels, EnergyLabels; Insights (planned)
 │       │   ├── validation/            # CheckInValidator (used by app AND server)
 │       │   └── api/                   # @Serializable DTOs for auth + sync
 │       └── commonTest/                # unit tests for rules + validation
@@ -176,14 +176,15 @@ ulap/
 │       ├── kotlin/app/ulap/android/
 │       │   ├── UlapApp.kt             # Application class (@HiltAndroidApp)
 │       │   ├── MainActivity.kt
-│       │   └── navigation/            # NavHost with every feature's routes
-│       └── res/xml/                   # locales_config, network_security_config, backup rules
+│       │   ├── UlapAppRoot.kt         # root composable; shows the app name until the NavHost exists
+│       │   └── navigation/            # (planned) NavHost with every feature's routes
+│       └── res/xml/                   # network_security_config, backup rules; locales_config (planned)
 │
 ├── core/                              # Android library modules, app.ulap.core.<name>
 │   ├── common/                        # dispatchers, Result helpers
 │   ├── model/  domain/                # wrap or re-export :shared types for Android modules
 │   ├── designsystem/                  # theme (Color, Type, Shape), Ulap mascot, MoodTile, TriggerChip, charts…
-│   │   └── src/main/res/font/         # Bricolage Grotesque, Figtree + LICENSES/
+│   │   └── src/main/res/font/         # (planned) Bricolage Grotesque, Figtree + LICENSES/
 │   ├── ui/                            # shared screen pieces
 │   │   └── src/main/res/
 │   │       ├── values/strings.xml          # English (every user-facing string lives here)
