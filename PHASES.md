@@ -18,12 +18,12 @@ Last updated: November 5, 2026
 |---|---|---|---|
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
 | 1 | Project setup | 🟡 In progress | 5 / 18 |
-| 2 | Offline check-in | ⬜ Not started | 0 / 24 |
+| 2 | Offline check-in | ⬜ Not started | 0 / 25 |
 | 3 | Logs | ⬜ Not started | 0 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
-| 6 | Server and accounts | ⬜ Not started | 0 / 25 |
-| 7 | Sync | ⬜ Not started | 0 / 20 |
+| 6 | Server and accounts | ⬜ Not started | 0 / 26 |
+| 7 | Sync | ⬜ Not started | 0 / 25 |
 | 8 | Privacy, safety and polish | ⬜ Not started | 0 / 22 |
 | 9 | Testing and beta | ⬜ Not started | 0 / 15 |
 | 10 | Release v1.0 | ⬜ Not started | 0 / 15 |
@@ -125,13 +125,14 @@ Spec: [Technical plan §5–§6](docs/technical-plan.md#5-shared-domain-model) �
 - [ ] `StressLabels` and `EnergyLabels` (very low … very high)
 - [ ] `ResponseRules` (zone actions, Hopeless, stress ≥ 8 → one button, trigger lines)
 - [ ] `CheckInValidator` (ranges, lengths, good moment only for Yellow and Green)
+- [ ] `Ids.newId()`: UUIDv7 (RFC 9562), lowercase, time-ordered, with tests ([Technical plan §3](docs/technical-plan.md#recommended-libraries))
 - [ ] Unit tests for the catalog, rules and validator
 
 ### Local data
 - [ ] Room `CheckInEntity` with every column from the technical plan
 - [ ] `CheckInDao` (insert, update, soft delete, observe by day)
 - [ ] `CheckInRepository` (save sets `PENDING` and `updatedAt`)
-- [ ] Journal encryption: `note` and `triggerOther` encrypted with an Android Keystore key 🔒
+- [ ] Database encryption: SQLCipher on Room 2.8, with a random passphrase wrapped by Tink and the Android Keystore, kept in `noBackupFilesDir`. Recovers from a lost key. Includes an instrumented test that the file can't be opened without the passphrase ([Technical plan §6](docs/technical-plan.md#encryption-of-the-phone-database)) 🔒
 - [ ] Turn off Android cloud backup of the database
 - [ ] DataStore for settings (language, mascot on/off, device ID)
 
@@ -242,7 +243,7 @@ Spec: [Technical plan §11 and Appendix A–B](docs/technical-plan.md#11-languag
 Spec: [API reference §3–§7 and §10–§12](docs/api-spec.md#3-authentication-model) · [Technical plan §7](docs/technical-plan.md#7-server-database-postgresql)
 
 ### Database
-- [ ] Flyway `V1__init.sql`: `users`, `auth_identities`, `refresh_tokens`, `email_tokens`, `check_ins`, `check_in_seq`
+- [ ] Flyway `V1__init.sql`: `users`, `auth_identities`, `refresh_tokens`, `email_tokens`, `check_ins`, `check_in_seq`, `sync_purge`
 - [ ] Exposed table definitions plus a transaction helper
 - [ ] Encryption at rest: AES-256-GCM for `note` and `triggerOther`, with `key_id` 🔒
 
@@ -251,6 +252,7 @@ Spec: [API reference §3–§7 and §10–§12](docs/api-spec.md#3-authenticatio
 - [ ] Plugins: ContentNegotiation, CallId (`X-Request-Id`), StatusPages, RateLimit
 - [ ] The standard error format and every error code from the API spec
 - [ ] `logback.xml` with no request bodies, notes or tokens 🔒
+- [ ] `GET /v1/ready`: `SELECT 1` with a 2-second timeout → 200, or 503 `UNAVAILABLE` ([API reference §9.2](docs/api-spec.md#92-get-ready))
 - [ ] `GET /v1/meta` (minimum app version, hotline)
 - [ ] `426 APP_UPDATE_REQUIRED` check from `X-App-Version`
 
@@ -290,17 +292,21 @@ Spec: [API reference §8](docs/api-spec.md#8-sync-endpoints-) · [Technical plan
 - [ ] Clock guard (future `updatedAt` → server time)
 - [ ] Tombstones: clear `note` and `triggerOther` when deleted
 - [ ] `GET /sync/pull` (since, limit, in order, `hasMore`)
+- [ ] `resetRequired` on pull: cursor below `purged_through_seq`, or above the latest `serverSeq` ([API reference §8.3](docs/api-spec.md#83-get-syncpull))
 - [ ] `GET /sync/status`
 - [ ] Block sync until the email is verified (`403 EMAIL_NOT_VERIFIED`)
-- [ ] Scheduled job to purge tombstones older than 90 days
+- [ ] Scheduled job to purge tombstones older than 90 days. It raises `sync_purge.purged_through_seq` in the same transaction.
 
 ### Android 🔒
 - [ ] `SyncApi` with the shared DTOs
 - [ ] `SyncEngine`: push PENDING in batches → pull until `hasMore = false` → save `lastPullSeq`
 - [ ] Merge pulled changes (local PENDING and newer → keep local)
-- [ ] Handle rejected changes (`sync_error`, no endless retry)
-- [ ] `SyncWorker`: after save (5-second debounce), on app open, every 6 hours, with exponential backoff
+- [ ] Full resync on `resetRequired`: `pull_seen` table, `sync_resetting` flag, remove `SYNCED` rows the server didn't send ([Technical plan §8](docs/technical-plan.md#full-resync-resetrequired))
+- [ ] Handle rejected changes and internal errors: `sync_error = reason` right away, `sync_attempts`, then `FAILED` after 10 × `500 INTERNAL`. No endless retry ([Technical plan §8](docs/technical-plan.md#when-a-change-cant-upload)).
+- [ ] `SyncTriggers`: watches pending rows (repositories never schedule sync), syncs 5 seconds after a write and on app open, keeps the 6-hour job while signed in, cancels it all on sign-out ([Technical plan §8](docs/technical-plan.md#when-sync-runs))
+- [ ] `SyncWorker`: one unique job, network required, exponential backoff starting at 30 seconds
 - [ ] Account: "Sync now" plus last-synced time
+- [ ] Account: "%d check-ins couldn't back up yet. They're still saved on this phone." + Try again ([Design spec §7.8](docs/design-spec.md#78-account))
 - [ ] Guest → new account: upload everything
 - [ ] Guest → existing account: the "Add this phone's check-ins?" prompt
 - [ ] Offline banner text: "Saved on this phone. Will back up when you're online."
@@ -308,6 +314,7 @@ Spec: [API reference §8](docs/api-spec.md#8-sync-endpoints-) · [Technical plan
 ### Tests
 - [ ] Push: insert, newer, older (STALE), delete, edit after delete, another user's ID (FORBIDDEN), 201 → 413
 - [ ] Pull: paging from `since=0`, tombstones, order
+- [ ] Reset: an old cursor → `resetRequired`. The phone's full resync removes purged rows, keeps `PENDING` rows, and carries on after the app is killed.
 - [ ] Two devices edit the same entry offline → both end with the newest version
 - [ ] Network drops halfway through a sync → retry completes without duplicates
 

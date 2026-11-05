@@ -64,13 +64,14 @@ Use the latest stable versions when you set up the project.
 **Shared (KMP `commonMain`)**
 - `kotlinx.serialization`: JSON for the API
 - `kotlinx-datetime`: dates and times across platforms
-- `kotlin.uuid` / UUID helper: IDs generated on the device
+- `kotlin.uuid`: a small `Ids.newId()` helper in `shared` makes **UUIDv7** IDs (RFC 9562: a millisecond timestamp first, then random bits). They sort by creation time, so database indexes stay compact. The phone uses it for check-ins and the server for its own rows ([ulap-reference §13](ulap-reference.md#13-decision-log), D7).
 
 **Android**
 - Jetpack Compose + Material 3
 - Navigation Compose
-- Room (it supports KMP, so the data layer can move to `shared` for iOS later)
-- WorkManager: background sync
+- Room **2.8.x**, encrypted with **SQLCipher** (`net.zetetic:sqlcipher-android`). Stay on Room 2: Room 3 drops the `SupportSQLiteOpenHelper` hook that SQLCipher plugs into. Room supports KMP, but an iOS driver for an encrypted database is still an open question for later.
+- Tink (`tink-android`): wraps the database passphrase with an Android Keystore key (§6)
+- WorkManager: background sync, started by `SyncTriggers` (§8)
 - DataStore: settings (language, mascot on/off, last sync position)
 - Credential Manager + Google ID library: Sign in with Google (the legacy Google Sign-In SDK is deprecated)
 - Ktor Client: API calls
@@ -154,7 +155,7 @@ Put these rules in `shared/rules/ResponseRules.kt` and unit-test them. How each 
 
 | Column | Type | Notes |
 |---|---|---|
-| `id` | TEXT (UUID) | Generated on the device, so it never changes after sync |
+| `id` | TEXT (UUIDv7) | Generated on the device with `Ids.newId()`, so it never changes after sync |
 | `mood_code` | TEXT | From MoodCatalog |
 | `energy` | INTEGER | 1–10 |
 | `stress` | INTEGER | 1–10 |
@@ -170,23 +171,30 @@ Put these rules in `shared/rules/ResponseRules.kt` and unit-test them. How each 
 | `updated_at` | INTEGER | Epoch millis, set on every edit |
 | `deleted_at` | INTEGER NULL | Soft delete (a tombstone), needed for sync |
 | `sync_state` | TEXT | `PENDING` or `SYNCED` |
-| `sync_error` | TEXT NULL | Rejection reason from `/sync/push` ([API reference §8.2](api-spec.md#82-post-syncpush)) |
+| `sync_error` | TEXT NULL | Why this row stopped trying to upload: a rejection reason from `/sync/push` ([API reference §8.2](api-spec.md#82-post-syncpush)), or `FAILED` after 10 internal errors (§8). `NULL` while it can still sync. |
+| `sync_attempts` | INTEGER | Push requests that failed with `500 INTERNAL` while this row was in the batch. Reset to 0 on every edit and on "Try again". |
 | `server_seq` | INTEGER NULL | The server's change number, once known |
 
 Indexes: `(deleted_at, logged_at)`, `(sync_state)`, `(mood_code)`.
 
+### `pull_seen`
+One column, `id` (TEXT, primary key). Used only during a full resync (§8): it holds the IDs of every live check-in the server sent, and it's emptied when the resync ends.
+
 ### Settings (DataStore, not Room)
-`language` (`en` / `fil` / `ceb`), `mascot_enabled`, `onboarding_done`, `device_id` (UUID), `last_pull_seq`, `last_sync_at`.
+`language` (`en` / `fil` / `ceb`), `mascot_enabled`, `onboarding_done`, `device_id` (UUID), `last_pull_seq`, `last_sync_at`, `sync_resetting` (true while a full resync is running, §8).
 
 ### Tokens
 Store refresh tokens in **EncryptedSharedPreferences**, or in DataStore encrypted with an **Android Keystore** key. Never store them in plain text.
 
-### Encryption of journal data
-Mood data is sensitive. Options:
-1. **SQLCipher for the whole database.** The strongest option. Check compatibility with the Room driver you use before committing.
-2. **Encrypt the `note` and `trigger_other` columns** with an Android Keystore AES-GCM key before writing them. Simpler, and protects the most personal text.
+### Encryption of the phone database
+Mood data is sensitive, so the **whole Room database is encrypted with SQLCipher**, not only the journal columns. That protects moods, stress and triggers too ([ulap-reference §13](ulap-reference.md#13-decision-log), D3).
 
-Recommendation for v1: **option 2** at minimum. Also turn off cloud backup of the database (`android:allowBackup="false"`, or exclude the database in backup rules). The server sync becomes the backup.
+- **Passphrase:** 32 random bytes, made once per install with `SecureRandom`.
+- **Where it's kept:** encrypted with a Tink AEAD keyset, in a file in `noBackupFilesDir`. The keyset itself is locked by a key in the **Android Keystore**, which never leaves the phone's secure hardware.
+- **Opening the database:** Room uses SQLCipher's `SupportOpenHelperFactory` with that passphrase. Reading the Keystore is slow, so build the database off the main thread.
+- **If the Keystore key is lost** (app data restored onto another phone, or the lock screen was reset), the old database can't be opened. Delete it, start an empty one and set `last_pull_seq` to 0. A signed-in user gets their synced check-ins back from the server on the next sync. A guest's check-ins, and any that hadn't synced yet, are gone. That's the price of real encryption.
+- **Backups:** turn off cloud backup of the database (`android:allowBackup="false"`, or exclude the database and the passphrase file in the backup rules). The server sync is the backup.
+- **Tests:** an instrumented test checks that the database file can't be opened without the passphrase.
 
 ---
 
@@ -258,7 +266,19 @@ CREATE TABLE check_ins (
 );
 
 CREATE INDEX check_ins_user_seq ON check_ins (user_id, server_seq);
+
+-- How far tombstones have been purged. One row (id = 1). The purge job raises
+-- purged_through_seq to the highest server_seq it deleted, in the same transaction.
+-- A pull with 0 < since < purged_through_seq may have missed a delete → resetRequired (§8).
+CREATE TABLE sync_purge (
+  id                 SMALLINT PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  purged_through_seq BIGINT NOT NULL DEFAULT 0,
+  updated_at         TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+INSERT INTO sync_purge (id) VALUES (1);
 ```
+
+Server-made IDs (`users`, tokens) are UUIDv7 from the same `Ids.newId()` in `shared` (§3).
 
 **Encryption on the server:** use an encrypted disk and encrypted backups at minimum. For extra protection, encrypt `note` and `trigger_other` at the application level with a server key (AES-GCM) kept outside the database.
 
@@ -269,7 +289,7 @@ CREATE INDEX check_ins_user_seq ON check_ins (user_id, server_seq);
 ### Rules
 1. **Every change is written to Room first** with `sync_state = PENDING` and a fresh `updated_at`.
 2. **Deletes are soft.** Set `deleted_at` so the delete can sync. Purge tombstones after 90 days.
-3. **IDs are UUIDs made on the phone**, so the same check-in has the same ID everywhere.
+3. **IDs are UUIDv7s made on the phone** (`Ids.newId()` in `shared`), so the same check-in has the same ID everywhere.
 4. **The server gives every accepted change a new `server_seq`,** a number that only goes up. Pulling means asking for everything after the last number you saw.
 5. **Conflicts:** last write wins, using `updatedAt` (stored on the server as `client_updated_at`). If they're equal, the stored version is kept. Conflicts are rare, since it's one person on their own devices.
 
@@ -282,6 +302,28 @@ Exact requests, responses, merge tables and error codes are in the [API referenc
 
 ### When sync runs
 Same schedule as [API reference §8.6](api-spec.md#86-when-the-app-syncs): after each save, edit or delete (5-second debounce, network required), on app open if the last sync was more than 15 minutes ago, every 6 hours in the background, and from Account → "Sync now". Order: **push first, then pull** until `hasMore = false`.
+
+**`SyncTriggers` decides when ([ulap-reference §13](ulap-reference.md#13-decision-log), D8).** Repositories only write to Room. They never schedule sync, so a new write path can't forget to.
+- It starts once, from `Application.onCreate`, and does nothing while no one is signed in. Signing out cancels all sync work.
+- While someone is signed in, it schedules the 6-hour periodic job and watches a Room `Flow` of the count of rows with `sync_state = PENDING` and `sync_error IS NULL`. When that count is above 0, it requests a sync 5 seconds later, so a burst of quick edits goes up in one push.
+- It also requests a sync when the app comes to the foreground (if the last sync was more than 15 minutes ago).
+- Requests go to one unique WorkManager job, so two syncs never run at once. Network required.
+- **Backoff:** when a run fails (network, 429, 5xx), `SyncWorker` returns `Result.retry()` with `BackoffPolicy.EXPONENTIAL` starting at **30 seconds**. Inside one run, single HTTP calls still use the short retries in [API reference §4](api-spec.md#retry-policy-client).
+
+### When a change can't upload
+A row stops trying when `sync_error` is set. It stays on the phone and in every screen. Only uploading stops.
+- **Rejected** by `/sync/push` (a bug, since the phone validates with the same shared rules): `sync_error = reason`, straight away.
+- **Internal errors:** when a push request fails with `500 INTERNAL`, add 1 to `sync_attempts` on every row in that batch. At **10**, set `sync_error = "FAILED"`. Network errors, 429, 502, 503 and 504 don't count. They're outages, not a problem with the row.
+- **Account** shows "%d check-ins couldn't back up yet. They're still saved on this phone." with **Try again** ([Design spec §7.8](design-spec.md#78-account)). Try again clears `sync_error` and `sync_attempts` on those rows, so `SyncTriggers` picks them up. Never show the number of attempts.
+- **Editing** the check-in also clears both, because every save sets `PENDING`, `sync_error = NULL` and `sync_attempts = 0`.
+
+### Full resync (`resetRequired`)
+Tombstones are purged after 90 days. A phone that was offline longer than that would never hear about those deletes, so the server tells it to start over ([API reference §8.3](api-spec.md#83-get-syncpull), D6).
+1. A pull returns `resetRequired: true` with no changes. The server does that when `0 < since < purged_through_seq`, or when `since` is higher than any `server_seq` it has (the database was restored, or it's a different server).
+2. The phone, in one transaction: empties `pull_seen`, sets `last_pull_seq = 0` and `sync_resetting = true`.
+3. It pulls from `since = 0` with the normal merge. While `sync_resetting` is true, it also adds the ID of every pulled change that isn't a tombstone to `pull_seen`.
+4. When the last page arrives (`hasMore = false`), in one transaction: delete local `SYNCED` rows whose ID isn't in `pull_seen`, empty `pull_seen`, and set `sync_resetting = false`.
+5. `PENDING` rows are never removed. They push as usual. If the app is killed halfway, `sync_resetting` is still true, so the next run carries on.
 
 ### First sign-in (guest → account)
 Follows [API reference §8.5](api-spec.md#85-first-sign-in-from-guest-mode):
@@ -297,7 +339,7 @@ The **[API reference](api-spec.md) is the source of truth** for every endpoint, 
 
 | Group | Endpoints (all under `/v1`) |
 |---|---|
-| Meta | `GET /health`, `GET /meta` |
+| Meta | `GET /health` (the process is up), `GET /ready` (the database answers, D5), `GET /meta` |
 | Auth | `/auth/google`, `/auth/email/register`, `/auth/email/login`, `/auth/email/verify`, `/auth/email/resend-verification`, `/auth/password/forgot`, `/auth/password/reset`, `/auth/refresh`, `/auth/logout`, `/auth/logout-all`, `/auth/link/google`, `/auth/link/email` |
 | User | `GET /me`, `PATCH /me`, `DELETE /me` |
 | Sync | `POST /sync/push`, `GET /sync/pull`, `GET /sync/status` |

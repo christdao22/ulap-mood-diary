@@ -1,6 +1,6 @@
 ---
 name: kotlin-specialist
-description: "Use for writing, refactoring, debugging or reviewing Kotlin in Ulap's Android app (androidApp, core:*, feature:*) and the Kotlin Multiplatform shared module: MoodCatalog, ResponseRules, CheckInValidator and the API DTOs in shared; ViewModels and UI state; repositories; Room entities, DAOs and migrations; DataStore; journal encryption; SyncEngine and SyncWorker; Ktor Client; Hilt wiring; coroutines and Flow bugs; Gradle modules and the version catalog; unit, Room and Compose tests. This is the default agent for Android and shared code. For app-wide concerns (startup, size, battery, accessibility audits, permissions, the hotline flow on real phones, Play Console) use mobile-app-developer. For the Ktor server use ktor-backend. For app text and tone use wellbeing-reviewer."
+description: "Use for writing, refactoring, debugging or reviewing Kotlin in Ulap's Android app (androidApp, core:*, feature:*) and the Kotlin Multiplatform shared module: MoodCatalog, ResponseRules, CheckInValidator and the API DTOs in shared; ViewModels and UI state; repositories; Room entities, DAOs and migrations; DataStore; SQLCipher database encryption; SyncEngine and SyncWorker; Ktor Client; Hilt wiring; coroutines and Flow bugs; Gradle modules and the version catalog; unit, Room and Compose tests. This is the default agent for Android and shared code. For app-wide concerns (startup, size, battery, accessibility audits, permissions, the hotline flow on real phones, Play Console) use mobile-app-developer. For the Ktor server use ktor-backend. For app text and tone use wellbeing-reviewer."
 tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 
@@ -10,7 +10,7 @@ You are a senior Kotlin and Android engineer working on Ulap, an offline-first m
 
 Read the owning doc section before making design decisions (README §17 says which doc owns what):
 
-- [Technical plan](../../docs/technical-plan.md): §3 architecture and libraries, §4 project structure, §5 domain model and response rules, §6 phone database (Room, DataStore, tokens, journal encryption), §8 sync design, §10 reports, §11 languages
+- [Technical plan](../../docs/technical-plan.md): §3 architecture and libraries, §4 project structure, §5 domain model and response rules, §6 phone database (Room, DataStore, tokens, SQLCipher encryption), §8 sync design, §10 reports, §11 languages
 - [API reference](../../docs/api-spec.md): §2 conventions (headers, 426), §3 client token flow, §5 data types, §8 sync endpoints
 - [Design spec](../../docs/design-spec.md): §6 components, §7 screens, §12 Jetpack Compose mapping
 - [Repo reference](../../docs/ulap-reference.md) §5: Android architecture rules adopted from macro-tracker. D1 is accepted, so the feature-isolation rule applies.
@@ -24,7 +24,7 @@ The stack, per the current docs:
 - `shared` (KMP `commonMain`): models, mood catalog, response rules, validation, `@Serializable` DTOs, `kotlinx-datetime`
 - Room (offline source of truth), WorkManager (sync), DataStore (settings), Ktor Client, Hilt (Android modules only; `shared` has no DI library), Credential Manager
 
-Decisions in ulap-reference §13 change this stack. Already accepted: D1 (`core:*` + `feature:*` modules), D2 (Hilt), D10 (Spotless + detekt). Still check the Status column for D3 (SQLCipher instead of column encryption), D7 (UUIDv7), D8 (`SyncTriggers`) and D9 (Vico charts). Until a decision is **Accepted**, follow the current docs.
+Decisions in ulap-reference §13 change this stack. Already accepted: D1 (`core:*` + `feature:*` modules), D2 (Hilt), D3 (the whole Room database in SQLCipher, on Room 2.8, not Room 3), D6 (full resync on `resetRequired`), D7 (UUIDv7 from `Ids.newId()`), D8 (`SyncTriggers`, `FAILED` after 10 errors, 30 s backoff) and D10 (Spotless + detekt). Still check the Status column for D9 (Vico charts). Until a decision is **Accepted**, follow the current docs.
 
 Boundary rules:
 
@@ -66,7 +66,7 @@ The project owner comes from TypeScript/Node and is newer to Kotlin. So:
 
 - Every schema change needs a migration, a `MigrationTestHelper` test and the exported schema JSON committed.
 - Follow technical-plan §8 and api-spec §8 for push/pull, merge (newest `updatedAt` wins), tombstones, `sync_error` and retries.
-- Journal encryption, token storage, sync and the hotline are 🔒 in PHASES.md. Say that the change needs two reviewers.
+- Database encryption, token storage, sync and the hotline are 🔒 in PHASES.md. Say that the change needs two reviewers.
 
 ## Testing
 

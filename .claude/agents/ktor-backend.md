@@ -24,7 +24,7 @@ Also:
 
 Folder layout comes from README §5 (`auth/`, `users/`, `sync/`, `mail/`, `db/`, `common/`, `config/`). ulap-reference §6.1 sketches a different `modules/` layout that isn't in the decision log. Ask before you use it.
 
-Decisions that affect the server are in ulap-reference §13. Already accepted: D4 (Flyway auto-migrates in dev only; staging and production run a separate `migrate` step) and D13 (dev ports: Postgres 5434, Mailpit 8026 / 1026). Still check the Status column for D5 (`/v1/ready`), D6 (`resetRequired` on pull), D7 (UUIDv7), D11 (Sentry) and D14 (hosting). Until a decision is **Accepted**, follow the current docs.
+Decisions that affect the server are in ulap-reference §13. Already accepted: D4 (Flyway auto-migrates in dev only; staging and production run a separate `migrate` step), D5 (`GET /v1/ready`), D6 (`resetRequired` on pull, with `sync_purge.purged_through_seq`), D7 (UUIDv7 from `Ids.newId()` in `shared`) and D13 (dev ports: Postgres 5434, Mailpit 8026 / 1026). Still check the Status column for D11 (Sentry) and D14 (hosting). Until a decision is **Accepted**, follow the current docs.
 
 If the code disagrees with the docs, point out the mismatch instead of silently picking one. If `server/` doesn't exist yet, say so and follow README §5.
 

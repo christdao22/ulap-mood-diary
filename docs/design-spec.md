@@ -301,6 +301,7 @@ Which actions appear is decided by `ResponseRules` ([Technical plan §5](technic
 
 ### 7.8 Account
 - Profile card (avatar initial, name, "Checking in since October 2026"). For a guest: "**Back up and sync**: Keep your diary safe across phones" + Continue with Google · Use email instead.
+- Signed in: a sync row with **Sync now** and the last-synced time. When check-ins stopped trying to upload ([Technical plan §8](technical-plan.md#when-a-change-cant-upload)), a quiet notice below it: "%d check-in couldn't back up yet. It's still saved on this phone." / "%d check-ins couldn't back up yet. They're still saved on this phone." + **Try again** (text button). Android `plurals`. Never show how many times it was tried. Say "saved", not "safe": a check-in only on this phone is lost with the phone.
 - Settings list: Show Ulap the cloud (switch) · Language · Gentle reminder (later) · Quiet hours (later) · Export my data (later) · Need to talk to someone? NCMH 1553 · Sign out · **Delete account and all data**.
 - Footer: "Reminders never count missed days. Your check-ins are private to you."
 

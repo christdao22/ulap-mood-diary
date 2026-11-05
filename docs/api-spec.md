@@ -33,7 +33,7 @@ Local dev:   http://10.0.2.2:8080/v1         (Android emulator → host machine)
 - JSON only, UTF-8. Send `Content-Type: application/json` and `Accept: application/json`.
 - Field names: **camelCase**.
 - Timestamps: **ISO 8601 in UTC** with milliseconds, e.g. `"2026-11-04T01:15:00.000Z"`.
-- IDs: **UUID v4** strings, lowercase.
+- IDs: **UUID** strings, lowercase. Ulap makes **UUIDv7** (time-ordered, RFC 9562) on the phone and the server ([Technical plan §3](technical-plan.md#recommended-libraries)). The server checks the UUID format only, not the version.
 - Booleans are `true` / `false`. Never `0` / `1`.
 - Missing optional fields are either left out or sent as `null`. The server treats both the same.
 - Enums are **UPPER_SNAKE** strings (`WORK`, `BREATHE`). Mood codes are **lower_snake** (`burned_out`).
@@ -139,7 +139,7 @@ All errors use one shape:
 ### Retry policy (client)
 - Retry **429, 500, 502, 503 and 504** and network errors with exponential backoff: 2s, 4s, 8s, 16s, max 5 minutes, plus random jitter.
 - Never retry 400, 401 (except once after a refresh), 403, 409, 413 or 422.
-- WorkManager handles retries for sync (`BackoffPolicy.EXPONENTIAL`).
+- WorkManager handles retries for whole sync runs (`BackoffPolicy.EXPONENTIAL`, starting at **30 seconds**). The delays above are for single calls inside one run ([Technical plan §8](technical-plan.md#when-sync-runs)).
 
 ---
 
@@ -205,7 +205,7 @@ All errors use one shape:
 
 | Field | Type | Required on push | Rules |
 |---|---|---|---|
-| `id` | UUID | ✅ | Created on the phone. Never changes. |
+| `id` | UUID | ✅ | Created on the phone (UUIDv7). Never changes. |
 | `moodCode` | string | ✅ | One of the 25 codes (§5.4) |
 | `energy` | int | ✅ | 1–10 |
 | `stress` | int | ✅ | 1–10 |
@@ -468,7 +468,9 @@ A clock guard: if an incoming `updatedAt` is more than 5 minutes in the future, 
 
 **Phone actions**
 - `APPLIED` or `STALE` → set `sync_state = SYNCED` and store `serverSeq`.
-- `rejected` → keep `PENDING` but mark `sync_error = reason`, and don't retry automatically. Log it. These should only come from bugs, because the phone validates with the same shared rules.
+- `rejected` → keep `PENDING` but mark `sync_error = reason`, and don't retry automatically. Log the `reason` and `id` only, never the change itself. These should only come from bugs, because the phone validates with the same shared rules.
+- The whole request fails with `500 INTERNAL` → add 1 to `sync_attempts` on each row in the batch. At 10, set `sync_error = "FAILED"` and stop retrying that row. Other failures (network, 429, 502–504) don't count.
+- Rows with `sync_error` set are left out of later pushes until the user taps **Try again** in Account or edits the check-in ([Technical plan §8](technical-plan.md#when-a-change-cant-upload)).
 
 **Errors:** `403 EMAIL_NOT_VERIFIED` · `413 PAYLOAD_TOO_LARGE` · `429 RATE_LIMITED`
 
@@ -497,11 +499,22 @@ A clock guard: if an incoming `updatedAt` is more than 5 minutes in the future, 
   ],
   "nextSince": 1043,
   "hasMore": false,
+  "resetRequired": false,
   "serverTime": "2026-11-04T02:00:05.900Z"
 }
 ```
 - `changes` are in ascending `serverSeq` order.
 - Keep pulling with `since = nextSince` while `hasMore` is true.
+
+**`resetRequired`** (D6 in [ulap-reference §13](ulap-reference.md#13-decision-log))
+
+Tombstones are purged after 90 days, so an old `since` may have missed a delete. The server returns `resetRequired: true` when:
+- `0 < since < purged_through_seq`: a tombstone after this cursor was already purged (`sync_purge`, [Technical plan §7](technical-plan.md#7-server-database-postgresql)), or
+- `since` is higher than any `serverSeq` the server has given out: the cursor comes from another database (a restore, or a different server).
+
+Then the response is `{ "changes": [], "nextSince": 0, "hasMore": true, "resetRequired": true, "serverTime": … }`. The phone starts a **full resync**: it pulls from `since = 0`, notes every ID it receives, and at the end removes local `SYNCED` rows the server didn't send. `PENDING` rows are kept and pushed. Steps: [Technical plan §8](technical-plan.md#full-resync-resetrequired).
+
+`since = 0` never gets `resetRequired`. The field is always present, and `false` in every other response.
 
 **Phone merge for each pulled change**
 
@@ -546,6 +559,7 @@ Sign in (Google or email) → AuthResponse
 ```
 
 ### 8.6 When the app syncs
+`SyncTriggers` on the phone schedules every run. Repositories never do ([Technical plan §8](technical-plan.md#when-sync-runs)).
 - After each save, edit or delete (one-time job, requires network, 5-second debounce)
 - When the app opens (if the last sync was more than 15 minutes ago)
 - Every 6 hours in the background (periodic job, requires network and battery not low)
@@ -558,9 +572,16 @@ Each run: **push all PENDING (in batches of 200) → pull until `hasMore = false
 ## 9. Health and meta
 
 ### 9.1 `GET /health`
-No auth. `200` `{ "status": "ok" }`. For the hosting platform's health checks.
+No auth. `200` `{ "status": "ok" }`. Liveness: the process is up and answering. It doesn't touch the database, so a database outage doesn't get the container restarted.
 
-### 9.2 `GET /meta`
+### 9.2 `GET /ready`
+No auth. Readiness: the server can do real work. It runs `SELECT 1` through the connection pool with a 2-second timeout.
+- `200` `{ "status": "ready" }`
+- `503 UNAVAILABLE` in the standard error format (§4) when the database doesn't answer in time
+
+The deploy runbook checks `/ready` after `migrate` and `up -d --wait`, before it sends traffic to the new version (D5 in [ulap-reference §13](ulap-reference.md#13-decision-log)).
+
+### 9.3 `GET /meta`
 No auth. Lets the app check its compatibility.
 
 ```json
@@ -622,6 +643,7 @@ fun Application.module() {
     routing {
         route("/v1") {
             get("/health") { call.respond(mapOf("status" to "ok")) }
+            get("/ready") { /* SELECT 1 with a 2 s timeout → 200, or 503 UNAVAILABLE */ }
             get("/meta") { /* … */ }
             authRoutes()                               // /auth/*
             authenticate("access") {
@@ -659,7 +681,7 @@ data class CheckInDto(
 @Serializable data class PushResult(val id: String, val serverSeq: Long, val status: PushStatus)
 @Serializable data class PushRejection(val id: String, val reason: String, val field: String? = null)
 @Serializable data class PushResponse(val accepted: List<PushResult>, val rejected: List<PushRejection>, val serverTime: Instant)
-@Serializable data class PullResponse(val changes: List<CheckInDto>, val nextSince: Long, val hasMore: Boolean, val serverTime: Instant)
+@Serializable data class PullResponse(val changes: List<CheckInDto>, val nextSince: Long, val hasMore: Boolean, val resetRequired: Boolean = false, val serverTime: Instant)
 @Serializable enum class PushStatus { APPLIED, STALE }
 ```
 
@@ -722,7 +744,8 @@ curl -s https://api.ulap.app/v1/auth/refresh \
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| GET | `/health` | – | Health check |
+| GET | `/health` | – | Liveness check |
+| GET | `/ready` | – | Readiness check (database) |
 | GET | `/meta` | – | Minimum app version, catalog version, hotline |
 | POST | `/auth/google` | – | Sign in or up with Google |
 | POST | `/auth/email/register` | – | Create an email account |
@@ -756,6 +779,10 @@ Tracked in [PHASES.md](../PHASES.md) (Phases 6, 7 and 9).
 - [ ] Refresh: rotate works. The old token reused → 401 `REFRESH_TOKEN_REUSED`, and the device session is revoked.
 - [ ] Push: insert, newer update, older update (`STALE`), delete, edit after a delete (`STALE`), another user's ID (`FORBIDDEN`), 201 changes → 413.
 - [ ] Pull: `since=0` with paging. Tombstones are included. Results are in order.
+- [ ] Pull reset: a cursor below `purged_through_seq` → `resetRequired: true` with no changes. A cursor above the latest `serverSeq` → `resetRequired: true`. `since=0` → `false`.
+- [ ] Full resync on the phone: a `SYNCED` row the server no longer has is removed. A `PENDING` row is kept. Killing the app halfway carries on next run.
+- [ ] Push failing with 500 ten times → those rows get `sync_error = FAILED` and stop retrying. Try again sends them again.
+- [ ] Ready: database up → 200. Database stopped → 503 `UNAVAILABLE` within about 2 seconds. `/health` stays 200.
 - [ ] Two devices edit the same check-in offline → the newest `updatedAt` wins on both after sync.
 - [ ] Guest → new account uploads everything. Guest → existing account shows the merge prompt.
 - [ ] `DELETE /me` removes every row. The old access token → 401 or 403.

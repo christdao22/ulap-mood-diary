@@ -71,7 +71,7 @@ Versions are macro-tracker's pinned versions on 2026-11-04 (MT §3). Use them as
 | Lifecycle | 2.11.0 | Same | |
 | Charts | **Vico 3.3.1** | Compose Canvas (docs) | D9: consider Vico |
 | DI | **Hilt 2.60.1** | Hilt in Android, none in `:shared` | D2 accepted |
-| Room / SQLCipher / androidx.sqlite | 2.8.5 / 4.20.0 / 2.7.1 | Room (docs) + column encryption | D3: full SQLCipher |
+| Room / SQLCipher / androidx.sqlite | 2.8.5 / 4.20.0 / 2.7.1 | Room (docs) + column encryption | D3 (accepted): full SQLCipher |
 | Crypto | Tink 1.24.0 | Keystore (docs) | Tink wraps keys with Keystore |
 | DataStore | 1.3.0 (JSON serializer, not Proto) | DataStore | Same pattern |
 | WorkManager | 2.12.0 | Same | |
@@ -258,7 +258,7 @@ macro-tracker's middleware order (MT §4), mapped to Ktor `install` order:
 macro-tracker validates env with zod and fails on startup. Ulap's `AppConfig` does the same ([README §8](../README.md#8-configuration-reference)).
 
 ### 6.5 Health and readiness (D5)
-macro-tracker has `/health` (liveness) **and** `/ready` (checks Postgres). Ulap's API has only `/health`. Proposal: add `GET /v1/ready` that checks the database pool, and use it in the deploy runbook (`up -d --wait`, then check `/ready`).
+macro-tracker has `/health` (liveness) **and** `/ready` (checks Postgres). Accepted (D5): Ulap adds `GET /v1/ready`, which checks the database pool ([API §9.2](api-spec.md#92-get-ready)). The deploy runbook uses it (`up -d --wait`, then check `/ready`).
 
 ### 6.6 Jobs without Redis **[pattern]**
 macro-tracker runs BullMQ jobs from a second entry point (`scheduler.ts`) using the same image, defined as a table (name, cron, idempotent `run()`, `tz: "Asia/Manila"`, concurrency 1). Ulap's jobs are few:
@@ -282,9 +282,9 @@ Ulap's sync ([API §8](api-spec.md#8-sync-endpoints-)) already matches macro-tra
 
 | Gap in Ulap | macro-tracker solution | Proposal |
 |---|---|---|
-| A phone offline for **more than 90 days** pulls with an old `since`, but those tombstones are already purged, so it never learns about the deletes | `resetRequired` in the pull response triggers a full resync | **D6:** pull returns `resetRequired: true` when `since` is older than the purge horizon. The phone then marks local `SYNCED` rows for review, pulls from 0, and removes `SYNCED` rows the server didn't return. |
+| A phone offline for **more than 90 days** pulls with an old `since`, but those tombstones are already purged, so it never learns about the deletes | `resetRequired` in the pull response triggers a full resync | **D6:** pull returns `resetRequired: true` when `since` is older than the purge horizon. The phone then pulls from 0, records the IDs it receives in `pull_seen`, and removes `SYNCED` rows the server didn't return ([Technical plan §8](technical-plan.md#full-resync-resetrequired)). |
 | Random UUID v4 ids scatter index inserts | **UUIDv7** (time-ordered) ids from `shared/uuid.ts` | **D7:** generate UUIDv7 in `:shared`. The format is still a UUID, so the API doesn't change. |
-| A change that always fails with `INTERNAL` retries forever | After 10 `INTERNAL` failures the op becomes `FAILED` and is reported to Sentry | **D8:** after 10 failed attempts set `sync_error = "FAILED"`, stop retrying that row, and show "1 check-in couldn't back up" in Account |
+| A change that always fails with `INTERNAL` retries forever | After 10 `INTERNAL` failures the op becomes `FAILED` and is reported to Sentry | **D8:** after 10 failed attempts set `sync_error = "FAILED"`, stop retrying that row, and show "1 check-in couldn't back up yet" in Account ([Design spec §7.8](design-spec.md#78-account)) |
 | Repositories schedule the worker directly ([README §10](../README.md#10-workflow-example)) | `SyncTriggers` watches the outbox; repositories never trigger sync | **D8:** same, `SyncTriggers` observes `sync_state = PENDING` |
 | Retried pushes | `(device_id, client_op_id)` receipts make each op idempotent | **Not needed.** Ulap's push is an upsert by `id` with "newer `updatedAt` wins," so a retry is already harmless. |
 | Several entity types | Outbox table + per-entity appliers | **Not needed** in v1 (one synced table). Revisit if more synced data is added. |
@@ -531,12 +531,12 @@ Status: **Proposed** (the current docs win) · **Accepted** (update the listed d
 |---|---|---|---|---|
 | D1 | Android modules: single `androidApp` (current) **or** macro-tracker's `core:*` + `feature:*` | **Multi-module.** You already know it from macro-tracker, and the feature rule keeps database and network code out of screens. | README §5, Technical plan §4 | **Accepted** (2026-11-05) |
 | D2 | DI: Koin (current) **or** Hilt | **Hilt in Android, no DI in `:shared`.** Reuses macro-tracker's convention plugin and `@HiltWorker`. `:shared` stays plain constructor injection, so iOS isn't blocked. | Technical plan §3, README §3 | **Accepted** (2026-11-05) |
-| D3 | Local encryption: `note` column only (current) **or** full SQLCipher database with a Tink-wrapped passphrase | **SQLCipher**, as macro-tracker already runs it with Room 2.8.5. It protects moods and triggers too, not only notes. The iOS driver question stays open for later. | Technical plan §6, README §14, Phases 2 | Proposed |
+| D3 | Local encryption: `note` column only (current) **or** full SQLCipher database with a Tink-wrapped passphrase | **SQLCipher**, as macro-tracker already runs it with Room 2.8.5. It protects moods and triggers too, not only notes. The iOS driver question stays open for later. | Technical plan §6, README §14, Phases 2 | **Accepted** (2026-11-05) |
 | D4 | Migrations: auto on server startup (current) **or** a separate `migrate` step in staging and prod | **Separate step** (macro-tracker's deploy rule). Auto-migrate stays in dev. | README §6.4, §7.1 | **Accepted** (2026-11-05) |
-| D5 | Add `GET /v1/ready` (database check) | **Yes** | API §9 and §14, Technical plan §9 | Proposed |
-| D6 | Add `resetRequired` to `/sync/pull` for cursors older than the 90-day tombstone purge | **Yes.** Without it, a long-offline phone keeps deleted check-ins forever. | API §8.3, Technical plan §8, Phases 7 | Proposed |
-| D7 | UUIDv7 ids from `:shared` | **Yes** (same UUID format, better index locality) | Technical plan §6, API §5.3 | Proposed |
-| D8 | `SyncTriggers` observes pending rows (repositories never schedule sync). Rows become `FAILED` after 10 internal errors. Backoff starts at 30 s. | **Yes** | Technical plan §8, README §10, Phases 7 | Proposed |
+| D5 | Add `GET /v1/ready` (database check) | **Yes** | API §9 and §14, Technical plan §9 | **Accepted** (2026-11-05) |
+| D6 | Add `resetRequired` to `/sync/pull` for cursors older than the 90-day tombstone purge | **Yes.** Without it, a long-offline phone keeps deleted check-ins forever. | API §8.3, Technical plan §8, Phases 7 | **Accepted** (2026-11-05) |
+| D7 | UUIDv7 ids from `:shared` | **Yes** (same UUID format, better index locality) | Technical plan §6, API §5.3 | **Accepted** (2026-11-05) |
+| D8 | `SyncTriggers` observes pending rows (repositories never schedule sync). Rows become `FAILED` after 10 internal errors. Backoff starts at 30 s. | **Yes** | Technical plan §8, README §10, Phases 7 | **Accepted** (2026-11-05) |
 | D9 | Charts: Compose Canvas (current) **or** Vico | **Vico** (used in macro-tracker). Check that it supports the band colors and TalkBack summaries in Design spec §6.15. | Design spec §6.15, Phases 4 | Proposed |
 | D10 | Lint: ktlint tasks (current) **or** Spotless + ktlint + compose-rules + detekt + Android Lint with `warningsAsErrors` | **macro-tracker's set.** `ktlintCheck/Format` become `spotlessCheck/Apply`, plus `detekt`. | README §6.7, §12, Phases 1 | **Accepted** (2026-11-05) |
 | D11 | Crash reporting: Sentry (Android + server) with PII off and body scrubbing | **Yes**, with `sendDefaultPii = false` and a `beforeSend` that drops request bodies and any field named `note` | Phases 8, README §14 | Proposed |
@@ -567,7 +567,7 @@ Maps onto [PHASES.md, Phase 1](../PHASES.md#phase-1-project-setup). Times are ma
 8. Run the full check locally (§4.4).
 
 **D. Server and infra (≈half a day)**
-9. Ktor skeleton (§6): `AppDeps`, `AppConfig`, plugin order, `GET /v1/health` (and `/v1/ready` if D5), error mapping.
+9. Ktor skeleton (§6): `AppDeps`, `AppConfig`, plugin order, `GET /v1/health` and `GET /v1/ready` (D5), error mapping.
 10. `infra/compose*.yaml` with exact tags and hardening. `migrate` service with Flyway `V1__init.sql`.
 11. `docs/local-services.md` with the chosen ports.
 

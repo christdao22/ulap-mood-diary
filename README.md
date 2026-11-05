@@ -70,7 +70,7 @@ After saving, the app responds **sympathetically**: it validates the feeling, of
 - **Accounts (optional):** start as a guest. Sign in with **Google** or **email** to back up and sync.
 - **Three languages:** English, Filipino, Bisaya, chosen in the app.
 - **Mascot toggle:** turn Ulap off for a plain diary.
-- **Privacy controls:** an encrypted journal on the device, and **delete account and all data** in one tap.
+- **Privacy controls:** the whole diary is encrypted on the device, and **delete account and all data** in one tap.
 - **Safety:** a crisis hotline card for *Hopeless*, and a hotline row always available in Account.
 
 ### Design rules we keep
@@ -86,7 +86,7 @@ After saving, the app responds **sympathetically**: it validates the feeling, of
 | Language | **Kotlin** (Multiplatform) |
 | Shared module | Kotlin Multiplatform: domain models, mood catalog, response rules, validation, API DTOs (`kotlinx.serialization`, `kotlinx-datetime`) |
 | Android UI | **Jetpack Compose**, Material 3, Navigation Compose |
-| Local database | **Room** (offline source of truth) |
+| Local database | **Room** 2.8 (offline source of truth), encrypted with **SQLCipher**. Its passphrase is wrapped by **Tink** with an Android Keystore key. |
 | Background work | **WorkManager** (sync) |
 | Settings | **DataStore** |
 | Auth (Android) | **Credential Manager** + Google ID library (Sign in with Google), email and password |
@@ -185,12 +185,12 @@ ulap/
 │   │       ├── values/strings.xml          # English (every user-facing string lives here)
 │   │       ├── values-fil/strings.xml      # Filipino
 │   │       └── values-b+ceb/strings.xml    # Bisaya (Cebuano)
-│   ├── database/                      # Room entities, DAOs, UlapDatabase; schemas/ committed
+│   ├── database/                      # Room entities, DAOs, UlapDatabase (SQLCipher); schemas/ committed
 │   ├── datastore/                     # settings
 │   ├── network/                       # Ktor client, AuthApi, SyncApi, client plugins
 │   ├── auth/                          # Credential Manager, token store
 │   ├── data/                          # repositories (CheckInRepository, SettingsRepository)
-│   ├── sync/                          # SyncEngine, SyncWorker
+│   ├── sync/                          # SyncEngine, SyncWorker, SyncTriggers
 │   └── testing/                       # fakes, MainDispatcherRule
 │
 ├── feature/                           # one module per area, app.ulap.feature.<name>
@@ -398,7 +398,7 @@ docker run -d --name ulap-server -p 8080:8080 --env-file .env.production ulap-se
 - [ ] **HTTPS** at the load balancer or reverse proxy (TLS 1.2+, HSTS)
 - [ ] Strong random `JWT_SECRET` (≥ 64 bytes) and `NOTE_ENCRYPTION_KEY` in a secret manager, never in Git
 - [ ] A real SMTP or email API provider for verification and reset emails
-- [ ] Health check on `GET /v1/health`
+- [ ] Liveness check on `GET /v1/health`, readiness check on `GET /v1/ready` (database)
 - [ ] Logs **without request bodies, notes or tokens** (`logback.xml` is set this way. Don't change it.)
 - [ ] Rate limits on (default on)
 - [ ] Monitoring: error rate, p95 latency, database connections
@@ -498,9 +498,11 @@ User taps "Worried"
   → Details screen: energy 6, stress 8 (defaults), trigger WORK, note typed
   → Save
       CheckInRepository.save()
-        • Room insert: id = UUID, sync_state = PENDING, updated_at = now
-        • note encrypted with the Keystore key
-        • SyncWorker scheduled (network required, 5-second debounce)
+        • Room insert: id = UUIDv7, sync_state = PENDING, updated_at = now
+          (the whole database is encrypted with SQLCipher)
+        • The repository doesn't schedule anything
+  → SyncTriggers sees a new PENDING row
+        • SyncWorker requested in 5 seconds (network required)
   → Response screen (ResponseRules: zone RED, stress ≥ 8 → one button only)
       "That's a lot to carry right now." + [Breathe with me · 1 minute]
   → User breathes, sets "now" to 5 → Check in
@@ -547,7 +549,7 @@ git push -u origin feat/logs-date-filter
 | Layer | What to test | Tools |
 |---|---|---|
 | `shared` | Mood catalog, ResponseRules, validation, insight text | `kotlin.test` |
-| Android data | Room DAOs, report queries (local day across midnight), SyncEngine merge | JUnit, Room in-memory, Turbine, MockK |
+| Android data | Room DAOs, report queries (local day across midnight), SyncEngine merge, full resync, FAILED after 10 errors | JUnit, Room in-memory, Turbine, MockK |
 | Android UI | Check-in flow, language switch, mascot off, TalkBack labels | Compose UI Test |
 | Server | Auth flows, push/pull merge, rate limits, delete account | Ktor `testApplication`, Testcontainers (Postgres) |
 | End-to-end | Two emulators editing the same entry offline, then syncing | Manual checklist (`docs/technical-plan.md` §15) |
@@ -627,7 +629,7 @@ Thank you for helping make Ulap kinder and better. 💙
 ## 14. Privacy, safety and data handling
 
 - Mood and journal data is **sensitive personal information**. Handle it in line with the **Philippine Data Privacy Act of 2012 (RA 10173)**: privacy notice, consent at onboarding, a clear purpose, and **NPC** registration where required.
-- **On the device:** the journal (`note`, `triggerOther`) is encrypted with an Android Keystore key. Android cloud backup of the database is off.
+- **On the device:** the whole Room database (moods, stress, triggers and notes) is encrypted with **SQLCipher**. Its random passphrase is wrapped by Tink with an Android Keystore key and kept out of backups. Android cloud backup of the database is off. If the Keystore key is lost, the database starts empty and synced check-ins come back from the server ([Technical plan §6](docs/technical-plan.md#encryption-of-the-phone-database)).
 - **On the server:** encrypted disk and backups, plus application-level AES-256-GCM for notes. Every query is filtered by the token's user ID.
 - **No ads, no analytics on journal content, no selling or sharing data.**
 - **Deletion:** Account → *Delete account and all data* deletes everything on the server and wipes the phone.
@@ -650,7 +652,7 @@ Thank you for helping make Ulap kinder and better. 💙
 | Verification email never arrives (dev) | Open Mailpit at http://localhost:8026 |
 | "Port is already allocated" when starting containers | Another project uses that port. Ulap uses 5434, 8026 and 1026 to avoid the usual ones. Find the clash with `docker ps`. |
 | Commit doesn't format Kotlin | Turn on the hook once per clone: `git config core.hooksPath .githooks` |
-| Sync stuck as "pending" | Look for `sync_error` on the row (it was rejected). Check the server logs by `X-Request-Id`. |
+| Sync stuck as "pending" | Look for `sync_error` on the row: a rejection reason, or `FAILED` after 10 internal errors. Account → Try again sends it again. Check the server logs by `X-Request-Id`. |
 | Wrong language after switching | Restart the activity. Make sure the strings exist in that `values-*` folder. |
 
 ---
