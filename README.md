@@ -658,14 +658,17 @@ Each topic has **one owner document**. Other documents summarize it and link to 
 
 ## 18. License
 
-**License: to be decided.** Until a license is added, this project is **"All rights reserved"**: you may view the code, but copying, modifying or distributing it requires the owner's permission.
+**All rights reserved** © 2026 Christian Daohog. See [LICENSE](LICENSE).
 
-When choosing a license:
+The repository is public so people can read it. Copying, modifying or distributing the code, or using it in another product, needs the owner's written permission. The only exception is the viewing and forking that GitHub's Terms of Service allow.
+
+If the project opens up later, these are the options:
 - **MIT** or **Apache-2.0** if you want anyone to reuse the code freely (Apache-2.0 adds patent protection).
 - **AGPL-3.0** if you want anyone who runs a modified server to share their changes.
-- **Proprietary** if you plan to sell it or keep it closed.
 
-The **name "Ulap," the mascot artwork and the app icon** are brand assets. Even with an open-source license, keep them under a separate trademark and asset notice so forks can't publish under the same name and character.
+Going from "all rights reserved" to an open license is easy. Taking back an open license you've already granted is not.
+
+The **name "Ulap," the mascot artwork and the app icon** are brand assets. [LICENSE](LICENSE) reserves them separately, so they stay reserved even if the code is open-sourced, and forks can't publish under the same name and character.
 
 Third-party fonts (**Bricolage Grotesque**, **Figtree**) are under the **SIL Open Font License 1.1**. Include their license files in `androidApp/src/main/res/font/LICENSES/`.
 
