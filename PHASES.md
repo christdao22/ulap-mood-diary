@@ -18,7 +18,7 @@ Last updated: November 5, 2026
 |---|---|---|---|
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
 | 1 | Project setup | ✅ Complete | 18 / 18 |
-| 2 | Offline check-in | 🟡 In progress | 12 / 25 |
+| 2 | Offline check-in | 🟡 In progress | 16 / 25 |
 | 3 | Logs | ⬜ Not started | 0 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
@@ -87,7 +87,7 @@ Spec: [README §5–§8](README.md#5-folder-structure) · [Technical plan §4](d
 ### Repository
 - [x] Create the Git repository with `main` as the protected branch
 - [x] Add `README.md`, `PHASES.md`, `docs/`, `.editorconfig`, `.gitignore`
-- [x] Add the Claude Code setup: `CLAUDE.md`, agents and skills in `.claude/`, `.claude/settings.json`, `.mcp.example.json` ([Repo reference §11](docs/ulap-reference.md#11-claude-code-setup-for-ulap))
+- [x] Add the Claude Code setup: `CLAUDE.md`, agents and skills in `.claude/`, `.claude/settings.json` ([Repo reference §11](docs/ulap-reference.md#11-claude-code-setup-for-ulap))
 - [x] Add the PR template and a short `CONTRIBUTING.md` that links to [README §12](README.md#12-contributing-guidelines)
 - [x] Choose a license (or keep "All rights reserved" for now)
 - [x] Decide the proposed changes D1–D14 in [Repo reference §13](docs/ulap-reference.md#13-decision-log), then update the listed docs
@@ -137,10 +137,10 @@ Spec: [Technical plan §5–§6](docs/technical-plan.md#5-shared-domain-model) �
 - [x] DataStore for settings (language, mascot on/off, device ID)
 
 ### Theme and components
-- [ ] Theme: `Color.kt`, `Type.kt`, `Shape.kt` from the design spec
-- [ ] Bundle the fonts (Bricolage Grotesque, Figtree) with their license files
-- [ ] `Ulap` composable with 6 expressions plus the float animation (respects reduced motion)
-- [ ] Components: MoodTile, ZoneSection, SpeechBubble, Slider row, TriggerChip, buttons
+- [x] Theme: `Color.kt`, `Type.kt`, `Shape.kt` from the design spec
+- [x] Bundle the fonts (Bricolage Grotesque, Figtree) with their license files
+- [x] `Ulap` composable with 6 expressions plus the float animation (respects reduced motion)
+- [x] Components: MoodTile, ZoneSection, SpeechBubble, Slider row, TriggerChip, buttons
 
 ### Screens
 - [ ] Pick mood: Ulap greeting plus 4 zone sections in a 3-column grid

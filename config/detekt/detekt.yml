@@ -20,8 +20,9 @@ complexity:
     # its own dependencies.
     ignoreAnnotated: ['Composable', 'AssistedInject']
     # Test row builders take every field as an optional parameter, so each test names only
-    # the fields it is about. core:testing holds the builders tests share.
-    excludes: ['**/test/**', '**/androidTest/**', '**/core/testing/**']
+    # the fields it is about. core:testing holds the builders tests share. A theme palette
+    # (UlapColors) takes one parameter per design token, like Material's ColorScheme.
+    excludes: ['**/test/**', '**/androidTest/**', '**/core/testing/**', '**/core/designsystem/**/theme/**']
   TooManyFunctions:
     # DAOs and API interfaces are lists of queries and endpoints; the Room database is a
     # list of its DAOs, and a Hilt module a list of its bindings.
@@ -43,7 +44,8 @@ style:
     # The same goes for an enum entry's value (`HIGH(8)`, `YELLOW(3)`): the entry names it.
     ignoreEnums: true
     # Kotlin Multiplatform test source sets are named commonTest and jvmTest, not test.
-    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/core/designsystem/**/theme/**']
+    # The mascot is drawn from design-spec §8's viewBox coordinates, copied as written.
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/core/designsystem/**/theme/**', '**/core/designsystem/**/mascot/**']
   UnusedPrivateMember:
     # @Preview functions are private and only Android Studio calls them.
     ignoreAnnotated: ['Preview']

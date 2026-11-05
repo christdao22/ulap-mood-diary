@@ -497,6 +497,9 @@ val ButtonShape = RoundedCornerShape(14.dp)
 
 - Zone, Mood and other domain types come from the shared module ([Technical plan §5](technical-plan.md#5-shared-domain-model)).
 - Map Material roles: `primary = Ink`, `onPrimary = White`, `background = Bg`, `surface = Surface`, `outline = LineStrong`, `outlineVariant = Line`.
+- The sketch above is simplified. The code in `core/designsystem/.../theme/` differs in three ways. `UlapColors` is a class holding every §2 token (including stress bands and the mascot), read through `UlapTheme.colors`, so dark mode can be a second instance. `overline` maps to `labelMedium`. The other Material roles are filled from the neutrals, so no Material purple shows through. Three colors used in §6.1 and §8 are tokens too: `mutedOnTint` (#4A5162), `ulapBody` (#FFFFFF) and `leaf` (#3E9A6A).
+- The fonts are Google Fonts' variable files (`res/font/`), with weights picked in `Type.kt`. Figtree also loads 700 for bold numbers inside text.
+- §8.3 names the heart, sparkle and leaf accents but gives no paths. The paths `Ulap.kt` draws are the reference until the illustration set (§8.6) replaces them.
 - Build Ulap as one `@Composable fun Ulap(expression: UlapExpression, size: Dp, float: Boolean)` drawing with `Canvas` and the paths in §8.2–8.3 (or as six vector drawables).
 
 ---
