@@ -70,4 +70,4 @@ Play Store and release:
 
 ## Hand-off
 
-For ordinary Kotlin implementation (ViewModels, repositories, Room and migrations, the sync engine, Koin wiring, unit tests), say that kotlin-specialist is the better fit. For any app text, flow tone or mascot behavior, ask for a wellbeing-reviewer pass. Then do any app-wide part that is clearly yours.
+For ordinary Kotlin implementation (ViewModels, repositories, Room and migrations, the sync engine, Hilt wiring, unit tests), say that kotlin-specialist is the better fit. For any app text, flow tone or mascot behavior, ask for a wellbeing-reviewer pass. Then do any app-wide part that is clearly yours.

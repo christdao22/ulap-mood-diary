@@ -39,7 +39,7 @@ Write it for an Android beginner, plainly and briefly, under these headings:
 
 - **What changed**: each file created or changed, as a link, one line each.
 - **Why**: the problem this solves, and the doc section it implements.
-- **New concepts**: each Android, Kotlin, Gradle, Ktor or tooling idea that appears for the first time, in a few sentences. Compare it to its TypeScript/Node counterpart where one exists. For example, a Gradle version catalog is like a shared dependency list in `package.json`, a Koin module is like a DI container, `suspend fun` is like `async function`, and a Ktor plugin is like Hono middleware. Skip concepts that earlier tasks already explained.
+- **New concepts**: each Android, Kotlin, Gradle, Ktor or tooling idea that appears for the first time, in a few sentences. Compare it to its TypeScript/Node counterpart where one exists. For example, a Gradle version catalog is like a shared dependency list in `package.json`, a Hilt module is like registering providers in a DI container, `suspend fun` is like `async function`, and a Ktor plugin is like Hono middleware. Skip concepts that earlier tasks already explained.
 - **Try it yourself**: the commands to run, or what to click in Android Studio, to see it working.
 - **Left open**: anything deferred, skipped or unverified, and which task will pick it up.
 - **Next**: the next task.

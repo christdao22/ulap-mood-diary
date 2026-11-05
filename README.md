@@ -91,11 +91,12 @@ After saving, the app responds **sympathetically**: it validates the feeling, of
 | Settings | **DataStore** |
 | Auth (Android) | **Credential Manager** + Google ID library (Sign in with Google), email and password |
 | Networking | **Ktor Client** |
-| Dependency injection | **Koin** |
+| Dependency injection | **Hilt** in Android. `shared` uses plain constructors (no DI library), so iOS isn't blocked. |
 | Backend | **Ktor Server** (Netty), JWT auth, rate limiting |
 | Database | **PostgreSQL**, accessed with **Exposed**, migrations with **Flyway**, pooled with **HikariCP** |
 | Passwords | **Argon2id** |
-| Build | **Gradle** (Kotlin DSL) with a version catalog (`gradle/libs.versions.toml`) |
+| Build | **Gradle** (Kotlin DSL) with a version catalog (`gradle/libs.versions.toml`) and `ulap.*` convention plugins in `build-logic/` |
+| Code quality | **Spotless** + ktlint, **compose-rules**, **detekt**, **Android Lint** (warnings fail the build in CI) |
 | Local infra | **Docker Compose** (PostgreSQL, Mailpit for test emails) |
 | CI | GitHub Actions (build, lint, tests) |
 
@@ -123,6 +124,8 @@ Details: [`docs/technical-plan.md`](docs/technical-plan.md) · [`docs/api-spec.m
 
 ## 5. Folder structure
 
+Android is split into `core:*` and `feature:*` modules (decision D1 in [ulap-reference §13](docs/ulap-reference.md#13-decision-log)). Nothing below exists until the Phase 1 "Gradle and modules" tasks create it.
+
 ```
 ulap/
 ├── README.md                          # start here
@@ -132,16 +135,20 @@ ulap/
 ├── .mcp.example.json                  # copy to .mcp.json (gitignored) for the XERJ MCP server
 ├── LICENSE
 ├── CONTRIBUTING.md                    # short file that links to README §12
-├── .editorconfig
+├── .editorconfig · .gitattributes · .gitignore
+├── .githooks/pre-commit               # runs spotlessApply on staged Kotlin (§6.2 turns it on)
 ├── .github/
-│   ├── workflows/ci.yml               # build + test on every PR
+│   ├── workflows/                     # ci-android.yml, ci-server.yml, release-android.yml
 │   └── pull_request_template.md
-├── docker-compose.yml                 # postgres + mailpit for local dev
-├── .env.example                       # copy to .env for the server
-├── settings.gradle.kts
-├── build.gradle.kts
+├── .env.example                       # copy to .env for ./gradlew :server:run
+├── settings.gradle.kts                # includeBuild("build-logic"), every module, typesafe accessors
+├── build.gradle.kts                   # plugins apply false; Spotless + detekt for every module
+├── gradle.properties                  # build settings only. No URLs, client IDs or secrets.
 ├── gradle/
-│   └── libs.versions.toml             # all dependency versions live here
+│   ├── libs.versions.toml             # all dependency versions live here, and only here
+│   └── gradle-daemon-jvm.properties
+├── config/detekt/detekt.yml           # detekt overrides, each with a one-line reason
+├── build-logic/convention/            # ulap.android.application, .library, .feature, .room, ulap.hilt, ulap.kmp.library …
 │
 ├── docs/
 │   ├── technical-plan.md              # architecture, DB, sync, phase summary
@@ -149,7 +156,7 @@ ulap/
 │   ├── api-spec.md                    # every endpoint, request and response
 │   └── ulap-reference.md              # reuse plan from macro-tracker, Claude Code setup, decision log
 │
-├── shared/                            # Kotlin Multiplatform module
+├── shared/                            # Kotlin Multiplatform module (no DI, no Android)
 │   └── src/
 │       ├── commonMain/kotlin/app/ulap/shared/
 │       │   ├── model/                 # CheckIn, Mood, Zone, Trigger, SupportType
@@ -159,37 +166,43 @@ ulap/
 │       │   └── api/                   # @Serializable DTOs for auth + sync
 │       └── commonTest/                # unit tests for rules + validation
 │
-├── androidApp/
-│   ├── build.gradle.kts
-│   └── src/
-│       ├── main/
-│       │   ├── AndroidManifest.xml
-│       │   ├── kotlin/app/ulap/android/
-│       │   │   ├── UlapApp.kt         # Application class, Koin start
-│       │   │   ├── MainActivity.kt
-│       │   │   ├── data/
-│       │   │   │   ├── db/            # Room entities, DAOs, UlapDatabase
-│       │   │   │   ├── repo/          # CheckInRepository, SettingsRepository
-│       │   │   │   ├── remote/        # Ktor client, AuthApi, SyncApi
-│       │   │   │   └── sync/          # SyncEngine, SyncWorker
-│       │   │   ├── auth/              # Credential Manager, TokenStore
-│       │   │   ├── ui/
-│       │   │   │   ├── onboarding/
-│       │   │   │   ├── checkin/       # PickMood, Details, Response, AfterCheck
-│       │   │   │   ├── logs/
-│       │   │   │   ├── reports/
-│       │   │   │   ├── account/
-│       │   │   │   ├── ulap/          # Ulap mascot composable (6 expressions)
-│       │   │   │   ├── components/    # MoodTile, TriggerChip, StatTile, charts…
-│       │   │   │   └── theme/         # Color.kt, Type.kt, Shape.kt
-│       │   │   └── di/                # Koin modules
-│       │   └── res/
-│       │       ├── values/strings.xml          # English
-│       │       ├── values-fil/strings.xml      # Filipino
-│       │       ├── values-b+ceb/strings.xml    # Bisaya (Cebuano)
-│       │       └── font/                       # Bricolage Grotesque, Figtree
-│       ├── test/                      # JVM unit tests (repos, sync engine)
-│       └── androidTest/               # Room + Compose UI tests
+├── androidApp/                        # the app shell: wires the modules together
+│   └── src/main/
+│       ├── AndroidManifest.xml
+│       ├── kotlin/app/ulap/android/
+│       │   ├── UlapApp.kt             # Application class (@HiltAndroidApp)
+│       │   ├── MainActivity.kt
+│       │   └── navigation/            # NavHost with every feature's routes
+│       └── res/xml/                   # locales_config, network_security_config, backup rules
+│
+├── core/                              # Android library modules, app.ulap.core.<name>
+│   ├── common/                        # dispatchers, Result helpers
+│   ├── model/  domain/                # wrap or re-export :shared types for Android modules
+│   ├── designsystem/                  # theme (Color, Type, Shape), Ulap mascot, MoodTile, TriggerChip, charts…
+│   │   └── src/main/res/font/         # Bricolage Grotesque, Figtree + LICENSES/
+│   ├── ui/                            # shared screen pieces
+│   │   └── src/main/res/
+│   │       ├── values/strings.xml          # English (every user-facing string lives here)
+│   │       ├── values-fil/strings.xml      # Filipino
+│   │       └── values-b+ceb/strings.xml    # Bisaya (Cebuano)
+│   ├── database/                      # Room entities, DAOs, UlapDatabase; schemas/ committed
+│   ├── datastore/                     # settings
+│   ├── network/                       # Ktor client, AuthApi, SyncApi, client plugins
+│   ├── auth/                          # Credential Manager, token store
+│   ├── data/                          # repositories (CheckInRepository, SettingsRepository)
+│   ├── sync/                          # SyncEngine, SyncWorker
+│   └── testing/                       # fakes, MainDispatcherRule
+│
+├── feature/                           # one module per area, app.ulap.feature.<name>
+│   ├── onboarding/
+│   ├── checkin/                       # PickMood, Details, Response, AfterCheck
+│   ├── logs/
+│   ├── reports/
+│   └── account/
+│
+├── infra/
+│   ├── compose.yaml                   # postgres, migrate (one-off Flyway), server
+│   └── compose.dev.yaml               # dev host ports + mailpit
 │
 └── server/
     ├── build.gradle.kts
@@ -212,6 +225,11 @@ ulap/
         └── test/                      # route tests with testApplication + Testcontainers
 ```
 
+**Module rules** (from [ulap-reference §5](docs/ulap-reference.md#5-android-architecture-rules)):
+- A `feature:*` module may use `core:common`, `core:model`, `core:domain`, `core:designsystem`, `core:ui` and `:shared`. It never uses another feature, `core:database` or `core:network`. The `ulap.android.feature` convention plugin enforces this.
+- Room entities never leave `core:database`, and network DTOs never leave `core:network`. Repositories in `core:data` turn both into `:shared` domain types.
+- Each module keeps its tests beside it (`src/test/` for JVM tests, `src/androidTest/` for Room and Compose tests on an emulator).
+
 ---
 
 ## 6. Getting started (development)
@@ -232,16 +250,26 @@ ulap/
 git clone https://github.com/<your-org>/ulap.git
 cd ulap
 cp .env.example .env          # fill in the values (see §8)
+git config core.hooksPath .githooks   # formats staged Kotlin with spotlessApply before each commit
 ```
+
+Per-machine Android values go in your **user-level** `~/.gradle/gradle.properties` (on Windows `%USERPROFILE%\.gradle\gradle.properties`), never in the repo. See [§8](#8-configuration-reference) for the keys.
 
 ### 6.3 Start local services
 
 ```bash
-docker compose up -d          # PostgreSQL on :5432, Mailpit on :8025 (web) / :1025 (SMTP)
-docker compose ps             # both should be "running"
+docker compose -f infra/compose.yaml -f infra/compose.dev.yaml up -d postgres mailpit
+docker compose -f infra/compose.yaml -f infra/compose.dev.yaml ps    # both should be "running"
 ```
 
-Mailpit catches all outgoing emails (verification and reset). Open **http://localhost:8025** to read them.
+| Service | Address |
+|---|---|
+| PostgreSQL | `localhost:5434` |
+| Mailpit web / SMTP | http://localhost:8026 / `localhost:1026` |
+
+These ports differ from the usual 5432 / 8025 / 1025 on purpose, so Ulap can run beside other local projects (decision D13).
+
+Mailpit catches all outgoing emails (verification and reset). Open **http://localhost:8026** to read them.
 
 ### 6.4 Run the server
 
@@ -250,7 +278,8 @@ Mailpit catches all outgoing emails (verification and reset). Open **http://loca
 ```
 
 - Starts on **http://localhost:8080**.
-- Flyway runs migrations automatically on startup.
+- In development, Flyway runs migrations automatically on startup. Staging and production run them as a separate `migrate` step first ([§7.1](#71-server)).
+- Server tests don't need these containers. Testcontainers starts its own PostgreSQL on a random port.
 - Check it: `curl http://localhost:8080/v1/health` → `{"status":"ok"}`
 
 To reload automatically while coding:
@@ -262,7 +291,7 @@ To reload automatically while coding:
 
 1. Open the project root in **Android Studio**.
 2. Wait for the Gradle sync to finish.
-3. Choose the **`androidApp`** run configuration with the **`debug`** build type.
+3. Choose the **`androidApp`** run configuration with the **`debug`** build type. (The build types are `debug`, `staging` and `release`.)
 4. Start an emulator and press **Run** ▶.
 
 Or from the terminal:
@@ -270,17 +299,18 @@ Or from the terminal:
 ./gradlew :androidApp:installDebug
 ```
 
-The debug build talks to `http://10.0.2.2:8080/v1` (the emulator's address for your computer). For a **real phone** on the same Wi-Fi, set your computer's local IP in `androidApp/local.properties`:
+The debug build talks to `http://10.0.2.2:8080/v1` (the emulator's address for your computer), set in `~/.gradle/gradle.properties`:
 ```properties
-ulap.apiBaseUrl=http://192.168.1.20:8080/v1
+ulap.apiUrl.debug=http://10.0.2.2:8080/v1
 ```
+For a **real phone** on USB, run `adb reverse tcp:8080 tcp:8080` and set `ulap.apiUrl.debug=http://localhost:8080/v1`. Over Wi-Fi, use your computer's local IP instead (for example `http://192.168.1.20:8080/v1`).
 (Cleartext HTTP is allowed **only** in the debug build, through `network_security_config`.)
 
 ### 6.6 Set up Google sign-in (optional in dev)
 
 1. In Google Cloud Console, create an **OAuth client ID**:
-   - **Web application** → copy the client ID → `GOOGLE_WEB_CLIENT_ID` (server `.env`) **and** `ulap.googleWebClientId` (`androidApp/local.properties`).
-   - **Android** → package `app.ulap.android.debug` + your debug SHA-1 (`./gradlew :androidApp:signingReport`).
+   - **Web application** → copy the client ID → `GOOGLE_WEB_CLIENT_ID` (server `.env`) **and** `ulap.googleWebClientId` (`~/.gradle/gradle.properties`).
+   - **Android**, one client per build type → package `app.ulap.android.debug` (or `.staging`) + that build's SHA-1 (`./gradlew :androidApp:signingReport`).
 2. Rebuild the app. Without these, the Google button is hidden in debug builds, and email sign-in still works.
 
 ### 6.7 Useful Gradle tasks
@@ -290,9 +320,12 @@ ulap.apiBaseUrl=http://192.168.1.20:8080/v1
 | `./gradlew build` | Compile everything and run all unit tests |
 | `./gradlew :shared:allTests` | Shared module tests |
 | `./gradlew :server:test` | Server tests (needs Docker for Testcontainers) |
-| `./gradlew :androidApp:testDebugUnitTest` | Android JVM unit tests |
-| `./gradlew :androidApp:connectedDebugAndroidTest` | Room and Compose UI tests on an emulator |
-| `./gradlew ktlintCheck` / `ktlintFormat` | Lint and auto-format |
+| `./gradlew test` | JVM unit tests in every module |
+| `./gradlew connectedDebugAndroidTest` | Room and Compose UI tests on an emulator |
+| `./gradlew spotlessCheck` / `spotlessApply` | Check / fix formatting (ktlint + compose-rules) |
+| `./gradlew detekt` | Static analysis |
+| `./gradlew :androidApp:lintDebug` | Android Lint |
+| `./gradlew spotlessCheck detekt :androidApp:lintDebug test assembleDebug -PwarningsAsErrors=true` | Everything CI checks, in one command |
 | `./gradlew :server:buildFatJar` | Build the runnable server JAR |
 | `./gradlew :androidApp:bundleRelease` | Build the Play Store bundle (`.aab`) |
 
@@ -370,19 +403,19 @@ docker run -d --name ulap-server -p 8080:8080 --env-file .env.production ulap-se
 - [ ] Rate limits on (default on)
 - [ ] Monitoring: error rate, p95 latency, database connections
 
-**Migrations:** Flyway runs on startup. For zero-downtime releases, only ship **backward-compatible** migrations (add columns, then remove them in a later release).
+**Migrations:** in staging and production, run them as their own step **before** starting the new server: `docker compose run --rm migrate`, then `docker compose up -d --wait`. The server doesn't migrate on startup there (only in development). For zero-downtime releases, only ship **backward-compatible** migrations (add columns, then remove them in a later release).
 
 ### 7.2 Android release
 
 1. Create a release keystore (keep it safe and **never commit it**).
-2. Add the signing config to `~/.gradle/gradle.properties` or your CI secrets:
+2. Add the signing config to `~/.gradle/gradle.properties` (CI passes the same keys as `-P` flags from its secrets):
    ```properties
-   ULAP_KEYSTORE_PATH=/path/to/ulap-release.jks
-   ULAP_KEYSTORE_PASSWORD=…
-   ULAP_KEY_ALIAS=ulap
-   ULAP_KEY_PASSWORD=…
+   ulap.upload.storeFile=/path/to/ulap-release.jks
+   ulap.upload.storePassword=…
+   ulap.upload.keyAlias=ulap
+   ulap.upload.keyPassword=…
    ```
-3. Set `ulap.apiBaseUrl=https://api.ulap.app/v1` (placeholder domain, same as the [API reference](docs/api-spec.md#2-conventions)) for the `release` build type.
+3. Set `ulap.apiUrl.release=https://api.ulap.app/v1` (placeholder domain, same as the [API reference](docs/api-spec.md#2-conventions)). The `staging` build type uses `ulap.apiUrl.staging`.
 4. Register the **release SHA-1** (and the Play App Signing SHA-1) with your Android OAuth client.
 5. Build: `./gradlew :androidApp:bundleRelease` → `androidApp/build/outputs/bundle/release/androidApp-release.aab`
 6. Upload to **Google Play Console** → internal or closed testing first.
@@ -398,7 +431,7 @@ docker run -d --name ulap-server -p 8080:8080 --env-file .env.production ulap-se
 |---|---|---|---|
 | `APP_ENV` | `development` | ✅ | `development` or `production` |
 | `PORT` | `8080` | | HTTP port |
-| `DATABASE_URL` | `jdbc:postgresql://localhost:5432/ulap` | ✅ | JDBC URL |
+| `DATABASE_URL` | `jdbc:postgresql://localhost:5434/ulap` | ✅ | JDBC URL |
 | `DATABASE_USER` | `ulap` | ✅ | |
 | `DATABASE_PASSWORD` | `ulap` | ✅ | |
 | `DATABASE_POOL_SIZE` | `10` | | HikariCP max pool |
@@ -410,18 +443,22 @@ docker run -d --name ulap-server -p 8080:8080 --env-file .env.production ulap-se
 | `GOOGLE_WEB_CLIENT_ID` | `123…apps.googleusercontent.com` | for Google | Audience for Google ID tokens |
 | `NOTE_ENCRYPTION_KEY` | `<base64 32 bytes>` | ✅ | AES-256-GCM key for `note` / `triggerOther` |
 | `NOTE_ENCRYPTION_KEY_ID` | `k1` | ✅ | Allows key rotation |
-| `SMTP_HOST` / `SMTP_PORT` | `localhost` / `1025` | ✅ | Mailpit in dev |
+| `SMTP_HOST` / `SMTP_PORT` | `localhost` / `1026` | ✅ | Mailpit in dev |
 | `SMTP_USER` / `SMTP_PASSWORD` | | prod | |
 | `MAIL_FROM` | `Ulap <hello@ulap.app>` | ✅ | |
 | `APP_LINK_BASE` | `https://ulap.app` | ✅ | Base URL for verify and reset links |
 | `MIN_ANDROID_VERSION_CODE` | `1` | | Below this → `426 APP_UPDATE_REQUIRED` |
 
-### Android (`androidApp/local.properties`, never committed)
+### Android (`~/.gradle/gradle.properties`, never committed)
+
+User-level Gradle properties, read with `providers.gradleProperty`. CI passes them as `-P` flags. Full list: [ulap-reference §4.3](docs/ulap-reference.md#43-build-types-and-gradle-properties).
 
 | Key | Example | Description |
 |---|---|---|
-| `ulap.apiBaseUrl` | `http://10.0.2.2:8080/v1` | API base URL for debug |
+| `ulap.apiUrl.debug` | `http://10.0.2.2:8080/v1` | API base URL for the `debug` build |
+| `ulap.apiUrl.staging` / `ulap.apiUrl.release` | `https://api.ulap.app/v1` | API base URL for `staging` / `release` |
 | `ulap.googleWebClientId` | `123…apps.googleusercontent.com` | Web client ID used by Credential Manager |
+| `ulap.upload.*` | see [§7.2](#72-android-release) | Release signing (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`) |
 
 ---
 
@@ -487,13 +524,13 @@ git checkout main && git pull
 git checkout -b feat/logs-date-filter
 
 # 2. Run the local stack
-docker compose up -d
+docker compose -f infra/compose.yaml -f infra/compose.dev.yaml up -d postgres mailpit
 ./gradlew :server:run            # terminal 1
 # run androidApp from Android Studio  # terminal 2
 
 # 3. Code + tests
-./gradlew ktlintFormat
-./gradlew build                  # all unit tests must pass
+./gradlew spotlessApply          # the pre-commit hook also does this
+./gradlew spotlessCheck detekt :androidApp:lintDebug test assembleDebug -PwarningsAsErrors=true
 
 # 4. Commit with Conventional Commits
 git add .
@@ -548,7 +585,8 @@ Thank you for helping make Ulap kinder and better. 💙
    - Docs updated (`docs/*.md`) when behavior or the API changes
 
 ### Code style
-- Kotlin official style, enforced by **ktlint** (`./gradlew ktlintFormat`).
+- Kotlin style is enforced by **Spotless** with ktlint and compose-rules (`./gradlew spotlessApply` fixes it, and the `.githooks/pre-commit` hook runs it for you).
+- **detekt** and **Android Lint** must pass. CI treats warnings as errors. A detekt override goes in `config/detekt/detekt.yml` with a one-line reason.
 - Compose: stateless composables with state passed in. Preview functions for every component.
 - No hard-coded user-facing strings. Everything goes in `strings.xml` (all three languages).
 - No hard-coded colors or sizes in screens. Use the theme tokens (`docs/design-spec.md`).
@@ -603,13 +641,15 @@ Thank you for helping make Ulap kinder and better. 💙
 | Problem | Fix |
 |---|---|
 | App can't reach the server on the emulator | Use `http://10.0.2.2:8080/v1`, not `localhost`. Check that the server is running. |
-| App can't reach the server on a real phone | Use your computer's LAN IP. Both devices on the same Wi-Fi. Allow port 8080 in the firewall. |
-| Google button missing | `ulap.googleWebClientId` isn't set in `local.properties` |
+| App can't reach the server on a real phone | On USB: `adb reverse tcp:8080 tcp:8080`. On Wi-Fi: set `ulap.apiUrl.debug` to your computer's LAN IP, keep both devices on the same network, and allow port 8080 in the firewall. |
+| Google button missing | `ulap.googleWebClientId` isn't set in `~/.gradle/gradle.properties` |
 | Google sign-in fails with "No credentials" | Register the debug or release **SHA-1** with your Android OAuth client. Sign in to a Google account on the emulator. |
 | Server: `INVALID_GOOGLE_TOKEN` | `GOOGLE_WEB_CLIENT_ID` on the server must match the app's `serverClientId` |
-| Flyway "checksum mismatch" | Never edit an applied migration. Add a new `V{n}__…sql`. In local dev only: `docker compose down -v` to reset. |
+| Flyway "checksum mismatch" | Never edit an applied migration. Add a new `V{n}__…sql`. In local dev only: `docker compose -f infra/compose.yaml -f infra/compose.dev.yaml down -v` to reset. |
 | Server tests fail to start | Docker must be running (Testcontainers) |
-| Verification email never arrives (dev) | Open Mailpit at http://localhost:8025 |
+| Verification email never arrives (dev) | Open Mailpit at http://localhost:8026 |
+| "Port is already allocated" when starting containers | Another project uses that port. Ulap uses 5434, 8026 and 1026 to avoid the usual ones. Find the clash with `docker ps`. |
+| Commit doesn't format Kotlin | Turn on the hook once per clone: `git config core.hooksPath .githooks` |
 | Sync stuck as "pending" | Look for `sync_error` on the row (it was rejected). Check the server logs by `X-Request-Id`. |
 | Wrong language after switching | Restart the activity. Make sure the strings exist in that `values-*` folder. |
 
@@ -670,7 +710,7 @@ Going from "all rights reserved" to an open license is easy. Taking back an open
 
 The **name "Ulap," the mascot artwork and the app icon** are brand assets. [LICENSE](LICENSE) reserves them separately, so they stay reserved even if the code is open-sourced, and forks can't publish under the same name and character.
 
-Third-party fonts (**Bricolage Grotesque**, **Figtree**) are under the **SIL Open Font License 1.1**. Include their license files in `androidApp/src/main/res/font/LICENSES/`.
+Third-party fonts (**Bricolage Grotesque**, **Figtree**) are under the **SIL Open Font License 1.1**. Include their license files in `core/designsystem/src/main/res/font/LICENSES/`.
 
 ---
 

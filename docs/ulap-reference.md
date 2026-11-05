@@ -44,7 +44,7 @@ The big difference is the server. macro-tracker runs **Hono on Node (TypeScript)
 |---|---|---|
 | Repo hygiene (`.editorconfig`, `.gitattributes`, `.gitignore` patterns) | **[reuse]** | Language-neutral |
 | Android Gradle setup (convention plugins, version catalog, Spotless, detekt, Lint) | **[adapt]** | Same platform. Rename `macrotracker.*` → `ulap.*`. |
-| Android module rules (`core:*` / `feature:*`) | **[adapt]**, see D1 | Proven boundaries. Needs a decision. |
+| Android module rules (`core:*` / `feature:*`) | **[adapt]**, D1 accepted | Proven boundaries |
 | Room + SQLCipher + Tink, DataStore, WorkManager | **[adapt]**, see D3 | Same needs (sensitive journal) |
 | Network client | **[skip]** Retrofit + OpenAPI codegen → keep **Ktor Client** | Ktor Client works in KMP (iOS later). Shared DTOs replace codegen. |
 | Server code (Hono, Drizzle, Better Auth, BullMQ, Redis) | **[pattern]** | Different language. Keep the layering, error shape, middleware order, jobs table. |
@@ -70,7 +70,7 @@ Versions are macro-tracker's pinned versions on 2026-11-04 (MT §3). Use them as
 | Navigation Compose | 2.10.2, type-safe `@Serializable` routes | Same | |
 | Lifecycle | 2.11.0 | Same | |
 | Charts | **Vico 3.3.1** | Compose Canvas (docs) | D9: consider Vico |
-| DI | **Hilt 2.60.1** | Koin (docs) | D2 |
+| DI | **Hilt 2.60.1** | Hilt in Android, none in `:shared` | D2 accepted |
 | Room / SQLCipher / androidx.sqlite | 2.8.5 / 4.20.0 / 2.7.1 | Room (docs) + column encryption | D3: full SQLCipher |
 | Crypto | Tink 1.24.0 | Keystore (docs) | Tink wraps keys with Keystore |
 | DataStore | 1.3.0 (JSON serializer, not Proto) | DataStore | Same pattern |
@@ -81,7 +81,7 @@ Versions are macro-tracker's pinned versions on 2026-11-04 (MT §3). Use them as
 | Crash reporting | Sentry Android 8.62.0 | "crash reporting without personal data" ([Phases 8](../PHASES.md#phase-8-privacy-safety-and-polish)) | D11 |
 | Startup | Baseline Profile module | Not planned | D12 |
 | Tests | JUnit 4, Robolectric 4.17, MockWebServer, room-testing, work-testing, Compose UI test | JUnit, Room, Compose UI test, Testcontainers | Ktor has `MockEngine` instead of MockWebServer |
-| Lint | Spotless 8.10.4 + ktlint 1.8.0 + compose-rules 0.6.8, detekt 1.23.8, Android Lint | ktlint (docs) | D10 |
+| Lint | Spotless 8.10.4 + ktlint 1.8.0 + compose-rules 0.6.8, detekt 1.23.8, Android Lint | Same | D10 accepted |
 | Server runtime | Node 24, Hono 4.13 | **Ktor** (JVM 17+) | Pick the latest stable Ktor 3.x |
 | ORM / migrations | Drizzle 0.45 / drizzle-kit | **Exposed + Flyway** | |
 | Auth | Better Auth (60-day sliding session, email OTP) | Own JWT + rotating refresh ([API §3](api-spec.md#3-authentication-model)) | Keep Ulap's. No Better Auth for Kotlin. |
@@ -95,7 +95,7 @@ Versions are macro-tracker's pinned versions on 2026-11-04 (MT §3). Use them as
 
 ## 3. Target repo layout
 
-This is the layout **if D1 (modules), D10 (Spotless/detekt) and D13 (local-services) are accepted**. Until then, [README §5](../README.md#5-folder-structure) is the current layout.
+This is the target layout (D1, D10 and D13 accepted on 2026-11-05). [README §5](../README.md#5-folder-structure) owns the folder structure and carries the detail.
 
 ```
 ulap/
@@ -152,7 +152,7 @@ ulap/
 Copy macro-tracker's `build-logic/convention/` and rename (MT §11 E):
 - Plugin ids `macrotracker.*` → `ulap.*` (in `libs.versions.toml` `[plugins]` and `build-logic/convention/build.gradle.kts`)
 - Package `ph.macrotracker.buildlogic` → `app.ulap.buildlogic`
-- Plugins to keep: `ulap.android.application`, `ulap.android.library`, `ulap.android.feature` (enforces allowed dependencies), `ulap.android.room` (schema export + MigrationTestHelper assets), `ulap.hilt` (if D2), `ulap.jvm.library`
+- Plugins to keep: `ulap.android.application`, `ulap.android.library`, `ulap.android.feature` (enforces allowed dependencies), `ulap.android.room` (schema export + MigrationTestHelper assets), `ulap.hilt` (D2), `ulap.jvm.library`
 - Update `Sdk.kt` (compile 37, min 26, target 36) and `ALLOWED_FEATURE_DEPENDENCIES`
 - Add one new plugin, **`ulap.kmp.library`**, for `shared` (targets `jvm()` and `androidTarget()`, later `iosArm64()` / `iosSimulatorArm64()`)
 
@@ -199,7 +199,7 @@ One command for everything CI checks:
 
 ## 5. Android architecture rules
 
-Adopted from macro-tracker (MT §4–§5). Rules marked D1 apply only if the multi-module layout is accepted.
+Adopted from macro-tracker (MT §4–§5). D1 (multi-module) is accepted.
 
 | Rule | Ulap wording |
 |---|---|
@@ -307,7 +307,7 @@ Also adopt: WorkManager exponential backoff starting at **30 seconds** (Ulap's A
 Each environment's `infra/.env` sets `COMPOSE_PROJECT_NAME` and `COMPOSE_FILE`, so plain `docker compose` targets the right stack (macro-tracker pattern). Use `COMPOSE_PROJECT_NAME=ulap-staging` / `ulap-prod` so it can't collide with macro-tracker's stacks on the same VPS.
 
 ### 8.2 Migrations as their own step (D4)
-macro-tracker's rule: **"Run the migrations as their own step first"** on deploy, and migrations only go forward (add in one release, drop or rename in a later one). Ulap's README currently says Flyway runs on server startup. Proposal: keep auto-migrate **in dev only**. In staging and production run `docker compose run --rm migrate` **before** `up -d --wait`.
+macro-tracker's rule: **"Run the migrations as their own step first"** on deploy, and migrations only go forward (add in one release, drop or rename in a later one). Accepted: auto-migrate runs **in dev only**. In staging and production run `docker compose run --rm migrate` **before** `up -d --wait`.
 
 ### 8.3 Backup **[adapt]**
 - Image: Alpine + `postgresql17-client`, `age`, `rclone`, `supercronic`, `tzdata`
@@ -320,7 +320,7 @@ macro-tracker's rule: **"Run the migrations as their own step first"** on deploy
 macro-tracker runs on a VPS behind a token-managed **Cloudflare Tunnel** (no open ports), with images in **GHCR** tagged by the 12-character commit SHA, and rollback by pointing the image variable at the previous tag. Proposal: run Ulap on the **same VPS** as a separate Compose project, with its own tunnel hostname (`api.ulap.app`, `staging-api.ulap.app`), Postgres container and backup bucket.
 
 ### 8.5 Local ports (D13)
-macro-tracker and another local project already use **5432, 5433, 6379, 6380, 3000, 8025, 9000, 9010, 9011, 45432, 46379**. Ulap's README currently uses 5432 and Mailpit 8025/1025, which would clash. Proposal:
+macro-tracker and another local project already use **5432, 5433, 6379, 6380, 3000, 8025, 9000, 9010, 9011, 45432, 46379**. Ulap's ports (accepted) avoid them:
 
 | Service | Ulap dev port |
 |---|---|
@@ -427,7 +427,7 @@ Until D4, D10 and D13 are accepted, the commands in [README §6](../README.md#6-
 
 | Agent | From | What changes for Ulap |
 |---|---|---|
-| `kotlin-specialist` | macro-tracker, same name | Default agent for **Android and `:shared`** code: ViewModels, Room + migrations, DataStore, SyncEngine/SyncWorker, Ktor Client, Hilt or Koin (D2), coroutines, convention plugins, tests. Replace the doc references with Ulap's (`technical-plan.md` §4–§8). Keep the Kotlin rules from §5. Remove Retrofit and OpenAPI codegen. Keep "the owner is new to Kotlin" only if that's still true for you. |
+| `kotlin-specialist` | macro-tracker, same name | Default agent for **Android and `:shared`** code: ViewModels, Room + migrations, DataStore, SyncEngine/SyncWorker, Ktor Client, Hilt (D2), coroutines, convention plugins, tests. Replace the doc references with Ulap's (`technical-plan.md` §4–§8). Keep the Kotlin rules from §5. Remove Retrofit and OpenAPI codegen. Keep "the owner is new to Kotlin" only if that's still true for you. |
 | `ktor-backend` | **new** (macro-tracker's server was TypeScript) | Ktor routes → service → DAL, Exposed, Flyway, JWT and refresh rotation, the sync merge, rate limits, `testApplication` + Testcontainers. Reads `api-spec.md` first. Refuses to log request bodies. |
 | `mobile-app-developer` | macro-tracker, same name | Keep startup, size, battery, accessibility (WCAG 2.2 AA, 200% font), permissions UX, Play Console, Data safety. **Remove** barcode, Health Connect and calorie text. **Add** the health-app declaration, the three languages, reduced motion, and the hotline flow. |
 | `wellbeing-reviewer` | **new** | Reviews app text and flows against [Design spec §10](design-spec.md#10-voice-and-tone) and [§1](design-spec.md#1-design-principles): validate → offer, no guilt, the stress ≥ 8 simplification, Hopeless handling, same tone in all three languages. Read-only tools (Read, Grep, Glob). |
@@ -529,19 +529,19 @@ Status: **Proposed** (the current docs win) · **Accepted** (update the listed d
 
 | # | Decision | Recommendation | Docs to update if accepted | Status |
 |---|---|---|---|---|
-| D1 | Android modules: single `androidApp` (current) **or** macro-tracker's `core:*` + `feature:*` | **Multi-module.** You already know it from macro-tracker, and the feature rule keeps database and network code out of screens. | README §5, Technical plan §4 | Proposed |
-| D2 | DI: Koin (current) **or** Hilt | **Hilt in Android, no DI in `:shared`.** Reuses macro-tracker's convention plugin and `@HiltWorker`. `:shared` stays plain constructor injection, so iOS isn't blocked. | Technical plan §3, README §3 | Proposed |
+| D1 | Android modules: single `androidApp` (current) **or** macro-tracker's `core:*` + `feature:*` | **Multi-module.** You already know it from macro-tracker, and the feature rule keeps database and network code out of screens. | README §5, Technical plan §4 | **Accepted** (2026-11-05) |
+| D2 | DI: Koin (current) **or** Hilt | **Hilt in Android, no DI in `:shared`.** Reuses macro-tracker's convention plugin and `@HiltWorker`. `:shared` stays plain constructor injection, so iOS isn't blocked. | Technical plan §3, README §3 | **Accepted** (2026-11-05) |
 | D3 | Local encryption: `note` column only (current) **or** full SQLCipher database with a Tink-wrapped passphrase | **SQLCipher**, as macro-tracker already runs it with Room 2.8.5. It protects moods and triggers too, not only notes. The iOS driver question stays open for later. | Technical plan §6, README §14, Phases 2 | Proposed |
-| D4 | Migrations: auto on server startup (current) **or** a separate `migrate` step in staging and prod | **Separate step** (macro-tracker's deploy rule). Auto-migrate stays in dev. | README §6.4, §7.1 | Proposed |
+| D4 | Migrations: auto on server startup (current) **or** a separate `migrate` step in staging and prod | **Separate step** (macro-tracker's deploy rule). Auto-migrate stays in dev. | README §6.4, §7.1 | **Accepted** (2026-11-05) |
 | D5 | Add `GET /v1/ready` (database check) | **Yes** | API §9 and §14, Technical plan §9 | Proposed |
 | D6 | Add `resetRequired` to `/sync/pull` for cursors older than the 90-day tombstone purge | **Yes.** Without it, a long-offline phone keeps deleted check-ins forever. | API §8.3, Technical plan §8, Phases 7 | Proposed |
 | D7 | UUIDv7 ids from `:shared` | **Yes** (same UUID format, better index locality) | Technical plan §6, API §5.3 | Proposed |
 | D8 | `SyncTriggers` observes pending rows (repositories never schedule sync). Rows become `FAILED` after 10 internal errors. Backoff starts at 30 s. | **Yes** | Technical plan §8, README §10, Phases 7 | Proposed |
 | D9 | Charts: Compose Canvas (current) **or** Vico | **Vico** (used in macro-tracker). Check that it supports the band colors and TalkBack summaries in Design spec §6.15. | Design spec §6.15, Phases 4 | Proposed |
-| D10 | Lint: ktlint tasks (current) **or** Spotless + ktlint + compose-rules + detekt + Android Lint with `warningsAsErrors` | **macro-tracker's set.** `ktlintCheck/Format` become `spotlessCheck/Apply`, plus `detekt`. | README §6.7, §12, Phases 1 | Proposed |
+| D10 | Lint: ktlint tasks (current) **or** Spotless + ktlint + compose-rules + detekt + Android Lint with `warningsAsErrors` | **macro-tracker's set.** `ktlintCheck/Format` become `spotlessCheck/Apply`, plus `detekt`. | README §6.7, §12, Phases 1 | **Accepted** (2026-11-05) |
 | D11 | Crash reporting: Sentry (Android + server) with PII off and body scrubbing | **Yes**, with `sendDefaultPii = false` and a `beforeSend` that drops request bodies and any field named `note` | Phases 8, README §14 | Proposed |
 | D12 | Baseline Profile module | **Later** (after v1), when startup is measured | Phases 11 | Proposed |
-| D13 | Dev config: ports 8080 / 5434 / 8026 / 1026, `ulap.apiUrl.<buildType>` in `~/.gradle/gradle.properties`, add a `staging` build type, `.githooks/pre-commit` | **Yes**, to run beside macro-tracker without clashes | README §6, §7.2, §8, §15, Phases 1 | Proposed |
+| D13 | Dev config: ports 8080 / 5434 / 8026 / 1026, `ulap.apiUrl.<buildType>` in `~/.gradle/gradle.properties`, add a `staging` build type, `.githooks/pre-commit` | **Yes**, to run beside macro-tracker without clashes | README §6, §7.2, §8, §15, Phases 1 | **Accepted** (2026-11-05) |
 | D14 | Hosting: same VPS as macro-tracker, separate Compose project, own Cloudflare Tunnel hostnames, images in GHCR by commit SHA | **Yes** | README §7.1, new `docs/runbooks/deploy.md` | Proposed |
 
 To decide: reply with, for example, "Accept D1, D3, D5–D8, D10, D13; reject D2." Then the listed docs get updated together and this table's status changes.
@@ -563,7 +563,7 @@ Maps onto [PHASES.md, Phase 1](../PHASES.md#phase-1-project-setup). Times are ma
 
 **C. Gradle (≈half a day)**
 6. Copy macro-tracker's root Gradle files, `gradle/` (wrapper, catalog, daemon JVM), `config/detekt/detekt.yml` and `build-logic/`. Rename everything `macrotracker` → `ulap` (§4.1). **Remove** any OAuth client id from `gradle.properties`.
-7. Create `:shared` (KMP), `:androidApp`, `:server`, and (if D1) the `core:*` / `feature:*` modules, each with an empty class and a passing test.
+7. Create `:shared` (KMP), `:androidApp`, `:server`, and the `core:*` / `feature:*` modules (D1), each with an empty class and a passing test.
 8. Run the full check locally (§4.4).
 
 **D. Server and infra (≈half a day)**

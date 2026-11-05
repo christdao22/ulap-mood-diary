@@ -21,10 +21,11 @@ Offline-first mood diary. Android (Kotlin, Compose) + Ktor server + Kotlin Multi
 - Cite the doc section in comments for non-obvious rules, e.g. `(api-spec.md §8.2)`.
 
 ## Commands
-Current commands, from README §6. Switch to the ulap-reference §4.4 set when D4, D10 and D13 are accepted.
+From README §6 (D4, D10 and D13 are accepted).
 - Build and run all unit tests: `./gradlew build`
-- Lint / format: `./gradlew ktlintCheck` / `./gradlew ktlintFormat`
-- Local services: `docker compose up -d` (PostgreSQL, Mailpit at http://localhost:8025)
+- Everything CI checks: `./gradlew spotlessCheck detekt :androidApp:lintDebug test assembleDebug -PwarningsAsErrors=true`
+- Format: `./gradlew spotlessApply` (the `.githooks/pre-commit` hook runs it once `git config core.hooksPath .githooks` is set)
+- Local services: `docker compose -f infra/compose.yaml -f infra/compose.dev.yaml up -d postgres mailpit` (PostgreSQL on 5434, Mailpit at http://localhost:8026)
 - Server: `./gradlew :server:run`, then check http://localhost:8080/v1/health
 - Android: `./gradlew :androidApp:installDebug`
 - Gradle isn't set up yet. It arrives with the Phase 1 "Gradle and modules" tasks.

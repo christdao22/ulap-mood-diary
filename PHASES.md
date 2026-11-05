@@ -82,7 +82,7 @@ A task is complete only when:
 ## Phase 1: Project setup
 
 **Goal:** an empty project that builds, runs and tests locally and in CI.
-Spec: [README §5–§8](README.md#5-folder-structure) · [Technical plan §4](docs/technical-plan.md#4-project-structure)
+Spec: [README §5–§8](README.md#5-folder-structure) · [Technical plan §4](docs/technical-plan.md#4-project-structure) · [Repo reference §4](docs/ulap-reference.md#4-android-build-setup)
 
 ### Repository
 - [x] Create the Git repository with `main` as the protected branch
@@ -93,20 +93,20 @@ Spec: [README §5–§8](README.md#5-folder-structure) · [Technical plan §4](d
 - [ ] Decide the proposed changes D1–D14 in [Repo reference §13](docs/ulap-reference.md#13-decision-log), then update the listed docs
 
 ### Gradle and modules
-- [ ] Create the Kotlin Multiplatform project: `shared`, `androidApp`, `server`
+- [ ] Create the Kotlin Multiplatform project: `shared`, `androidApp`, `server`, the `core:*` and `feature:*` modules, and the `ulap.*` convention plugins in `build-logic/`. Build types `debug`, `staging`, `release`.
 - [ ] Set up the version catalog (`gradle/libs.versions.toml`) with the latest stable versions
-- [ ] Set up ktlint (`ktlintCheck`, `ktlintFormat`)
+- [ ] Set up Spotless (ktlint + compose-rules), detekt and Android Lint, plus the `.githooks/pre-commit` hook
 - [ ] `androidApp` runs an empty Compose screen on the emulator
 - [ ] `server` runs with `GET /v1/health` → `{"status":"ok"}`
 
 ### Local infrastructure
-- [ ] `docker-compose.yml` with PostgreSQL and Mailpit
+- [ ] `infra/compose.yaml` + `infra/compose.dev.yaml` with PostgreSQL (port 5434), Mailpit (8026 / 1026) and a one-off `migrate` service
 - [ ] `.env.example` with every server variable
-- [ ] Flyway set up, with an empty `V1__init.sql` migration that runs on startup
-- [ ] `local.properties` keys for `ulap.apiBaseUrl` and `ulap.googleWebClientId`
+- [ ] Flyway set up, with an empty `V1__init.sql` migration that runs on startup in dev and through the `migrate` service in staging and production
+- [ ] The build reads `ulap.apiUrl.<buildType>` and `ulap.googleWebClientId` from `~/.gradle/gradle.properties`
 
 ### CI
-- [ ] GitHub Actions: build, ktlint and unit tests on every pull request
+- [ ] GitHub Actions (`ci-android.yml`, `ci-server.yml`): Spotless, detekt, Android Lint and unit tests on every pull request
 - [ ] Server tests run with Testcontainers in CI
 - [ ] Build status badge in the README
 

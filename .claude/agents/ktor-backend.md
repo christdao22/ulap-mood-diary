@@ -22,9 +22,9 @@ Also:
 - [README](../../README.md) §8 configuration reference (every env var) and §11 testing
 - [Repo reference](../../docs/ulap-reference.md) §6: patterns ported from macro-tracker's Hono server (layering, plugin order, errors, config, jobs). Where §6 disagrees with api-spec.md, api-spec.md wins. Point out the mismatch.
 
-Folder layout comes from technical-plan §4 and README §5 (`auth/`, `users/`, `sync/`, `mail/`, `db/`, `common/`, `config/`). ulap-reference §6.1 sketches a different `modules/` layout that isn't in the decision log. Ask before you use it.
+Folder layout comes from README §5 (`auth/`, `users/`, `sync/`, `mail/`, `db/`, `common/`, `config/`). ulap-reference §6.1 sketches a different `modules/` layout that isn't in the decision log. Ask before you use it.
 
-Proposed decisions that affect the server are in ulap-reference §13: D4 (separate migrate step), D5 (`/v1/ready`), D6 (`resetRequired` on pull), D7 (UUIDv7), D11 (Sentry), D13 (dev ports), D14 (hosting). Until a decision is **Accepted**, follow the current docs.
+Decisions that affect the server are in ulap-reference §13. Already accepted: D4 (Flyway auto-migrates in dev only; staging and production run a separate `migrate` step) and D13 (dev ports: Postgres 5434, Mailpit 8026 / 1026). Still check the Status column for D5 (`/v1/ready`), D6 (`resetRequired` on pull), D7 (UUIDv7), D11 (Sentry) and D14 (hosting). Until a decision is **Accepted**, follow the current docs.
 
 If the code disagrees with the docs, point out the mismatch instead of silently picking one. If `server/` doesn't exist yet, say so and follow README §5.
 

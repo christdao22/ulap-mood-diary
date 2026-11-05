@@ -74,7 +74,7 @@ Use the latest stable versions when you set up the project.
 - DataStore: settings (language, mascot on/off, last sync position)
 - Credential Manager + Google ID library: Sign in with Google (the legacy Google Sign-In SDK is deprecated)
 - Ktor Client: API calls
-- Koin: dependency injection (works with KMP)
+- Hilt: dependency injection in the Android modules. `shared` uses plain constructor injection and no DI library, so an iOS app can reuse it later ([ulap-reference §13](ulap-reference.md#13-decision-log), D2).
 - AppCompat per-app language API: in-app language switching
 
 **Server**
@@ -89,50 +89,17 @@ Use the latest stable versions when you set up the project.
 
 ## 4. Project structure
 
-```
-ulap/
-├── settings.gradle.kts
-├── gradle/libs.versions.toml          # version catalog
-├── shared/                            # KMP module
-│   └── src/
-│       ├── commonMain/kotlin/app/ulap/shared/
-│       │   ├── model/                 # CheckIn, Mood, Zone, Trigger, SupportType
-│       │   ├── catalog/MoodCatalog.kt # 25 moods with zone, default energy and stress
-│       │   ├── rules/                 # stress labels, zone logic, response selection
-│       │   └── api/                   # sync and auth DTOs (@Serializable)
-│       └── commonTest/
-├── androidApp/
-│   └── src/main/
-│       ├── kotlin/app/ulap/android/
-│       │   ├── data/
-│       │   │   ├── db/                # Room: entities, DAOs, database
-│       │   │   ├── repo/              # CheckInRepository, SettingsRepository
-│       │   │   ├── remote/            # Ktor client, AuthApi, SyncApi
-│       │   │   └── sync/              # SyncWorker, SyncEngine
-│       │   ├── auth/                  # Credential Manager, token storage
-│       │   ├── ui/
-│       │   │   ├── checkin/           # PickMood, Details, Response, AfterCheck
-│       │   │   ├── logs/
-│       │   │   ├── reports/
-│       │   │   ├── account/
-│       │   │   ├── onboarding/
-│       │   │   ├── ulap/              # Ulap mascot composable (6 expressions)
-│       │   │   └── theme/
-│       │   └── di/
-│       └── res/
-│           ├── values/strings.xml          # English
-│           ├── values-fil/strings.xml      # Filipino
-│           └── values-b+ceb/strings.xml    # Bisaya (Cebuano)
-└── server/
-    └── src/main/
-        ├── kotlin/app/ulap/server/
-        │   ├── Application.kt
-        │   ├── auth/                  # Google verify, email/password, JWT, refresh tokens
-        │   ├── sync/                  # push/pull handlers, merge rules
-        │   ├── users/                 # me, settings, delete account
-        │   └── db/                    # Exposed tables, transactions
-        └── resources/db/migration/    # Flyway SQL: V1__init.sql …
-```
+One Gradle build with four kinds of module. [README §5](../README.md#5-folder-structure) has the full folder tree.
+
+| Module | Holds | May depend on |
+|---|---|---|
+| `shared` (KMP) | Models, `MoodCatalog`, `ResponseRules`, `CheckInValidator`, API DTOs | Nothing Android. No DI library. |
+| `core:*` (Android libraries) | Room (`core:database`), Ktor Client (`core:network`), repositories (`core:data`), sync, auth, DataStore, theme and mascot (`core:designsystem`), strings and shared screen pieces (`core:ui`) | `shared` and other `core` modules |
+| `feature:*` (Android libraries) | Screens and ViewModels for onboarding, check-in, logs, reports, account | `core:common`, `core:model`, `core:domain`, `core:designsystem`, `core:ui`, `shared`. Never another feature, `core:database` or `core:network`. |
+| `androidApp` | Application class, `MainActivity`, navigation, build types (`debug`, `staging`, `release`) | Everything above |
+| `server` (Ktor) | Routes, services, data access, Flyway migrations | `shared` |
+
+Why split Android into modules (D1): screens can't reach the database or the network by accident, so "screens read only from Room, through repositories" is enforced by the build instead of by review.
 
 ---
 

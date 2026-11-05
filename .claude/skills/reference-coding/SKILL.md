@@ -1,6 +1,6 @@
 ---
 name: reference-coding
-description: Before writing non-trivial code for Ulap (a Room DAO or entity, SyncWorker/sync engine, repository, Compose screen or navigation, Koin module, Ktor route, JWT/auth plugin, Exposed table, Flyway migration, KMP shared module, test setup), search the indexed open-source reference repos with XERJ to see how they solved the same problem, then write code that fits docs/technical-plan.md.
+description: Before writing non-trivial code for Ulap (a Room DAO or entity, SyncWorker/sync engine, repository, Compose screen or navigation, Hilt module, Ktor route, JWT/auth plugin, Exposed table, Flyway migration, KMP shared module, test setup), search the indexed open-source reference repos with XERJ to see how they solved the same problem, then write code that fits docs/technical-plan.md.
 ---
 
 # Reference coding with XERJ
@@ -12,7 +12,7 @@ A local XERJ node indexes this project and permissively licensed reference repos
 | Corpus | Repos | Licence | Use for |
 |---|---|---|---|
 | `kmp-ktor-refs` | `ktorio/ktor-documentation`, `JetBrains/kotlinconf-app`, `touchlab/KaMPKit` | Apache-2.0 | Ktor server (JWT auth, rate limiting, ContentNegotiation, StatusPages, `testApplication`), Exposed, Koin, KMP shared module layout, Ktor client, Compose Multiplatform |
-| `android-refs` | `android/nowinandroid`, `android/architecture-samples` | Apache-2.0 | Room, offline-first sync (`SyncWorker`, `Synchronizer`), WorkManager, Compose, ViewModel tests with fakes, convention plugins. Both use Hilt, and Ulap uses Koin. |
+| `android-refs` | `android/nowinandroid`, `android/architecture-samples` | Apache-2.0 | Room, offline-first sync (`SyncWorker`, `Synchronizer`), WorkManager, Compose, ViewModel tests with fakes, convention plugins. Both use Hilt, as Ulap does. |
 
 This project's own docs are indexed under the prefix `ulap-mood-diary`. The repo has no source code yet, so it holds the README and `docs/*.md` (technical plan, design spec, API spec).
 
@@ -26,7 +26,7 @@ This project's own docs are indexed under the prefix `ulap-mood-diary`. The repo
    xerj def --prefix ulap-mood-diary <Name>
    ```
    Through MCP, the same calls are `xerj_code_search`, `xerj_search` and `xerj_def`.
-2. **Compare with the plan.** `docs/technical-plan.md` and `docs/api-spec.md` win wherever they disagree with a reference. Say which parts you adopted and which you changed. Translate Hilt to Koin where needed.
+2. **Compare with the plan.** `docs/technical-plan.md` and `docs/api-spec.md` win wherever they disagree with a reference. Say which parts you adopted and which you changed.
 3. **Cite.** Cite the `file:line` of any reference passage you relied on, in your explanation to the user.
 4. **Licences.** Adapting Apache-2.0 or MIT code is allowed. If you copy a substantial block nearly verbatim, keep a short attribution comment, e.g. `// Adapted from ktorio/ktor-documentation (Apache-2.0)`. Never pull code from unlicensed or GPL repos into this project.
 5. **No hit, or code you already know well:** say so and write the code normally. Retrieval adds cost for well-known APIs.

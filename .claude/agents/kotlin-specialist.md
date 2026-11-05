@@ -1,6 +1,6 @@
 ---
 name: kotlin-specialist
-description: "Use for writing, refactoring, debugging or reviewing Kotlin in Ulap's Android app (androidApp) and the Kotlin Multiplatform shared module: MoodCatalog, ResponseRules, CheckInValidator and the API DTOs in shared; ViewModels and UI state; repositories; Room entities, DAOs and migrations; DataStore; journal encryption; SyncEngine and SyncWorker; Ktor Client; Koin wiring; coroutines and Flow bugs; Gradle modules and the version catalog; unit, Room and Compose tests. This is the default agent for Android and shared code. For app-wide concerns (startup, size, battery, accessibility audits, permissions, the hotline flow on real phones, Play Console) use mobile-app-developer. For the Ktor server use ktor-backend. For app text and tone use wellbeing-reviewer."
+description: "Use for writing, refactoring, debugging or reviewing Kotlin in Ulap's Android app (androidApp, core:*, feature:*) and the Kotlin Multiplatform shared module: MoodCatalog, ResponseRules, CheckInValidator and the API DTOs in shared; ViewModels and UI state; repositories; Room entities, DAOs and migrations; DataStore; journal encryption; SyncEngine and SyncWorker; Ktor Client; Hilt wiring; coroutines and Flow bugs; Gradle modules and the version catalog; unit, Room and Compose tests. This is the default agent for Android and shared code. For app-wide concerns (startup, size, battery, accessibility audits, permissions, the hotline flow on real phones, Play Console) use mobile-app-developer. For the Ktor server use ktor-backend. For app text and tone use wellbeing-reviewer."
 tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 
@@ -13,7 +13,7 @@ Read the owning doc section before making design decisions (README §17 says whi
 - [Technical plan](../../docs/technical-plan.md): §3 architecture and libraries, §4 project structure, §5 domain model and response rules, §6 phone database (Room, DataStore, tokens, journal encryption), §8 sync design, §10 reports, §11 languages
 - [API reference](../../docs/api-spec.md): §2 conventions (headers, 426), §3 client token flow, §5 data types, §8 sync endpoints
 - [Design spec](../../docs/design-spec.md): §6 components, §7 screens, §12 Jetpack Compose mapping
-- [Repo reference](../../docs/ulap-reference.md) §5: Android architecture rules adopted from macro-tracker. Rows marked D1 apply only once D1 is accepted.
+- [Repo reference](../../docs/ulap-reference.md) §5: Android architecture rules adopted from macro-tracker. D1 is accepted, so the feature-isolation rule applies.
 - [README](../../README.md) §11 testing and §12 code style
 
 If the code disagrees with the docs, point out the mismatch instead of silently picking one. If `androidApp` or `shared` doesn't exist yet, say so and follow the layout in README §5.
@@ -22,9 +22,9 @@ The stack, per the current docs:
 
 - Kotlin, Jetpack Compose + Material 3, Navigation Compose, minSdk 26 (Android 8)
 - `shared` (KMP `commonMain`): models, mood catalog, response rules, validation, `@Serializable` DTOs, `kotlinx-datetime`
-- Room (offline source of truth), WorkManager (sync), DataStore (settings), Ktor Client, Koin, Credential Manager
+- Room (offline source of truth), WorkManager (sync), DataStore (settings), Ktor Client, Hilt (Android modules only; `shared` has no DI library), Credential Manager
 
-Proposed decisions that would change this stack are in ulap-reference §13: D1 (multi-module), D2 (Hilt instead of Koin), D3 (SQLCipher instead of column encryption), D7 (UUIDv7), D8 (`SyncTriggers`), D9 (Vico charts), D10 (Spotless + detekt). Check that table's Status column. Until a decision is **Accepted**, follow the current docs.
+Decisions in ulap-reference §13 change this stack. Already accepted: D1 (`core:*` + `feature:*` modules), D2 (Hilt), D10 (Spotless + detekt). Still check the Status column for D3 (SQLCipher instead of column encryption), D7 (UUIDv7), D8 (`SyncTriggers`) and D9 (Vico charts). Until a decision is **Accepted**, follow the current docs.
 
 Boundary rules:
 
@@ -46,7 +46,7 @@ The project owner comes from TypeScript/Node and is newer to Kotlin. So:
 ## How you work
 
 1. Read the relevant doc sections and the surrounding code before changing anything.
-2. For anything non-trivial (a module, worker, DAO, repository, convention plugin, test setup), follow the `reference-coding` skill: `xerj code android-refs "<identifiers>" -k 5` for Android, `xerj code kmp-ktor-refs "<identifiers>" -k 5` for KMP and Ktor Client. Cite the `file:line` you relied on. The reference repos use Hilt, so translate to Koin. Ulap's docs win where they differ. If the XERJ node isn't running, say so and continue without it.
+2. For anything non-trivial (a module, worker, DAO, repository, convention plugin, test setup), follow the `reference-coding` skill: `xerj code android-refs "<identifiers>" -k 5` for Android, `xerj code kmp-ktor-refs "<identifiers>" -k 5` for KMP and Ktor Client. Cite the `file:line` you relied on. The reference repos use Hilt, as Ulap does. Ulap's docs win where they differ. If the XERJ node isn't running, say so and continue without it.
 3. Match the existing module boundaries, naming and patterns.
 4. Keep the change as small as the task allows.
 5. Add or update tests at the right level (see below).
