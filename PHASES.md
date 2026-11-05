@@ -18,7 +18,7 @@ Last updated: November 5, 2026
 |---|---|---|---|
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
 | 1 | Project setup | ✅ Complete | 18 / 18 |
-| 2 | Offline check-in | 🟡 In progress | 12 / 25 |
+| 2 | Offline check-in | 🟡 In progress | 16 / 25 |
 | 3 | Logs | ⬜ Not started | 0 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
@@ -137,10 +137,10 @@ Spec: [Technical plan §5–§6](docs/technical-plan.md#5-shared-domain-model) �
 - [x] DataStore for settings (language, mascot on/off, device ID)
 
 ### Theme and components
-- [ ] Theme: `Color.kt`, `Type.kt`, `Shape.kt` from the design spec
-- [ ] Bundle the fonts (Bricolage Grotesque, Figtree) with their license files
-- [ ] `Ulap` composable with 6 expressions plus the float animation (respects reduced motion)
-- [ ] Components: MoodTile, ZoneSection, SpeechBubble, Slider row, TriggerChip, buttons
+- [x] Theme: `Color.kt`, `Type.kt`, `Shape.kt` from the design spec
+- [x] Bundle the fonts (Bricolage Grotesque, Figtree) with their license files
+- [x] `Ulap` composable with 6 expressions plus the float animation (respects reduced motion)
+- [x] Components: MoodTile, ZoneSection, SpeechBubble, Slider row, TriggerChip, buttons
 
 ### Screens
 - [ ] Pick mood: Ulap greeting plus 4 zone sections in a 3-column grid
