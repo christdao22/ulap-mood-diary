@@ -55,6 +55,9 @@ android {
         buildConfig = true
     }
 
+    // Robolectric reads the merged manifest and resources (BackupRulesTest checks them).
+    testOptions.unitTests.isIncludeAndroidResources = true
+
     // debug, staging and release, no flavors (ulap-reference.md §4.3). Each has its own
     // application ID, so all three can sit side by side on one phone.
     buildTypes {
@@ -106,4 +109,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
 
     testImplementation(projects.core.testing)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.robolectric)
 }

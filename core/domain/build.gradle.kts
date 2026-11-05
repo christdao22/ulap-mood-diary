@@ -6,4 +6,7 @@ plugins {
 
 dependencies {
     api(projects.core.model)
+    // LocalDate: check-ins are read by the local day.
+    api(libs.kotlinx.datetime)
+    api(libs.kotlinx.coroutines.core)
 }

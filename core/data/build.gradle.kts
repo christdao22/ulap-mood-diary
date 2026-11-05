@@ -7,6 +7,8 @@ plugins {
 
 android {
     namespace = "app.ulap.core.data"
+    // Robolectric reads the merged manifest and resources.
+    testOptions.unitTests.isIncludeAndroidResources = true
 }
 
 dependencies {
@@ -14,4 +16,11 @@ dependencies {
     implementation(projects.core.database)
     implementation(projects.core.datastore)
     implementation(projects.core.network)
+    // withTransaction: one Room transaction per user action (ulap-reference.md §5).
+    implementation(libs.room.ktx)
+
+    // Repository tests run on a real in-memory Room database under Robolectric.
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
 }
