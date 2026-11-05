@@ -262,6 +262,7 @@ No account screen in onboarding.
 - Top: Ulap (neutral, 88dp, floating) + speech bubble: "Good afternoon, {name}" / **"How are you feeling right now?"** / "Any answer is okay."
 - Four zone section cards with 3-column mood tiles.
 - Guest users: greeting without a name ("Good afternoon").
+- The greeting follows the time blocks in [Technical plan §10](technical-plan.md#10-reports-calculated-on-the-phone) (`TimeOfDay` in `shared`): Morning → "Good morning", Afternoon → "Good afternoon", Evening and Night → "Good evening".
 
 ### 7.3 Check in · Details
 - Top: back button + date and time ("Wednesday, Nov 4 · 4:49 PM").
@@ -499,6 +500,7 @@ val ButtonShape = RoundedCornerShape(14.dp)
 - Map Material roles: `primary = Ink`, `onPrimary = White`, `background = Bg`, `surface = Surface`, `outline = LineStrong`, `outlineVariant = Line`.
 - The sketch above is simplified. The code in `core/designsystem/.../theme/` differs in three ways. `UlapColors` is a class holding every §2 token (including stress bands and the mascot), read through `UlapTheme.colors`, so dark mode can be a second instance. `overline` maps to `labelMedium`. The other Material roles are filled from the neutrals, so no Material purple shows through. Three colors used in §6.1 and §8 are tokens too: `mutedOnTint` (#4A5162), `ulapBody` (#FFFFFF) and `leaf` (#3E9A6A).
 - The fonts are Google Fonts' variable files (`res/font/`), with weights picked in `Type.kt`. Figtree also loads 700 for bold numbers inside text.
+- §5 describes the four tab icons but gives no paths. `UlapIcons.kt` (`core/designsystem/.../icon/`) draws them on a 22-unit grid with the 1.8 stroke, and is the reference until a designer replaces them.
 - §8.3 names the heart, sparkle and leaf accents but gives no paths. The paths `Ulap.kt` draws are the reference until the illustration set (§8.6) replaces them.
 - Build Ulap as one `@Composable fun Ulap(expression: UlapExpression, size: Dp, float: Boolean)` drawing with `Canvas` and the paths in §8.2–8.3 (or as six vector drawables).
 

@@ -165,7 +165,7 @@ ulap/
 │       ├── commonMain/kotlin/app/ulap/shared/
 │       │   ├── model/                 # CheckIn, Mood, Zone, Trigger, SupportType
 │       │   ├── catalog/MoodCatalog.kt # 25 moods + default energy/stress
-│       │   ├── rules/                 # ResponseRules, StressLabels, EnergyLabels; Insights (planned)
+│       │   ├── rules/                 # ResponseRules, StressLabels, EnergyLabels, TimeOfDay; Insights (planned)
 │       │   ├── validation/            # CheckInValidator (used by app AND server)
 │       │   └── api/                   # @Serializable DTOs for auth + sync
 │       └── commonTest/                # unit tests for rules + validation
@@ -176,16 +176,16 @@ ulap/
 │       ├── kotlin/app/ulap/android/
 │       │   ├── UlapApp.kt             # Application class (@HiltAndroidApp)
 │       │   ├── MainActivity.kt
-│       │   ├── UlapAppRoot.kt         # root composable; shows the app name until the NavHost exists
-│       │   └── navigation/            # (planned) NavHost with every feature's routes
+│       │   ├── UlapAppRoot.kt         # root composable: the NavHost above the bottom tab bar
+│       │   └── navigation/            # the four tabs (TopLevelDestination) and tab switching
 │       └── res/xml/                   # network_security_config, backup rules; locales_config (planned)
 │
 ├── core/                              # Android library modules, app.ulap.core.<name>
 │   ├── common/                        # dispatchers, Result helpers
 │   ├── model/  domain/                # wrap or re-export :shared types for Android modules
-│   ├── designsystem/                  # theme (Color, Type, Shape), Ulap mascot, MoodTile, TriggerChip, charts…
-│   │   └── src/main/res/font/         # (planned) Bricolage Grotesque, Figtree + LICENSES/
-│   ├── ui/                            # shared screen pieces
+│   ├── designsystem/                  # theme (Color, Type, Shape), Ulap mascot, icons, MoodTile, TabBar, charts…
+│   │   └── src/main/res/font/         # Bricolage Grotesque, Figtree + LICENSES/
+│   ├── ui/                            # shared screen pieces; mood and zone code → string (MoodText.kt)
 │   │   └── src/main/res/
 │   │       ├── values/strings.xml          # English (every user-facing string lives here)
 │   │       ├── values-fil/strings.xml      # Filipino

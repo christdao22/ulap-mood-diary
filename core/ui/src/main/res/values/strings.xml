@@ -2,4 +2,58 @@
 <resources>
     <!-- The app name is the same in English, Filipino and Bisaya (README §13). -->
     <string name="app_name">Ulap</string>
+
+    <!-- Bottom tab bar (design-spec.md §6.10) -->
+    <string name="tab_check_in">Check in</string>
+    <string name="tab_logs">Logs</string>
+    <string name="tab_reports">Reports</string>
+    <string name="tab_account">Account</string>
+
+    <!-- Pick a mood (design-spec.md §7.2). Night uses the evening greeting. -->
+    <string name="greeting_morning">Good morning</string>
+    <string name="greeting_afternoon">Good afternoon</string>
+    <string name="greeting_evening">Good evening</string>
+    <string name="pick_mood_question">How are you feeling right now?</string>
+    <string name="pick_mood_reassurance">Any answer is okay.</string>
+    <!-- Under each mood tile: its default stress (design-spec.md §6.1). -->
+    <string name="mood_tile_stress">Stress %1$d</string>
+    <!-- TalkBack for a mood tile (design-spec.md §11): mood, zone, default stress. -->
+    <string name="mood_tile_description">%1$s. %2$s. Default stress %3$d.</string>
+
+    <!-- Zones (technical-plan.md §5) -->
+    <string name="zone_red_name">Red Zone</string>
+    <string name="zone_red_descriptor">tense · high energy</string>
+    <string name="zone_blue_name">Blue Zone</string>
+    <string name="zone_blue_descriptor">heavy · low energy</string>
+    <string name="zone_yellow_name">Yellow Zone</string>
+    <string name="zone_yellow_descriptor">bright · high energy</string>
+    <string name="zone_green_name">Green Zone</string>
+    <string name="zone_green_descriptor">easy · low energy</string>
+
+    <!-- Moods, by code (technical-plan.md §5, Appendix A) -->
+    <string name="mood_panicked">Panicked</string>
+    <string name="mood_overwhelmed">Overwhelmed</string>
+    <string name="mood_anxious">Anxious</string>
+    <string name="mood_angry">Angry</string>
+    <string name="mood_worried">Worried</string>
+    <string name="mood_frustrated">Frustrated</string>
+    <string name="mood_nervous">Nervous</string>
+    <string name="mood_irritated">Irritated</string>
+    <string name="mood_restless">Restless</string>
+    <string name="mood_hopeless">Hopeless</string>
+    <string name="mood_burned_out">Burned out</string>
+    <string name="mood_sad">Sad</string>
+    <string name="mood_lonely">Lonely</string>
+    <string name="mood_guilty">Guilty</string>
+    <string name="mood_disappointed">Disappointed</string>
+    <string name="mood_tired">Tired</string>
+    <string name="mood_bored">Bored</string>
+    <string name="mood_excited">Excited</string>
+    <string name="mood_motivated">Motivated</string>
+    <string name="mood_proud">Proud</string>
+    <string name="mood_happy">Happy</string>
+    <string name="mood_content">Content</string>
+    <string name="mood_grateful">Grateful</string>
+    <string name="mood_relaxed">Relaxed</string>
+    <string name="mood_calm">Calm</string>
 </resources>

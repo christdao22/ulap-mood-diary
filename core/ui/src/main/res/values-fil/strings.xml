@@ -2,4 +2,58 @@
 <resources>
     <!-- The app name is the same in English, Filipino and Bisaya (README §13). -->
     <string name="app_name">Ulap</string>
+
+    <!-- Draft: every Filipino string below needs a native-speaker review (PHASES.md Phase 5). -->
+
+    <!-- Bottom tab bar (design-spec.md §6.10) -->
+    <string name="tab_check_in">Check in</string>
+    <string name="tab_logs">Talaan</string>
+    <string name="tab_reports">Ulat</string>
+    <string name="tab_account">Account</string>
+
+    <!-- Pick a mood (design-spec.md §7.2). Night uses the evening greeting. -->
+    <string name="greeting_morning">Magandang umaga</string>
+    <string name="greeting_afternoon">Magandang hapon</string>
+    <string name="greeting_evening">Magandang gabi</string>
+    <string name="pick_mood_question">Ano ang nararamdaman mo ngayon?</string>
+    <string name="pick_mood_reassurance">Okay lang ang kahit anong sagot.</string>
+    <string name="mood_tile_stress">Stress %1$d</string>
+    <string name="mood_tile_description">%1$s. %2$s. Panimulang stress %3$d.</string>
+
+    <!-- Zones (technical-plan.md §5) -->
+    <string name="zone_red_name">Pulang Zone</string>
+    <string name="zone_red_descriptor">tensyonado · mataas ang enerhiya</string>
+    <string name="zone_blue_name">Asul na Zone</string>
+    <string name="zone_blue_descriptor">mabigat · mababa ang enerhiya</string>
+    <string name="zone_yellow_name">Dilaw na Zone</string>
+    <string name="zone_yellow_descriptor">maaliwalas · mataas ang enerhiya</string>
+    <string name="zone_green_name">Berdeng Zone</string>
+    <string name="zone_green_descriptor">magaan · mababa ang enerhiya</string>
+
+    <!-- Moods, by code (technical-plan.md Appendix A draft) -->
+    <string name="mood_panicked">Natataranta</string>
+    <string name="mood_overwhelmed">Nabibigatan nang sobra</string>
+    <string name="mood_anxious">Balisa</string>
+    <string name="mood_angry">Galit</string>
+    <string name="mood_worried">Nag-aalala</string>
+    <string name="mood_frustrated">Naiinis</string>
+    <string name="mood_nervous">Kinakabahan</string>
+    <string name="mood_irritated">Iritado</string>
+    <string name="mood_restless">Hindi mapakali</string>
+    <string name="mood_hopeless">Nawawalan ng pag-asa</string>
+    <string name="mood_burned_out">Ubos na ang lakas</string>
+    <string name="mood_sad">Malungkot</string>
+    <string name="mood_lonely">Nag-iisa</string>
+    <string name="mood_guilty">Nakokonsensya</string>
+    <string name="mood_disappointed">Nadismaya</string>
+    <string name="mood_tired">Pagod</string>
+    <string name="mood_bored">Naiinip</string>
+    <string name="mood_excited">Nasasabik</string>
+    <string name="mood_motivated">Ganado</string>
+    <string name="mood_proud">Ipinagmamalaki ang sarili</string>
+    <string name="mood_happy">Masaya</string>
+    <string name="mood_content">Kuntento</string>
+    <string name="mood_grateful">Nagpapasalamat</string>
+    <string name="mood_relaxed">Relaks</string>
+    <string name="mood_calm">Kalmado</string>
 </resources>

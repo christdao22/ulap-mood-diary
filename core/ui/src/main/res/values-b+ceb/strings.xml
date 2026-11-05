@@ -2,4 +2,59 @@
 <resources>
     <!-- The app name is the same in English, Filipino and Bisaya (README §13). -->
     <string name="app_name">Ulap</string>
+
+    <!-- Draft: every Bisaya string below needs a native-speaker review (PHASES.md Phase 5). -->
+
+    <!-- Bottom tab bar (design-spec.md §6.10) -->
+    <string name="tab_check_in">Check in</string>
+    <string name="tab_logs">Listahan</string>
+    <string name="tab_reports">Report</string>
+    <string name="tab_account">Account</string>
+
+    <!-- Pick a mood (design-spec.md §7.2). Night uses the evening greeting. -->
+    <string name="greeting_morning">Maayong buntag</string>
+    <string name="greeting_afternoon">Maayong hapon</string>
+    <string name="greeting_evening">Maayong gabii</string>
+    <string name="pick_mood_question">Unsa imong gibati karon?</string>
+    <string name="pick_mood_reassurance">Okay ra bisan unsa imong tubag.</string>
+    <string name="mood_tile_stress">Stress %1$d</string>
+    <string name="mood_tile_description">%1$s. %2$s. Sugod nga stress %3$d.</string>
+
+    <!-- Zones (technical-plan.md §5) -->
+    <string name="zone_red_name">Pula nga Zone</string>
+    <string name="zone_red_descriptor">tensyonado · taas ang enerhiya</string>
+    <string name="zone_blue_name">Asul nga Zone</string>
+    <string name="zone_blue_descriptor">bug-at · ubos ang enerhiya</string>
+    <string name="zone_yellow_name">Dilaw nga Zone</string>
+    <string name="zone_yellow_descriptor">masadya · taas ang enerhiya</string>
+    <string name="zone_green_name">Berde nga Zone</string>
+    <string name="zone_green_descriptor">hayahay · ubos ang enerhiya</string>
+
+    <!-- Moods, by code (technical-plan.md Appendix A draft). Frustrated and Disappointed are both
+         "Nasagmuyo" in the draft; PHASES.md Phase 5 picks two different words. -->
+    <string name="mood_panicked">Nataranta</string>
+    <string name="mood_overwhelmed">Nabug-atan kaayo</string>
+    <string name="mood_anxious">Kulbaan</string>
+    <string name="mood_angry">Nasuko</string>
+    <string name="mood_worried">Nabalaka</string>
+    <string name="mood_frustrated">Nasagmuyo</string>
+    <string name="mood_nervous">Gikulbaan</string>
+    <string name="mood_irritated">Nalagot</string>
+    <string name="mood_restless">Dili mahimutang</string>
+    <string name="mood_hopeless">Nawad-an og paglaum</string>
+    <string name="mood_burned_out">Kapoy na kaayo</string>
+    <string name="mood_sad">Masulub-on</string>
+    <string name="mood_lonely">Mingaw</string>
+    <string name="mood_guilty">Nakonsensya</string>
+    <string name="mood_disappointed">Nasagmuyo</string>
+    <string name="mood_tired">Gikapoy</string>
+    <string name="mood_bored">Nalaay</string>
+    <string name="mood_excited">Naghinamhinam</string>
+    <string name="mood_motivated">Ganado</string>
+    <string name="mood_proud">Garbo sa kaugalingon</string>
+    <string name="mood_happy">Malipayon</string>
+    <string name="mood_content">Kontento</string>
+    <string name="mood_grateful">Mapasalamaton</string>
+    <string name="mood_relaxed">Relaks</string>
+    <string name="mood_calm">Kalma</string>
 </resources>

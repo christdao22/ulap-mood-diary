@@ -24,16 +24,19 @@ import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
 
 /**
- * What Ulap says (design-spec.md §6.3): an optional [context] line, then the [message]. The
- * bottom-left corner points at Ulap. TalkBack reads both lines as one.
+ * What Ulap says (design-spec.md §6.3): an optional [context] line, the [message], then an
+ * optional [supporting] line. The bottom-left corner points at Ulap. TalkBack reads every line as
+ * one.
  *
  * @param messageStyle `displayS` (titleMedium, the default) or `body` 600 for longer messages.
+ * @param supporting A quiet line under the message, e.g. "Any answer is okay." (§7.2).
  */
 @Composable
 fun SpeechBubble(
     message: String,
     modifier: Modifier = Modifier,
     context: String? = null,
+    supporting: String? = null,
     messageStyle: TextStyle = MaterialTheme.typography.titleMedium,
 ) {
     val colors = UlapTheme.colors
@@ -49,6 +52,9 @@ fun SpeechBubble(
                 Text(text = context, style = MaterialTheme.typography.bodySmall, color = colors.muted)
             }
             Text(text = message, style = messageStyle)
+            if (supporting != null) {
+                Text(text = supporting, style = MaterialTheme.typography.bodySmall, color = colors.muted)
+            }
         }
     }
 }
@@ -64,6 +70,7 @@ fun UlapSays(
     message: String,
     modifier: Modifier = Modifier,
     context: String? = null,
+    supporting: String? = null,
     ulapSize: Dp = UlapSize.Greeting,
     showUlap: Boolean = true,
 ) {
@@ -77,6 +84,7 @@ fun UlapSays(
         SpeechBubble(
             message = message,
             context = context,
+            supporting = supporting,
             // Ulap's base sits 20 of its 110 viewBox units above the bottom edge (§8.2).
             modifier = Modifier
                 .weight(1f)
@@ -95,6 +103,7 @@ private fun UlapSaysPreview() {
             expression = UlapExpression.NEUTRAL,
             context = "Good evening",
             message = "How are you feeling right now?",
+            supporting = "Any answer is okay.",
             modifier = Modifier.padding(UlapSpacing.M),
         )
     }
