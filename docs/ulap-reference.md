@@ -51,7 +51,7 @@ The big difference is the server. macro-tracker runs **Hono on Node (TypeScript)
 | Sync engine ideas (cursor, tombstones, reset, retries) | **[pattern]**, see D6–D8 | Fills real gaps in Ulap's design |
 | Infra (compose split, hardening, backup with age + rclone, restore drill, Cloudflare Tunnel) | **[adapt]** | Same VPS style |
 | CI (`ci-android`, server CI, `release-android`) | **[adapt]** | Swap pnpm steps for Gradle |
-| Claude Code (agents, `phase-work`, `reference-coding`, hooks, memory) | **[adapt]** | Point them at Ulap's docs and PHASES.md |
+| Claude Code (agents, `phase-work`, memory) | **[adapt]** | Point them at Ulap's docs and PHASES.md. `reference-coding`, XERJ and its hooks were dropped (§11.3–11.5). |
 
 ---
 
@@ -385,8 +385,8 @@ macro-tracker gitignored all of `.claude/`, so a fresh clone had no agents or sk
 | `.claude/skills/*/SKILL.md` | ✅ | Shared, no secrets |
 | `.claude/settings.json` | ✅ | Shared permissions (§11.6) |
 | `.claude/settings.local.json` | ❌ (gitignore) | Personal hooks and paths |
-| `.claude/hooks/*.ps1` | ❌ (gitignore) | Windows paths and the XERJ install location |
-| `.mcp.json` | ❌ (gitignore), commit `.mcp.example.json` instead | It contains an absolute `C:\Users\…` path |
+| `.claude/hooks/*.ps1` | ❌ (gitignore) | Windows paths (none are used now, §11.4) |
+| `.mcp.json` | ❌ (gitignore) | Machine-specific paths (no MCP servers are used now, §11.5) |
 
 ### 11.1 `CLAUDE.md` (new; macro-tracker had none)
 
@@ -439,34 +439,19 @@ All agents: read the owning doc section first, keep changes small, run the full 
 **`phase-work`**, retargeted from ARCHITECTURE §17 to **PHASES.md**:
 1. Pick the next unchecked box in [PHASES.md](../PHASES.md) (or the one the user names) and say which. Split an oversized task into 2a, 2b… and do only the first.
 2. Fold in a closely related task only if it touches the same files, and say so.
-3. Build it following the phase's **Spec:** links. Use `reference-coding` for non-trivial code. Run the full check. Say what can't be verified here (e.g. needs a real phone).
-4. Stop. Output a paste-ready Conventional Commit message and a short recap: What changed (with links), Why (doc section), New concepts, Try it yourself, Left open, Next.
-5. Tick the box and update the phase's count and status in PHASES.md **only when the Definition of Done is met**. The user commits.
-6. Overwrite the `phase-work-style` memory (Status / Next / Open, under ~1.5 KB), then suggest `/clear`.
+3. Build it following the phase's **Spec:** links, reading only the linked sections. Work in the main session. Use a specialist agent only when the user asks, and run one `wellbeing-reviewer` pass at the end when user-facing text changed.
+4. Verify: the touched module's tests first, then the full check once, with Gradle output cut down by `tail`. Say what can't be verified here (e.g. needs a real phone).
+5. Stop. Output a paste-ready Conventional Commit message and a short recap: What changed (with links), Why (doc section), New concepts, Try it yourself, Left open, Next.
+6. Tick the box and update the phase's count and status in PHASES.md **only when the Definition of Done is met**. The user commits.
+7. Overwrite the `phase-work-style` memory (Status / Next / Open, under ~1.5 KB), then suggest `/clear`.
 
-**`reference-coding`**: search permissively licensed reference repos with XERJ before writing non-trivial code, then fit the result to Ulap's docs (Ulap's docs win).
-- Corpora: `android-refs` = `android/nowinandroid`, `android/architecture-samples` (Apache-2.0, same as macro-tracker). `server-refs` = a Ktor sample repo such as `ktorio/ktor-samples` (**check its licence before indexing**). Drop `api-refs` (Hono starter).
-- Prefix `ulap` (e.g. `xerj search --prefix ulap "SyncEngine"`).
-- Cite the `file:line` of reference passages used. Attribution comment for near-verbatim blocks. Apache-2.0/MIT only.
-- Never run `xerj feedback --submit` or `xerj_field_report` unless asked.
+**`reference-coding`**: dropped together with XERJ to cut token usage. The attribution rule in §10 still applies to any code adapted from another repo.
 
-### 11.4 Hooks (optional, Windows only)
-Copy `start-xerj.ps1`, `refresh-indexes.ps1` and `refresh-indexes-worker.ps1` only if XERJ and graphify are installed on the machine. Change the cache dir to `~/.cache/ulap-index` and the XERJ prefix to `ulap`. Wire them in `.claude/settings.local.json` under `hooks.SessionStart` (`shell: powershell`, `timeout: 30`). Don't copy macro-tracker's graphify git hooks. Run `graphify hook install` in the new repo instead.
+### 11.4 Hooks
+None. macro-tracker's XERJ session hooks (`start-xerj.ps1`, `refresh-indexes*.ps1`) were dropped together with XERJ. Don't copy macro-tracker's graphify git hooks either: graphify runs only when the user types `/graphify` (README §6.8).
 
 ### 11.5 MCP
-`.mcp.example.json` (committed):
-```json
-{
-  "mcpServers": {
-    "xerj": {
-      "command": "xerj",
-      "args": ["mcp", "--disable-feedback"],
-      "env": { "XERJ_URL": "http://localhost:9200", "XERJ_DISABLE_FEEDBACK": "true" }
-    }
-  }
-}
-```
-Copy it to `.mcp.json` (gitignored) and use the full path to `xerj.exe` if it isn't on `PATH`.
+None. The XERJ MCP server and `.mcp.example.json` were removed. `.mcp.json` stays gitignored in case a machine adds a server later.
 
 ### 11.6 Permissions
 macro-tracker had no permissions block anywhere (MT §6). Ulap commits a small [`.claude/settings.json`](../.claude/settings.json) that allows the routine commands and asks for the rest:
@@ -500,8 +485,7 @@ Memory is keyed by project path, so start fresh for Ulap:
 |---|---|---|
 | `phase-work-style.md` | project | Current PHASES.md position only: Status / Next / Open. Overwritten per task. Under 1.5 KB. |
 | `local-services.md` | reference | "Dev links and logins are in docs/local-services.md. Secrets only in infra/.env." |
-| `xerj-reference-coding.md` | project | Only if XERJ is used: data dir, corpora, prefix `ulap` |
-| `use-graphify-and-xerj.md` | feedback | Only if used: cheapest lookup first (Grep/Read → XERJ → graphify). No `/graphify . --update` unless asked. |
+| `use-graphify.md` | feedback | Only if used: Grep/Read first. graphify only when the user runs `/graphify`. |
 
 ---
 
@@ -558,7 +542,7 @@ Maps onto [PHASES.md, Phase 1](../PHASES.md#phase-1-project-setup--nov-2026). Ti
 3. Add `README.md`, `PHASES.md`, `docs/`, `CLAUDE.md` (§11.1).
 
 **B. Claude Code (≈1 hour)**
-4. Copy and adapt the agents and skills (§11.2–§11.3). Commit `.claude/settings.json` and `.mcp.example.json`.
+4. Copy and adapt the agents and skills (§11.2–§11.3). Commit `.claude/settings.json`.
 5. Create the `phase-work-style` memory with "Status: Phase 1 · Next: Gradle and modules · Open: decisions D1–D14".
 
 **C. Gradle (≈half a day)**

@@ -46,10 +46,9 @@ Auth, sync, encryption and account deletion are 🔒 in PHASES.md. Say that the 
 ## How you work
 
 1. Read the api-spec section for the endpoint and the surrounding code.
-2. For non-trivial code (an auth plugin, rate limiting, StatusPages mapping, an Exposed table, a test setup), follow the `reference-coding` skill: `xerj code kmp-ktor-refs "<identifiers>" -k 5`. Cite the `file:line` you relied on. Ulap's docs win where they differ. If the XERJ node isn't running, say so and continue without it.
-3. Keep the change as small as the task allows.
-4. Write tests with Ktor `testApplication` and Testcontainers PostgreSQL. Cover the cases in api-spec §15 for the endpoint you touched. Every bug fix comes with a test that fails before the fix.
-5. Run `./gradlew :server:test` (Docker must be running) and the lint check from CLAUDE.md. Report failures with their output.
+2. Keep the change as small as the task allows.
+3. Write tests with Ktor `testApplication` and Testcontainers PostgreSQL. Cover the cases in api-spec §15 for the endpoint you touched. Every bug fix comes with a test that fails before the fix.
+4. Run `./gradlew :server:test` (Docker must be running) and the lint check from CLAUDE.md. Report failures with their output.
 
 ## Who you're working with
 

@@ -7,6 +7,7 @@ Offline-first mood diary. Android (Kotlin, Compose) + Ktor server + Kotlin Multi
 - How it works: docs/technical-plan.md · API: docs/api-spec.md · UI and tone: docs/design-spec.md
 - Repo tooling and decisions: docs/ulap-reference.md. D1–D14 (§13) are all accepted. A new decision starts as Proposed, and until it's accepted the other docs win.
 - Each topic has one owner doc (README §17). If code and docs disagree, say so. Don't silently pick one.
+- Read docs by section, never whole. These files are 20–50 KB each. Grep for the heading or § number (`grep -n "^#" <file>` lists them), then Read with offset/limit up to the next heading. Don't re-read a section that's already in this session.
 
 ## Rules
 - Business rules live in `shared` (MoodCatalog, ResponseRules, CheckInValidator), never in ViewModels or routes.
@@ -36,7 +37,7 @@ From README §6 (D4, D10 and D13 are accepted).
 - `ktor-backend`: the Ktor server, Exposed, Flyway, auth and sync endpoints
 - `mobile-app-developer`: app-wide concerns (performance, accessibility, permissions, hotline flow, Play Console)
 - `wellbeing-reviewer`: read-only review of app text and flows against the voice guide and safety rules
-- `phase-work` skill: "next task" / "go" in PHASES.md · `reference-coding` skill: XERJ lookups before non-trivial code
+- `phase-work` skill: "next task" / "go" in PHASES.md
 
 ## Git
 - Conventional Commits (README §12; scopes in ulap-reference §10). The user runs the commit. Don't commit unless asked.

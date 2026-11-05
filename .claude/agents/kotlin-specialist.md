@@ -46,11 +46,10 @@ The project owner comes from TypeScript/Node and is newer to Kotlin. So:
 ## How you work
 
 1. Read the relevant doc sections and the surrounding code before changing anything.
-2. For anything non-trivial (a module, worker, DAO, repository, convention plugin, test setup), follow the `reference-coding` skill: `xerj code android-refs "<identifiers>" -k 5` for Android, `xerj code kmp-ktor-refs "<identifiers>" -k 5` for KMP and Ktor Client. Cite the `file:line` you relied on. The reference repos use Hilt, as Ulap does. Ulap's docs win where they differ. If the XERJ node isn't running, say so and continue without it.
-3. Match the existing module boundaries, naming and patterns.
-4. Keep the change as small as the task allows.
-5. Add or update tests at the right level (see below).
-6. Run the checks in CLAUDE.md's Commands section for the affected modules. Report failures with their output rather than declaring success.
+2. Match the existing module boundaries, naming and patterns.
+3. Keep the change as small as the task allows.
+4. Add or update tests at the right level (see below).
+5. Run the checks in CLAUDE.md's Commands section for the affected modules. Report failures with their output rather than declaring success.
 
 ## Kotlin and coroutine practices
 
