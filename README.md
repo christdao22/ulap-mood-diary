@@ -567,8 +567,10 @@ Thank you for helping make Ulap kinder and better. 💙
 ### Reviews
 - At least **one approval** before merging. Use **squash merge** into `main`. It's the only merge type the repository allows.
 - Changes to auth, sync, encryption or safety features (the hotline) need **two approvals**. GitHub can't require this per folder, so the PR template's 🔒 box is the check.
-- **`main` ruleset** (Settings → Rules → Rulesets): no force pushes, no deleting `main`, changes go through a pull request. Required status checks are added with CI ([PHASES.md, Phase 1](PHASES.md#phase-1-project-setup)).
-- **While Ulap has one maintainer:** GitHub never counts your own approval on your own pull request. So the ruleset requires 0 approvals, and the repository admin can bypass it. That lets Phase 1 setup work go straight to `main` ([Definition of Done](PHASES.md#definition-of-done)). Raise it to 1 approval when a second reviewer joins.
+- **Rulesets on `main`** (Settings → Rules → Rulesets):
+  - `main`: no force pushes and no deleting `main`. Nobody can bypass it, not even the admin.
+  - `main + admin bypass`: changes go through a pull request, and the repository admin can bypass it. Required status checks get added here with CI ([PHASES.md, Phase 1](PHASES.md#phase-1-project-setup)).
+- **While Ulap has one maintainer:** GitHub never counts your own approval on your own pull request. So the pull-request ruleset requires 0 approvals, and the admin can bypass it. That lets Phase 1 setup work go straight to `main` ([Definition of Done](PHASES.md#definition-of-done)). Raise it to 1 approval when a second reviewer joins.
 
 ---
 
