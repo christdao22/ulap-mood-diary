@@ -18,7 +18,7 @@ Last updated: November 5, 2026
 |---|---|---|---|
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
 | 1 | Project setup | ✅ Complete | 18 / 18 |
-| 2 | Offline check-in | 🟡 In progress | 7 / 25 |
+| 2 | Offline check-in | 🟡 In progress | 12 / 25 |
 | 3 | Logs | ⬜ Not started | 0 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
@@ -129,12 +129,12 @@ Spec: [Technical plan §5–§6](docs/technical-plan.md#5-shared-domain-model) �
 - [x] Unit tests for the catalog, rules and validator
 
 ### Local data
-- [ ] Room `CheckInEntity` with every column from the technical plan
-- [ ] `CheckInDao` (insert, update, soft delete, observe by day)
-- [ ] `CheckInRepository` (save sets `PENDING` and `updatedAt`)
+- [x] Room `CheckInEntity` with every column from the technical plan
+- [x] `CheckInDao` (insert, update, soft delete, observe by day)
+- [x] `CheckInRepository` (save sets `PENDING` and `updatedAt`)
 - [ ] Database encryption: SQLCipher on Room 2.8, with a random passphrase wrapped by Tink and the Android Keystore, kept in `noBackupFilesDir`. Recovers from a lost key. Includes an instrumented test that the file can't be opened without the passphrase ([Technical plan §6](docs/technical-plan.md#encryption-of-the-phone-database)) 🔒
-- [ ] Turn off Android cloud backup of the database
-- [ ] DataStore for settings (language, mascot on/off, device ID)
+- [x] Turn off Android cloud backup of the database
+- [x] DataStore for settings (language, mascot on/off, device ID)
 
 ### Theme and components
 - [ ] Theme: `Color.kt`, `Type.kt`, `Shape.kt` from the design spec

@@ -2,7 +2,8 @@
 <!-- Android 12 and later: nothing goes to Google's cloud backup or to a device-to-device transfer
      (README §14). The encrypted database, its wrapped passphrase and the session keyset only work
      on the phone that made them; synced check-ins come back from the server after sign-in.
-     The Phase 2 backup task decides whether settings may be allowed back in. -->
+     Settings stay out too: they hold this install's device ID, which must never reach a second
+     phone, and language and mascot take seconds to set again. BackupRulesTest guards all this. -->
 <data-extraction-rules>
     <cloud-backup>
         <exclude domain="root" path="." />
