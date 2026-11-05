@@ -620,7 +620,7 @@ Thank you for helping make Ulap kinder and better. 💙
 - Changes to auth, sync, encryption or safety features (the hotline) need **two approvals**. GitHub can't require this per folder, so the PR template's 🔒 box is the check.
 - **Rulesets on `main`** (Settings → Rules → Rulesets):
   - `main`: no force pushes and no deleting `main`. Nobody can bypass it, not even the admin.
-  - `main + admin bypass`: changes go through a pull request, and the repository admin can bypass it. Required status checks get added here with CI ([PHASES.md, Phase 1](PHASES.md#phase-1-project-setup)).
+  - `main + admin bypass`: changes go through a pull request, and the repository admin can bypass it. Required status checks get added here with CI ([PHASES.md, Phase 1](PHASES.md#phase-1-project-setup--nov-2026)).
 - **While Ulap has one maintainer:** GitHub never counts your own approval on your own pull request. So the pull-request ruleset requires 0 approvals, and the admin can bypass it. That lets Phase 1 setup work go straight to `main` ([Definition of Done](PHASES.md#definition-of-done)). Raise it to 1 approval when a second reviewer joins.
 
 ---
