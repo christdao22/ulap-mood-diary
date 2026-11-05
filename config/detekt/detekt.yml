@@ -40,7 +40,10 @@ style:
     # A number that is the value of a named property (`val STRESS_RANGE = 1..10`) is
     # named where it is declared, which is the point of the rule.
     ignorePropertyDeclaration: true
-    excludes: ['**/test/**', '**/androidTest/**', '**/core/designsystem/**/theme/**']
+    # The same goes for an enum entry's value (`HIGH(8)`, `YELLOW(3)`): the entry names it.
+    ignoreEnums: true
+    # Kotlin Multiplatform test source sets are named commonTest and jvmTest, not test.
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/core/designsystem/**/theme/**']
   UnusedPrivateMember:
     # @Preview functions are private and only Android Studio calls them.
     ignoreAnnotated: ['Preview']

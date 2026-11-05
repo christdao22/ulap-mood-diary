@@ -63,10 +63,9 @@ Play Store and release:
 ## How you work
 
 1. Read the relevant doc sections and the code involved.
-2. Before building something nowinandroid already does (build variants, R8 config, Baseline Profiles, accessibility tests), check how it does it: `xerj code android-refs "<identifiers>" -k 5` (see the `reference-coding` skill). Cite the `file:line` you relied on. Ulap's docs win where they differ.
-3. Measure before optimizing when a device or emulator is available. State your assumptions when it isn't.
-4. Make the change, or give a concrete, prioritized list of changes.
-5. Verify where possible and report the results, including failures. Say what needs a real phone.
+2. Measure before optimizing when a device or emulator is available. State your assumptions when it isn't.
+3. Make the change, or give a concrete, prioritized list of changes.
+4. Verify where possible and report the results, including failures. Say what needs a real phone.
 
 ## Hand-off
 

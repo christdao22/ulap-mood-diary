@@ -7,8 +7,6 @@
 !.env.example
 local.properties
 .mcp.json
-.mcp.example.json
-.xerjignore
 *.jks
 *.keystore
 

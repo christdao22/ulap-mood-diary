@@ -1,0 +1,122 @@
+package app.ulap.shared.rules
+
+import app.ulap.shared.catalog.MoodCatalog
+import app.ulap.shared.model.Mood
+import app.ulap.shared.model.SupportType
+import app.ulap.shared.model.Trigger
+import app.ulap.shared.model.Zone
+
+/** Ulap's six faces (design-spec.md §8.3). */
+enum class UlapExpression { NEUTRAL, CONCERNED, GENTLE, HAPPY, CALM, QUIET }
+
+/**
+ * Which title and body Ulap says on the Response screen. Each value maps to the
+ * `resp_<value>_title` and `resp_<value>_body` strings (technical-plan.md Appendix B).
+ */
+enum class ResponseMessage { RED, BLUE, YELLOW, GREEN, HOPELESS }
+
+/** What the Response screen offers below the message (design-spec.md §7.4). */
+sealed interface ResponseActions {
+    /**
+     * The NCMH 1553 hotline card, in place of activity buttons (Hopeless). It must keep working
+     * offline: it only opens the dialer.
+     */
+    data object Hotline : ResponseActions
+
+    /**
+     * One primary support button ([primary]), plus the secondary button when [showSecondary]
+     * is true. Stress ≥ 8 means one button only, so the person has no choice to make.
+     */
+    data class Offer(val primary: SupportType, val showSecondary: Boolean) : ResponseActions
+}
+
+/** Everything the Response screen needs to know, decided in one place. */
+data class Response(
+    val expression: UlapExpression,
+    /** False for Hopeless: Ulap stays still (design-spec.md §8.3). */
+    val floats: Boolean,
+    val message: ResponseMessage,
+    /** Maps to `trigger_line_<trigger>`. `null` when no line applies. */
+    val triggerLine: Trigger?,
+    val actions: ResponseActions,
+    /** The "How stressed do you feel now?" card. Red and Blue zones only (Hopeless included). */
+    val showStressCheck: Boolean,
+)
+
+/** How stress changed between the check-in and "How stressed do you feel now?". */
+enum class StressChange { LOWER, SAME, HIGHER }
+
+/** The After screen's face and message (design-spec.md §7.5 and §10.4). */
+data class AfterCheck(val change: StressChange, val expression: UlapExpression)
+
+/**
+ * Ulap's response to a check-in (technical-plan.md §5 "Response rules"). Screens show what this
+ * returns and never decide these rules themselves. Hopeless is a safety rule (🔒 in PHASES.md):
+ * a change to it needs two reviewers.
+ */
+object ResponseRules {
+    /** At or above this stress, the Response screen shows one button only (design-spec.md §6.6). */
+    const val ONE_BUTTON_STRESS: Int = 8
+
+    /**
+     * Triggers that have a `trigger_line_*` string in technical-plan.md Appendix B.
+     * RELATIONSHIPS has no line yet, and OTHER is the person's own words, so neither shows one.
+     */
+    private val triggersWithLine: Set<Trigger> =
+        setOf(Trigger.WORK, Trigger.FAMILY, Trigger.MONEY, Trigger.HEALTH, Trigger.SCHOOL)
+
+    /** The response for [mood] logged at [stress] (1..10) with an optional [trigger]. */
+    fun respond(mood: Mood, stress: Int, trigger: Trigger?): Response {
+        require(stress in LEVEL_RANGE) { "stress must be in $LEVEL_RANGE, was $stress" }
+        val zone = mood.zone
+        val isHopeless = mood.code == MoodCatalog.HOPELESS
+        return Response(
+            expression = if (isHopeless) UlapExpression.QUIET else zone.expression(),
+            floats = !isHopeless,
+            message = if (isHopeless) ResponseMessage.HOPELESS else zone.message(),
+            triggerLine = trigger?.takeIf { zone.isUnpleasant && it in triggersWithLine },
+            actions = if (isHopeless) {
+                ResponseActions.Hotline
+            } else {
+                ResponseActions.Offer(primary = zone.support(), showSecondary = stress < ONE_BUTTON_STRESS)
+            },
+            showStressCheck = zone.isUnpleasant,
+        )
+    }
+
+    /**
+     * The After screen for a stress of [before] that is now [now] (both 1..10). Ulap is calm when
+     * stress went down and gentle otherwise (design-spec.md §7.5).
+     */
+    fun afterCheck(before: Int, now: Int): AfterCheck {
+        require(before in LEVEL_RANGE) { "before must be in $LEVEL_RANGE, was $before" }
+        require(now in LEVEL_RANGE) { "now must be in $LEVEL_RANGE, was $now" }
+        val change = when {
+            now < before -> StressChange.LOWER
+            now == before -> StressChange.SAME
+            else -> StressChange.HIGHER
+        }
+        val expression = if (change == StressChange.LOWER) UlapExpression.CALM else UlapExpression.GENTLE
+        return AfterCheck(change, expression)
+    }
+
+    private fun Zone.expression(): UlapExpression = when (this) {
+        Zone.RED -> UlapExpression.CONCERNED
+        Zone.BLUE -> UlapExpression.GENTLE
+        Zone.YELLOW -> UlapExpression.HAPPY
+        Zone.GREEN -> UlapExpression.CALM
+    }
+
+    private fun Zone.message(): ResponseMessage = when (this) {
+        Zone.RED -> ResponseMessage.RED
+        Zone.BLUE -> ResponseMessage.BLUE
+        Zone.YELLOW -> ResponseMessage.YELLOW
+        Zone.GREEN -> ResponseMessage.GREEN
+    }
+
+    private fun Zone.support(): SupportType = when (this) {
+        Zone.RED -> SupportType.BREATHE
+        Zone.BLUE -> SupportType.SMALL_HELPS
+        Zone.YELLOW, Zone.GREEN -> SupportType.GOOD_MOMENT
+    }
+}

@@ -133,7 +133,6 @@ ulap/
 ├── PHASES.md                          # progress tracker (checkboxes)
 ├── CLAUDE.md                          # rules for Claude Code sessions
 ├── .claude/                           # shared agents, skills, settings.json (docs/ulap-reference.md §11)
-├── .mcp.example.json                  # copy to .mcp.json (gitignored) for the XERJ MCP server
 ├── LICENSE
 ├── CONTRIBUTING.md                    # short file that links to README §12
 ├── .editorconfig · .gitattributes · .gitignore
@@ -336,28 +335,9 @@ For a **real phone** on USB, run `adb reverse tcp:8080 tcp:8080` and set `ulap.a
 | `./gradlew :server:buildFatJar` | Build the runnable server JAR |
 | `./gradlew :androidApp:bundleRelease` | Build the Play Store bundle (`.aab`) |
 
-### 6.8 Optional: code-search tools (XERJ and graphify)
+### 6.8 Optional: graphify
 
-Two local tools help Claude Code find things. Neither is needed to build or run the app.
-
-- **XERJ** is a local search node. It indexes this repo and some open-source reference repos (see `.claude/skills/reference-coding/SKILL.md`).
-- **graphify** builds a knowledge graph of the repo in `graphify-out/`.
-
-**Update XERJ** (Windows PowerShell)
-
-```powershell
-xerj --version                                   # what you have now
-Stop-Process -Name xerj                          # the installer can't replace a running xerj.exe
-irm https://xerj.org/get.ps1 | iex               # installs the latest release and checks its SHA-256
-xerj --version                                   # confirm
-xerj --data-dir $HOME\xerj-data --disable-feedback   # start the node again, in its own terminal
-```
-
-- Pin a version with `$env:XERJ_VERSION = "vX.Y.Z"` before the install line.
-- Your indices live in `$HOME\xerj-data` and survive the update. The same node may serve other projects, so check that nothing else is using it before you stop it.
-- Refresh this project's index after big changes: `xerj autoindex . --prefix ulap-mood-diary`.
-- Refresh a reference corpus: `xerj corpus index kmp-ktor-refs`.
-- CLI calls need the node's key: `$env:XERJ_API_KEY = (Get-Content "$HOME\xerj-data\admin.key" -Raw).Trim()`.
+**graphify** builds a knowledge graph of the repo in `graphify-out/`. It isn't needed to build or run the app. It runs only when you type `/graphify` in Claude Code: its skill has `disable-model-invocation: true` so Claude doesn't start it on its own, because its subagents are costly.
 
 **Update graphify** (installed with `uv`)
 
@@ -368,6 +348,7 @@ graphify update .                                # re-extract code files into gr
 ```
 
 - Use `pip install --upgrade graphifyy` instead if you installed it with pip.
+- `graphify install` rewrites `~/.claude/skills/graphify/SKILL.md`. Afterwards, add `disable-model-invocation: true` back to its frontmatter.
 - `graphify --help` prints a warning when another tool's copy of the skill is older than the package. Run the `graphify install --platform <name>` command it shows.
 - After doc changes, run `/graphify . --update` inside Claude Code, because only that re-reads docs.
 

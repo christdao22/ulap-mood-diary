@@ -9,11 +9,11 @@ description: Use when working through PHASES.md, e.g. "next task", "go", "contin
 
 ## Per task
 
-1. **Pick the task.** Take the next unchecked box in PHASES.md, or the one the user names, and say which one it is before you start. If a task is too big for one sitting, split it into sub-tasks (2a, 2b, …), explain the split, and do only the first.
+1. **Pick the task.** Take the next unchecked box in PHASES.md (`grep -n "\- \[ \]" PHASES.md`, then read only that phase's block), or the one the user names, and say which one it is before you start. If a task is too big for one sitting, split it into sub-tasks (2a, 2b, …), explain the split, and do only the first.
 2. **Related tasks are fine.** Fold in a closely related task only when it touches the same files or would be awkward to do separately, for example a Room entity and its DAO. Say that you're combining them. Don't chain unrelated tasks.
 3. **Check what blocks it.** If the task depends on a decision that is still Proposed (D15 onward in [docs/ulap-reference.md §13](../../../docs/ulap-reference.md#13-decision-log)), name the decision and ask before building. If the decision doesn't change this task, follow the current docs and say so. If the task is marked 🔒, say that it needs two reviewers before merging.
-4. **Build.** Follow the phase's **Spec:** links. Use the `reference-coding` skill for non-trivial code. Use the agent that fits (CLAUDE.md lists them). Get a `wellbeing-reviewer` pass on any new or changed user-facing text.
-5. **Verify.** Run the checks in CLAUDE.md's Commands section before calling the task done. Report failures with their output. If part of it can't be verified here (it needs a real phone, a GitHub remote, a native speaker), say so.
+4. **Build.** Follow the phase's **Spec:** links, reading only the linked section (see "Read docs by section" in CLAUDE.md). Do the work in this session. Don't hand it to a specialist agent unless the user asks, because each one starts cold and re-reads the docs. If user-facing text changed, run one `wellbeing-reviewer` pass at the end that covers all the changed strings.
+5. **Verify.** First run the tests for the module you touched (e.g. `./gradlew :shared:allTests`). Then run the full CI command from CLAUDE.md's Commands section once, before calling the task done. Pipe Gradle output through `2>&1 | tail -n 60` so only the result and any failures enter context; if a failure is cut off, re-run just that task or read its report file. Report failures with their output. If part of it can't be verified here (it needs a real phone, a GitHub remote, a native speaker), say so.
 6. **Stop.** Don't start the next task until the user says "go" (or "keep going", which means continue without stopping).
 
 ## At the end of each task

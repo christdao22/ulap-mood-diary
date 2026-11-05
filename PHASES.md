@@ -18,7 +18,7 @@ Last updated: November 5, 2026
 |---|---|---|---|
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
 | 1 | Project setup | ✅ Complete | 18 / 18 |
-| 2 | Offline check-in | ⬜ Not started | 0 / 25 |
+| 2 | Offline check-in | 🟡 In progress | 7 / 25 |
 | 3 | Logs | ⬜ Not started | 0 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
@@ -120,13 +120,13 @@ Spec: [README §5–§8](README.md#5-folder-structure) · [Technical plan §4](d
 Spec: [Technical plan §5–§6](docs/technical-plan.md#5-shared-domain-model) · [Design spec §6–§8](docs/design-spec.md#6-components)
 
 ### Shared module
-- [ ] `Zone`, `Mood`, `Trigger`, `SupportType` models
-- [ ] `MoodCatalog` with all 25 moods, zones, and default energy and stress
-- [ ] `StressLabels` and `EnergyLabels` (very low … very high)
-- [ ] `ResponseRules` (zone actions, Hopeless, stress ≥ 8 → one button, trigger lines)
-- [ ] `CheckInValidator` (ranges, lengths, good moment only for Yellow and Green)
-- [ ] `Ids.newId()`: UUIDv7 (RFC 9562), lowercase, time-ordered, with tests ([Technical plan §3](docs/technical-plan.md#recommended-libraries))
-- [ ] Unit tests for the catalog, rules and validator
+- [x] `Zone`, `Mood`, `Trigger`, `SupportType` models
+- [x] `MoodCatalog` with all 25 moods, zones, and default energy and stress
+- [x] `StressLabels` and `EnergyLabels` (very low … very high)
+- [x] `ResponseRules` (zone actions, Hopeless, stress ≥ 8 → one button, trigger lines)
+- [x] `CheckInValidator` (ranges, lengths, good moment only for Yellow and Green)
+- [x] `Ids.newId()`: UUIDv7 (RFC 9562), lowercase, time-ordered, with tests ([Technical plan §3](docs/technical-plan.md#recommended-libraries))
+- [x] Unit tests for the catalog, rules and validator
 
 ### Local data
 - [ ] Room `CheckInEntity` with every column from the technical plan
