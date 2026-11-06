@@ -18,7 +18,7 @@ Last updated: November 5, 2026
 |---|---|---|---|
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
 | 1 | Project setup | ✅ Complete | 18 / 18 |
-| 2 | Offline check-in | 🟡 In progress | 22 / 25 |
+| 2 | Offline check-in | 🟡 In progress | 23 / 25 |
 | 3 | Logs | ⬜ Not started | 0 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
@@ -148,7 +148,7 @@ Spec: [Technical plan §5–§6](docs/technical-plan.md#5-shared-domain-model) �
 - [x] Response: zone tint background, Ulap, message, trigger line, actions
 - [x] Support cards: breathing circle (4-2-6), small helps list, saved to good moments
 - [x] "How stressed do you feel now?" check-in (Red and Blue only)
-- [ ] After screen: before → now, with the right message (lower, same, higher)
+- [x] After screen: before → now, with the right message (lower, same, higher)
 - [ ] Hopeless: quiet Ulap plus the NCMH 1553 card (dialer intent) 🔒
 - [x] Bottom tab bar (Check in, Logs, Reports, Account)
 

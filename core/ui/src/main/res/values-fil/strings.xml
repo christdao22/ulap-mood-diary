@@ -89,6 +89,23 @@
     <string name="check_title">Gaano ka ka-stressed ngayon?</string>
     <string name="check_action">Mag-check in</string>
 
+    <!-- The After screen: stress before and now, then a message (design-spec.md §7.5, §10.4, technical-plan.md Appendix B, after_*) -->
+    <!-- The two pills. %1$d is the stress the person logged, then the stress they feel now -->
+    <string name="after_before">Kanina %1$d</string>
+    <string name="after_now">Ngayon %1$d</string>
+    <!-- %1$d is the logged stress, %2$d is the stress now -->
+    <string name="after_lower">Mula %1$d, %2$d na lang ang stress mo.</string>
+    <!-- %1$d is how many points lower -->
+    <plurals name="after_lower_sub">
+        <item quantity="one">Mas mababa iyan nang %1$d puntos. Tandaan kung ano ang nakatulong, para magamit mo ulit.</item>
+        <item quantity="other">Mas mababa iyan nang %1$d puntos. Tandaan kung ano ang nakatulong, para magamit mo ulit.</item>
+    </plurals>
+    <string name="after_same">Nasa %1$d pa rin, at okay lang iyan.</string>
+    <string name="after_same_sub">Kailangan ng panahon para magbago ang nararamdaman. Maging mabait ka sa sarili mo ngayong araw.</string>
+    <string name="after_higher">Tumaas ito sa %1$d.</string>
+    <string name="after_higher_sub">Salamat sa tapat mong pagsagot. Kung patuloy itong tumataas, kausapin ang taong pinagkakatiwalaan mo o tumawag sa NCMH sa 1553.</string>
+    <string name="after_action_week">Ang linggo ko</string>
+
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Enerhiya</string>
     <string name="slider_energy_start">Lupaypay</string>

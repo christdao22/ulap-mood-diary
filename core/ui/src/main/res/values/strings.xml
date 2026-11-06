@@ -89,6 +89,23 @@
     <string name="check_title">How stressed do you feel now?</string>
     <string name="check_action">Check in</string>
 
+    <!-- The After screen: stress before and now, then a message (design-spec.md §7.5, §10.4, technical-plan.md Appendix B, after_*) -->
+    <!-- The two pills. %1$d is the stress the person logged, then the stress they feel now -->
+    <string name="after_before">Before %1$d</string>
+    <string name="after_now">Now %1$d</string>
+    <!-- %1$d is the logged stress, %2$d is the stress now -->
+    <string name="after_lower">Your stress went from %1$d to %2$d.</string>
+    <!-- %1$d is how many points lower -->
+    <plurals name="after_lower_sub">
+        <item quantity="one">That\'s %1$d point lower. Remember what helped, so you can use it again.</item>
+        <item quantity="other">That\'s %1$d points lower. Remember what helped, so you can use it again.</item>
+    </plurals>
+    <string name="after_same">Still at %1$d, and that\'s okay.</string>
+    <string name="after_same_sub">Feelings take time to shift. Be gentle with yourself today.</string>
+    <string name="after_higher">It went up to %1$d.</string>
+    <string name="after_higher_sub">Thank you for checking honestly. If it keeps rising, reach out to someone you trust or call NCMH at 1553.</string>
+    <string name="after_action_week">See my week</string>
+
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Energy</string>
     <string name="slider_energy_start">Drained</string>

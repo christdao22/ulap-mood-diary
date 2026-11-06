@@ -6,6 +6,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
+import app.ulap.feature.checkin.after.AfterScreen
 import app.ulap.feature.checkin.details.DetailsScreen
 import app.ulap.feature.checkin.pickmood.PickMoodScreen
 import app.ulap.feature.checkin.response.ResponseScreen
@@ -27,11 +29,16 @@ data class DetailsRoute(val moodCode: String)
 @Serializable
 data class ResponseRoute(val checkInId: String)
 
+/** Check in · After, comparing the logged stress with "How stressed do you feel now?" (design-spec.md §7.5). */
+@Serializable
+data class AfterRoute(val checkInId: String)
+
 /**
  * Adds the check-in screens as one nested graph, so the tab bar can treat them as one tab. The
- * screens all belong to this feature, so it moves between them itself.
+ * screens all belong to this feature, so it moves between them itself. [onSeeMyWeek] opens the
+ * Reports tab, which belongs to another feature, so the app root does it.
  */
-fun NavGraphBuilder.checkInGraph(navController: NavController) {
+fun NavGraphBuilder.checkInGraph(navController: NavController, onSeeMyWeek: () -> Unit) {
     navigation<CheckInGraph>(startDestination = PickMoodRoute) {
         composable<PickMoodRoute> { entry ->
             PickMoodScreen(
@@ -56,9 +63,29 @@ fun NavGraphBuilder.checkInGraph(navController: NavController) {
             val finish = { entry.ifResumed { navController.popBackStack(PickMoodRoute, inclusive = false) } }
             ResponseScreen(
                 onDone = finish,
-                // For now Check in ends the check-in too. The After screen task (PHASES.md Phase 2)
-                // points this at the After screen (design-spec.md §7.5).
-                onStressCheckSave = finish,
+                // Response leaves the back stack: the stress check is saved, so Back from After
+                // goes to Pick mood instead of asking again.
+                onStressCheckSave = {
+                    entry.ifResumed {
+                        navController.navigate(AfterRoute(entry.toRoute<ResponseRoute>().checkInId)) {
+                            popUpTo<ResponseRoute> { inclusive = true }
+                        }
+                    }
+                },
+            )
+        }
+        composable<AfterRoute> { entry ->
+            val finish = { entry.ifResumed { navController.popBackStack(PickMoodRoute, inclusive = false) } }
+            AfterScreen(
+                onDone = finish,
+                onSeeMyWeek = {
+                    entry.ifResumed {
+                        // End the check-in first, so coming back to the Check in tab opens Pick
+                        // mood, not this screen.
+                        navController.popBackStack(PickMoodRoute, inclusive = false)
+                        onSeeMyWeek()
+                    }
+                },
             )
         }
     }

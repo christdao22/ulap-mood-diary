@@ -70,6 +70,17 @@ object UlapIcons {
         }
     }
 
+    /** A right arrow, between the "Before" and "Now" pills on the After screen (design-spec.md §7.5). */
+    val Arrow: ImageVector by lazy {
+        lineIcon("Arrow") {
+            moveTo(4f, 11f)
+            lineTo(18f, 11f)
+            moveTo(13f, 6f)
+            lineTo(18f, 11f)
+            lineTo(13f, 16f)
+        }
+    }
+
     private const val GRID = 22f
     private const val STROKE = 1.8f
     private const val BASELINE = 18f
