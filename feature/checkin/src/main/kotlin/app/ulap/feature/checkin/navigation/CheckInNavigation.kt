@@ -53,8 +53,12 @@ fun NavGraphBuilder.checkInGraph(navController: NavController) {
             )
         }
         composable<ResponseRoute> { entry ->
+            val finish = { entry.ifResumed { navController.popBackStack(PickMoodRoute, inclusive = false) } }
             ResponseScreen(
-                onDone = { entry.ifResumed { navController.popBackStack(PickMoodRoute, inclusive = false) } },
+                onDone = finish,
+                // For now Check in ends the check-in too. The After screen task (PHASES.md Phase 2)
+                // points this at the After screen (design-spec.md §7.5).
+                onStressCheckSave = finish,
             )
         }
     }

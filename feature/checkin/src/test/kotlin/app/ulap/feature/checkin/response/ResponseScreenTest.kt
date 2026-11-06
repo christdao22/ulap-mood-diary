@@ -1,11 +1,14 @@
 package app.ulap.feature.checkin.response
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.shared.catalog.MoodCatalog
 import app.ulap.shared.model.SupportType
@@ -35,10 +38,15 @@ class ResponseScreenTest {
                         mood = mood,
                         response = ResponseRules.respond(mood, stress, trigger),
                         startedSupport = startedSupport,
+                        stressNow = stress,
                     ),
                     showUlap = true,
-                    onStartSupport = { events += "support" },
-                    onFinish = { events += "finish" },
+                    actions = ResponseScreenActions(
+                        onStartSupport = { events += "support" },
+                        onFinish = { events += "finish" },
+                        onStressNowChange = { events += "stress $it" },
+                        onStressCheckSave = { events += "check in" },
+                    ),
                 )
             }
         }
@@ -76,6 +84,7 @@ class ResponseScreenTest {
         compose.onNodeWithText("What made you feel excited? Remembering it can help on harder days.").assertExists()
         compose.onNodeWithText("Save to good moments").assertExists()
         compose.onNodeWithText("Work can take a lot out of us.").assertDoesNotExist()
+        compose.onNodeWithText("How stressed do you feel now?").assertDoesNotExist()
     }
 
     @Test
@@ -126,5 +135,43 @@ class ResponseScreenTest {
         compose.onNodeWithText("I'm really glad you told me.").assertExists()
         compose.onNodeWithText("Something small that helps").assertDoesNotExist()
         compose.onNodeWithText("Maybe later").assertDoesNotExist()
+    }
+
+    @Test
+    fun `Red asks how stressed the person feels now, starting at the logged stress`() {
+        show("worried", stress = 8)
+        compose.onNodeWithText("When you're ready").assertExists()
+        compose.onNodeWithText("How stressed do you feel now?")
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+        compose.onNodeWithContentDescription("Stress")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "8 of 10, high"))
+    }
+
+    @Test
+    fun `the stress check reports the slider and Check in`() {
+        show("sad", stress = 6)
+        compose.onNodeWithContentDescription("Stress")
+            .performSemanticsAction(SemanticsActions.SetProgress) { setProgress -> setProgress(4f) }
+        compose.onNodeWithText("Check in").performClick()
+        assertEquals(listOf("stress 4", "check in"), events)
+    }
+
+    @Test
+    fun `the stress check stays under a started support`() {
+        show("worried", stress = 6, startedSupport = SupportType.BREATHE)
+        compose.onNodeWithText("How stressed do you feel now?").assertExists()
+    }
+
+    @Test
+    fun `Hopeless still shows the stress check`() {
+        show("hopeless", stress = 9)
+        compose.onNodeWithText("How stressed do you feel now?").assertExists()
+        compose.onNodeWithText("Check in").assertExists()
+    }
+
+    @Test
+    fun `Green has no stress check`() {
+        show("calm", stress = 2)
+        compose.onNodeWithText("How stressed do you feel now?").assertDoesNotExist()
     }
 }
