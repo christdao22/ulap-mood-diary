@@ -25,6 +25,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -42,11 +44,14 @@ import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.ui.R
 import app.ulap.core.ui.nameRes
 import app.ulap.core.ui.shortNameRes
+import app.ulap.core.ui.wordRes
 import app.ulap.shared.catalog.MoodCatalog
 import app.ulap.shared.model.CheckIn
 import app.ulap.shared.model.Trigger
 import app.ulap.shared.model.Zone
+import app.ulap.shared.rules.LEVEL_RANGE
 import app.ulap.shared.rules.SearchNames
+import app.ulap.shared.rules.StressLabels
 import java.math.RoundingMode
 import java.text.NumberFormat
 import java.time.ZoneOffset
@@ -170,14 +175,13 @@ private class RowActions(val onEdit: (String) -> Unit, val onDelete: (String) ->
 private fun LazyListScope.logDays(days: List<LogDay>, formats: LogFormats, actions: RowActions) {
     days.forEach { logDay ->
         item(key = "day-${logDay.day.epochDay}", contentType = "day") {
+            val day = dayLabelText(logDay.label, formats)
+            val count = logDay.day.count
+            val average = formats.averageStress(logDay.day.averageStress)
             LogDayHeader(
-                day = dayLabelText(logDay.label, formats),
-                summary = pluralStringResource(
-                    R.plurals.logs_day_summary,
-                    logDay.day.count,
-                    logDay.day.count,
-                    formats.averageStress(logDay.day.averageStress),
-                ),
+                day = day,
+                summary = pluralStringResource(R.plurals.logs_day_summary, count, count, average),
+                contentDescription = pluralStringResource(R.plurals.logs_day_description, count, day, count, average),
                 // The gap above a day is wider than the gap between its rows.
                 modifier = Modifier.padding(top = UlapSpacing.M),
             )
@@ -228,23 +232,47 @@ private fun rememberSearchNames(): SearchNames {
     }
 }
 
+/**
+ * One log row. For TalkBack (design-spec.md §11) the row reads as one sentence, offers Edit and
+ * Delete as actions on the row itself, and its menu button names the check-in it belongs to.
+ */
 @Composable
 private fun CheckInRow(checkIn: CheckIn, formats: LogFormats, actions: RowActions) {
     // The ViewModel drops unknown mood codes, so the catalog always has this one.
     val mood = MoodCatalog.byCode(checkIn.moodCode) ?: return
+    val moodName = stringResource(mood.nameRes)
     val time = formats.time(checkIn)
     val trigger = checkIn.trigger?.let { triggerText(it, checkIn.triggerOther) }
+    val editLabel = stringResource(R.string.logs_edit)
+    val deleteLabel = stringResource(R.string.logs_delete)
     LogRow(
         zone = mood.zone,
-        mood = stringResource(mood.nameRes),
+        mood = moodName,
         meta = if (trigger == null) {
             stringResource(R.string.logs_row_meta, time, checkIn.stress)
         } else {
             stringResource(R.string.logs_row_meta_trigger, time, checkIn.stress, trigger)
         },
         note = checkIn.note,
+        contentDescription = rowDescription(
+            summary = RowSummary(moodName, stringResource(mood.zone.nameRes), time, checkIn.stress, trigger),
+            note = checkIn.note,
+        ),
+        // The same choices as the menu, so TalkBack users can act on the row they're on.
+        modifier = Modifier.semantics {
+            customActions = listOf(
+                CustomAccessibilityAction(editLabel) {
+                    actions.onEdit(checkIn.id)
+                    true
+                },
+                CustomAccessibilityAction(deleteLabel) {
+                    actions.onDelete(checkIn.id)
+                    true
+                },
+            )
+        },
     ) {
-        UlapOverflowMenu(contentDescription = stringResource(R.string.logs_row_menu)) { close ->
+        UlapOverflowMenu(contentDescription = stringResource(R.string.logs_row_menu, moodName, time)) { close ->
             UlapMenuItem(
                 text = stringResource(R.string.logs_edit),
                 onClick = {
@@ -261,6 +289,36 @@ private fun CheckInRow(checkIn: CheckIn, formats: LogFormats, actions: RowAction
             )
         }
     }
+}
+
+/** What a row says, in the app's language, before any note. */
+private class RowSummary(val mood: String, val zone: String, val time: String, val stress: Int, val trigger: String?)
+
+/**
+ * "Worried. Red Zone. 9:15 AM. Stress 8 of 10, high. Trigger: Work. Journal: …": the zone in words, and
+ * the stress the way the slider says it (design-spec.md §11).
+ */
+@Composable
+private fun rowDescription(summary: RowSummary, note: String?): String {
+    val stress = stringResource(
+        R.string.slider_state,
+        summary.stress,
+        LEVEL_RANGE.last,
+        stringResource(StressLabels.of(summary.stress).wordRes),
+    )
+    val text = if (summary.trigger == null) {
+        stringResource(R.string.logs_row_description, summary.mood, summary.zone, summary.time, stress)
+    } else {
+        stringResource(
+            R.string.logs_row_description_trigger,
+            summary.mood,
+            summary.zone,
+            summary.time,
+            stress,
+            summary.trigger,
+        )
+    }
+    return if (note.isNullOrBlank()) text else stringResource(R.string.logs_row_description_note, text, note)
 }
 
 /** "Work", or the person's own words when they picked Other and wrote some. */

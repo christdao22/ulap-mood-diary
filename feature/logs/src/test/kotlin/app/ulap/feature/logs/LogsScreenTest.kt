@@ -3,14 +3,15 @@ package app.ulap.feature.logs
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.filter
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -66,22 +67,20 @@ class LogsScreenTest {
     }
 
     @Test
-    fun `a day header names the day and sums it up`() {
+    fun `a day header names the day and sums it up, with average spelled out for TalkBack`() {
         show(
             LogDay(DayLabel.Today, CheckInDay(1, listOf(checkIn("a", stress = 8), checkIn("b", stress = 3)))),
             LogDay(DayLabel.Yesterday, CheckInDay(0, listOf(checkIn("c", stress = 4)))),
         )
 
-        compose.onNodeWithText("Today").assertExists()
-        compose.onNodeWithText("2 check-ins · avg stress 5.5").assertExists()
-        compose.onNodeWithText("Yesterday").assertExists()
-        compose.onNodeWithText("1 check-in · avg stress 4.0").assertExists()
+        compose.onNodeWithContentDescription("Today. 2 check-ins, average stress 5.5.").assertExists()
+        compose.onNodeWithContentDescription("Yesterday. 1 check-in, average stress 4.0.").assertExists()
     }
 
     @Test
     fun `day headers are headings, so TalkBack can jump between days`() {
         show(LogDay(DayLabel.Today, CheckInDay(1, listOf(checkIn("a")))))
-        compose.onAllNodesWithText("Today", substring = true).filter(isHeading()).assertCountEquals(1)
+        compose.onAllNodes(hasContentDescription("Today.", substring = true)).filter(isHeading()).assertCountEquals(1)
     }
 
     @Test
@@ -91,24 +90,28 @@ class LogsScreenTest {
             LogDay(DayLabel.Date(LocalDate.of(2025, 12, 31), showYear = true), CheckInDay(0, listOf(checkIn("b")))),
         )
 
-        compose.onNodeWithText("Mon, Nov 2").assertExists()
-        compose.onNodeWithText("Wed, Dec 31, 2025").assertExists()
+        compose.onNodeWithContentDescription("Mon, Nov 2.", substring = true).assertExists()
+        compose.onNodeWithContentDescription("Wed, Dec 31, 2025.", substring = true).assertExists()
     }
 
+    // The row's text is cleared from the semantics tree and replaced by one sentence, so these
+    // tests read that sentence: it has everything the row shows, in words (design-spec.md §11).
     @Test
-    fun `a row shows the mood, its stress and trigger, and the note`() {
+    fun `a row says the mood, its zone, stress and trigger, and the note`() {
         show(LogDay(DayLabel.Today, CheckInDay(1, listOf(checkIn("a", note = "Report due tomorrow.")))))
 
-        compose.onNodeWithText("Worried", useUnmergedTree = true).assertExists()
-        compose.onNodeWithText("Stress 8 · Work", substring = true, useUnmergedTree = true).assertExists()
-        compose.onNodeWithText("Report due tomorrow.", useUnmergedTree = true).assertExists()
+        compose.onNodeWithContentDescription("Worried. Red Zone. ", substring = true).assertExists()
+        compose.onNodeWithContentDescription(
+            ". Stress 8 of 10, high. Trigger: Work. Journal: Report due tomorrow.",
+            substring = true,
+        ).assertExists()
     }
 
     @Test
     fun `the time is on the clock it was logged on`() {
         // 01:15 UTC, logged in Manila (+8): 9:15 AM. The space before AM varies by ICU version.
         show(LogDay(DayLabel.Today, CheckInDay(1, listOf(checkIn("a")))))
-        compose.onNodeWithText("9:15", substring = true, useUnmergedTree = true).assertExists()
+        compose.onNodeWithContentDescription("Red Zone. 9:15", substring = true).assertExists()
     }
 
     @Test
@@ -126,9 +129,11 @@ class LogsScreenTest {
             ),
         )
 
-        compose.onNodeWithText("Stress 3 · Traffic", substring = true, useUnmergedTree = true).assertExists()
-        compose.onNodeWithText("Stress 2", substring = true, useUnmergedTree = true).assertExists()
-        compose.onAllNodesWithText("Stress 2 ·", substring = true, useUnmergedTree = true).assertCountEquals(0)
+        compose.onNodeWithContentDescription("Stress 3 of 10, low. Trigger: Traffic.", substring = true).assertExists()
+        // Nothing comes after the stress when there's no trigger and no note.
+        compose.onNodeWithContentDescription("Happy. Yellow Zone. ", substring = true).assertExists()
+        compose.onNodeWithContentDescription("Stress 2 of 10, very low.", substring = true).assertExists()
+        compose.onAllNodes(hasContentDescription("Stress 2 of 10, very low. ", substring = true)).assertCountEquals(0)
     }
 
     @Test
@@ -234,7 +239,7 @@ class LogsScreenTest {
                 LogsContent(uiState = oneDay, onEditClick = { edited = it }, onDeleteClick = { deleted = it })
             }
         }
-        val menus = compose.onAllNodesWithContentDescription("Edit or delete this check-in")
+        val menus = compose.onAllNodesWithContentDescription("Edit or delete check-in: ", substring = true)
         menus.assertCountEquals(2)
 
         menus[0].performClick()
@@ -245,6 +250,33 @@ class LogsScreenTest {
 
         menus[1].performClick()
         compose.onNodeWithText("Delete").performClick()
+        assertEquals("b", deleted)
+    }
+
+    @Test
+    fun `each menu button names its own check-in, so TalkBack can tell them apart`() {
+        compose.setContent { UlapTheme { LogsContent(uiState = oneDay) } }
+
+        compose.onNodeWithContentDescription("Edit or delete check-in: Worried, 9:15", substring = true).assertExists()
+        compose.onNodeWithContentDescription("Edit or delete check-in: Calm, 9:15", substring = true).assertExists()
+    }
+
+    @Test
+    fun `TalkBack can edit or delete from the row itself`() {
+        var edited: String? = null
+        var deleted: String? = null
+        compose.setContent {
+            UlapTheme {
+                LogsContent(uiState = oneDay, onEditClick = { edited = it }, onDeleteClick = { deleted = it })
+            }
+        }
+        fun rowActions(mood: String) = compose.onNodeWithContentDescription("$mood. ", substring = true)
+            .fetchSemanticsNode().config[SemanticsActions.CustomActions]
+
+        assertEquals(listOf("Edit", "Delete"), rowActions("Worried").map { it.label })
+        rowActions("Worried").first { it.label == "Edit" }.action()
+        assertEquals("a", edited)
+        rowActions("Calm").first { it.label == "Delete" }.action()
         assertEquals("b", deleted)
     }
 
