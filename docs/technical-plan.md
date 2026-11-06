@@ -545,6 +545,9 @@ This is the source for app text. Tone rules: [Design spec §10](design-spec.md#1
 | `help_small_sub` | Even one is enough. |
 | `help_good_saved` | Saved to your good moments |
 | `help_good_saved_sub` | Moments like this are worth keeping. |
+| `check_ready` | When you're ready (the small line above the after-check question; Red and Blue only) |
+| `check_title` | How stressed do you feel now? |
+| `check_action` | Check in (the after-check card's button; it saves `stress_after`) |
 | `trigger_line_work` | Work can take a lot out of us. |
 | `trigger_line_family` | The people closest to us can affect us the most. |
 | `trigger_line_money` | Money worries are real, and tiring. |

@@ -114,4 +114,86 @@ class ResponseViewModelTest {
         assertNull(viewModel.ready().startedSupport)
         assertEquals(SupportType.NONE, checkNotNull(checkIns.get(id)).supportUsed)
     }
+
+    @Test
+    fun `the stress check starts at the logged stress and follows the slider`() = runTest {
+        val viewModel = viewModel(save("worried", stress = 8))
+        assertTrue(viewModel.ready().response.showStressCheck)
+        assertEquals(8, viewModel.ready().stressNow)
+
+        viewModel.setStressNow(5)
+        assertEquals(5, viewModel.ready().stressNow)
+    }
+
+    @Test
+    fun `Check in saves stress after and keeps the rest of the check-in`() = runTest {
+        val id = save("worried", stress = 8)
+        val viewModel = viewModel(id)
+        viewModel.startSupport()
+        viewModel.setStressNow(5)
+        viewModel.saveStressCheck()
+
+        assertTrue(viewModel.ready().stressCheckSaved)
+        val stored = checkNotNull(checkIns.get(id))
+        assertEquals(5, stored.stressAfter)
+        assertEquals(8, stored.stress)
+        assertEquals(SupportType.BREATHE, stored.supportUsed)
+        assertEquals("a private note", stored.note)
+    }
+
+    @Test
+    fun `once Check in is tapped, the slider and a second tap change nothing`() = runTest {
+        val id = save("sad", stress = 6)
+        val viewModel = viewModel(id)
+        viewModel.setStressNow(4)
+        viewModel.saveStressCheck()
+        viewModel.setStressNow(9)
+        viewModel.saveStressCheck()
+
+        assertEquals(4, viewModel.ready().stressNow)
+        assertEquals(4, checkNotNull(checkIns.get(id)).stressAfter)
+    }
+
+    @Test
+    fun `Hopeless still has the stress check`() = runTest {
+        val id = save("hopeless", stress = 9)
+        val viewModel = viewModel(id)
+        assertTrue(viewModel.ready().response.showStressCheck)
+
+        viewModel.setStressNow(7)
+        viewModel.saveStressCheck()
+        assertEquals(7, checkNotNull(checkIns.get(id)).stressAfter)
+    }
+
+    @Test
+    fun `Yellow and Green have no stress check, so nothing is saved`() = runTest {
+        val id = save("calm", stress = 2)
+        val viewModel = viewModel(id)
+        assertFalse(viewModel.ready().response.showStressCheck)
+
+        viewModel.saveStressCheck()
+        assertFalse(viewModel.ready().stressCheckSaved)
+        assertNull(checkNotNull(checkIns.get(id)).stressAfter)
+    }
+
+    @Test
+    fun `a check-in deleted before Check in sends the screen away`() = runTest {
+        val id = save("worried", stress = 8)
+        val viewModel = viewModel(id)
+        checkIns.delete(id)
+        viewModel.saveStressCheck()
+
+        assertEquals(ResponseUiState.Missing, viewModel.uiState.value)
+    }
+
+    @Test
+    fun `a saved stress after comes back after the screen is rebuilt`() = runTest {
+        val id = save("worried", stress = 8)
+        viewModel(id).run {
+            setStressNow(3)
+            saveStressCheck()
+        }
+
+        assertEquals(3, viewModel(id).ready().stressNow)
+    }
 }

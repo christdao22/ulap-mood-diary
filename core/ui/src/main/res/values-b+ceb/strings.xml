@@ -84,6 +84,11 @@
     <string name="help_good_saved">Na-save sa imong nindot nga higayon</string>
     <string name="help_good_saved_sub">Bililhon ang mga higayon nga sama ani.</string>
 
+    <!-- The "How stressed do you feel now?" card, Red and Blue only (design-spec.md §7.4, technical-plan.md Appendix B, check_*) -->
+    <string name="check_ready">Kung andam na ka</string>
+    <string name="check_title">Unsa ka ka-stressed karon?</string>
+    <string name="check_action">Mag-check in</string>
+
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Enerhiya</string>
     <string name="slider_energy_start">Luya kaayo</string>

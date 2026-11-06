@@ -48,25 +48,42 @@ import app.ulap.shared.rules.ResponseRules
 @Composable
 internal fun ResponseScreen(
     onDone: () -> Unit,
+    onStressCheckSave: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ResponseViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val showUlap by viewModel.showUlap.collectAsStateWithLifecycle()
     val currentOnDone by rememberUpdatedState(onDone)
+    val currentOnStressCheckSave by rememberUpdatedState(onStressCheckSave)
     LaunchedEffect(state) { if (state == ResponseUiState.Missing) currentOnDone() }
+    val stressCheckSaved = (state as? ResponseUiState.Ready)?.stressCheckSaved == true
+    LaunchedEffect(stressCheckSaved) { if (stressCheckSaved) currentOnStressCheckSave() }
 
     // Loading is a single read from the phone's database, too quick to need a spinner.
     (state as? ResponseUiState.Ready)?.let { ready ->
         ResponseContent(
             state = ready,
             showUlap = showUlap,
-            onStartSupport = viewModel::startSupport,
-            onFinish = onDone,
+            actions = ResponseScreenActions(
+                onStartSupport = viewModel::startSupport,
+                onFinish = onDone,
+                onStressNowChange = viewModel::setStressNow,
+                onStressCheckSave = viewModel::saveStressCheck,
+            ),
             modifier = modifier,
         )
     }
 }
+
+/** What the person can do on the Response screen. One class, so the content's signature stays short. */
+internal data class ResponseScreenActions(
+    val onStartSupport: () -> Unit,
+    /** "Maybe later" and Done: the check-in ends. */
+    val onFinish: () -> Unit,
+    val onStressNowChange: (Int) -> Unit,
+    val onStressCheckSave: () -> Unit,
+)
 
 /**
  * The zone's tint behind everything; Ulap, the title, the body and the trigger line, centered;
@@ -76,8 +93,7 @@ internal fun ResponseScreen(
 internal fun ResponseContent(
     state: ResponseUiState.Ready,
     showUlap: Boolean,
-    onStartSupport: () -> Unit,
-    onFinish: () -> Unit,
+    actions: ResponseScreenActions,
     modifier: Modifier = Modifier,
 ) {
     val colors = UlapTheme.colors
@@ -122,16 +138,36 @@ internal fun ResponseContent(
             )
         }
         Spacer(Modifier.height(UlapSpacing.S))
-        when (val actions = response.actions) {
-            // The NCMH 1553 hotline card goes here (PHASES.md Phase 2, Hopeless 🔒).
-            ResponseActions.Hotline -> Unit
+        ResponseActionsArea(state = state, actions = actions)
+    }
+}
 
-            // After the tap, the support card takes the buttons' place (design-spec.md §7.4).
-            is ResponseActions.Offer -> when (val support = state.startedSupport) {
-                null -> OfferButtons(offer = actions, onStartSupport = onStartSupport, onLater = onFinish)
-                else -> SupportCard(support = support, onFinish = onFinish)
-            }
+/** What ResponseRules offers, then the stress check for Red and Blue (design-spec.md §7.4). */
+@Composable
+private fun ResponseActionsArea(state: ResponseUiState.Ready, actions: ResponseScreenActions) {
+    when (val offered = state.response.actions) {
+        // The NCMH 1553 hotline card goes here (PHASES.md Phase 2, Hopeless 🔒).
+        ResponseActions.Hotline -> Unit
+
+        // After the tap, the support card takes the buttons' place (design-spec.md §7.4).
+        is ResponseActions.Offer -> when (val support = state.startedSupport) {
+            null -> OfferButtons(
+                offer = offered,
+                onStartSupport = actions.onStartSupport,
+                onLater = actions.onFinish,
+            )
+
+            else -> SupportCard(support = support, onFinish = actions.onFinish)
         }
+    }
+    // Red and Blue, Hopeless included, whether or not a support was started (§7.4).
+    if (state.response.showStressCheck) {
+        StressCheckCard(
+            zone = state.mood.zone,
+            stress = state.stressNow,
+            onStressChange = actions.onStressNowChange,
+            onCheckIn = actions.onStressCheckSave,
+        )
     }
 }
 
@@ -173,10 +209,11 @@ private fun ResponseContentPreview() {
             state = ResponseUiState.Ready(
                 mood = worried,
                 response = ResponseRules.respond(worried, stress = 6, trigger = Trigger.WORK),
+                stressNow = 6,
             ),
             showUlap = true,
-            onStartSupport = {},
-            onFinish = {},
+            actions = ResponseScreenActions(onStartSupport = {
+            }, onFinish = {}, onStressNowChange = {}, onStressCheckSave = {}),
         )
     }
 }

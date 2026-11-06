@@ -84,6 +84,11 @@
     <string name="help_good_saved">Na-save sa iyong magagandang sandali</string>
     <string name="help_good_saved_sub">Mahalaga ang mga ganitong sandali.</string>
 
+    <!-- The "How stressed do you feel now?" card, Red and Blue only (design-spec.md §7.4, technical-plan.md Appendix B, check_*) -->
+    <string name="check_ready">Kapag handa ka na</string>
+    <string name="check_title">Gaano ka ka-stressed ngayon?</string>
+    <string name="check_action">Mag-check in</string>
+
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Enerhiya</string>
     <string name="slider_energy_start">Lupaypay</string>

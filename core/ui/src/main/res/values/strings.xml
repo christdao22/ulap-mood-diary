@@ -84,6 +84,11 @@
     <string name="help_good_saved">Saved to your good moments</string>
     <string name="help_good_saved_sub">Moments like this are worth keeping.</string>
 
+    <!-- The "How stressed do you feel now?" card, Red and Blue only (design-spec.md §7.4, technical-plan.md Appendix B, check_*) -->
+    <string name="check_ready">When you\'re ready</string>
+    <string name="check_title">How stressed do you feel now?</string>
+    <string name="check_action">Check in</string>
+
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Energy</string>
     <string name="slider_energy_start">Drained</string>
