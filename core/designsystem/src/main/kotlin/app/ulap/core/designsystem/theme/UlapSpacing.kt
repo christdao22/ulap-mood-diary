@@ -28,6 +28,9 @@ object UlapSpacing {
     /** Inside a card. The spec allows 12–16; 16 unless the card is dense. */
     val CardPadding = M
 
+    /** Inside a card on a zone tint, e.g. the response screen's support cards (16–20, §6.7). */
+    val TintCardPadding = L
+
     /** Between tiles in the mood grid. */
     val MoodGridGap = Xs
 

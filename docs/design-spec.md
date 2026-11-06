@@ -206,7 +206,7 @@ At most **one primary button per screen**. When stress ≥ 8, show only the prim
 - 140dp circle, Red tint fill, 3dp Red strong border.
 - Animation: grow for 4s (inhale) → hold for 2s → shrink for 6s (exhale). Loops, 12s per cycle.
 - Text below: "In for 4 · hold for 2 · out for 6" / "Follow the circle. Five slow breaths is enough."
-- With reduced motion: a static circle plus a text counter.
+- With reduced motion: a static circle plus a text counter under it ("Breathe in · 3"), one step a second.
 
 ### 6.10 Bottom tab bar
 - `surface`, 1dp top `line` border, 4 equal columns, item min height 52dp, bottom padding 14 plus the system inset.
@@ -281,7 +281,7 @@ Which actions appear is decided by `ResponseRules` ([Technical plan §5](technic
 - Ulap 168dp, centered, floating (still for Hopeless).
 - Title (displayM, centered) → body (bodyL) → trigger line (body, ink3) when relevant.
 - Actions: primary (zone action) + secondary (only when stress < 8).
-- After the primary tap: a support card replaces the buttons (breathing circle / small helps list / "Saved to your good moments").
+- After the primary tap: a support card replaces the buttons (breathing circle / small helps list / "Saved to your good moments"). The cards use the tinted-background card style (§6.7). The good-moment card has no check-in card after it, so a secondary **Done** under it ends the check-in. Text: `help_*` keys in [Technical plan, Appendix B](technical-plan.md#appendix-b-response-message-keys-english-source).
 - Red and Blue zones: a check-in card at the bottom: "When you're ready" / "How stressed do you feel now?" + slider (starts at the logged stress) + **Check in**.
 - Hopeless: hotline card instead of action buttons. The check-in card is still shown.
 

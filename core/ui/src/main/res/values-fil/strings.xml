@@ -65,6 +65,24 @@
     <string name="resp_action_small_helps">Isang maliit na makakatulong</string>
     <string name="resp_action_good_moment">I-save sa magagandang sandali</string>
     <string name="resp_action_later">Mamaya na lang</string>
+    <string name="resp_action_done">Tapos na</string>
+
+    <!-- The support card that replaces the buttons after the primary tap (design-spec.md §6.9, §7.4, technical-plan.md Appendix B, help_*) -->
+    <string name="help_breathe_steps">Langhap 4 · pigil 2 · buga 6</string>
+    <string name="help_breathe_sub">Sundan ang bilog. Sapat na ang limang mabagal na hinga.</string>
+    <!-- The counter under a still circle when animations are off. %1$d is the seconds left in this part -->
+    <string name="help_breathe_in">Langhap · %1$d</string>
+    <string name="help_breathe_hold">Pigil · %1$d</string>
+    <string name="help_breathe_out">Buga · %1$d</string>
+    <string name="help_small_title">Gusto mo bang subukan ang isa?</string>
+    <string name="help_small_water">Uminom ng isang basong tubig</string>
+    <string name="help_small_song">Magpatugtog ng kantang gusto mo</string>
+    <string name="help_small_stretch">Mag-unat ng leeg at balikat</string>
+    <string name="help_small_air">Magbukas ng bintana o lumabas sandali</string>
+    <string name="help_small_message">Mag-message sa isang tao, kahit \'hi\' lang</string>
+    <string name="help_small_sub">Sapat na kahit isa.</string>
+    <string name="help_good_saved">Na-save sa iyong magagandang sandali</string>
+    <string name="help_good_saved_sub">Mahalaga ang mga ganitong sandali.</string>
 
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Enerhiya</string>

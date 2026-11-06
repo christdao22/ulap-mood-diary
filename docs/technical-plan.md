@@ -532,6 +532,19 @@ This is the source for app text. Tone rules: [Design spec §10](design-spec.md#1
 | `resp_action_small_helps` | Something small that helps |
 | `resp_action_good_moment` | Save to good moments |
 | `resp_action_later` | Maybe later (the secondary button; it ends the check-in) |
+| `resp_action_done` | Done (under the good-moment card; it ends the check-in) |
+| `help_breathe_steps` | In for 4 · hold for 2 · out for 6 |
+| `help_breathe_sub` | Follow the circle. Five slow breaths is enough. |
+| `help_breathe_in` / `_hold` / `_out` | Breathe in · %1$d / Hold · %1$d / Breathe out · %1$d (the counter when animations are off; seconds left) |
+| `help_small_title` | Want to try one? |
+| `help_small_water` | Drink a glass of water (the list runs easiest first, in this order) |
+| `help_small_song` | Play a song you like |
+| `help_small_stretch` | Stretch your neck and shoulders |
+| `help_small_air` | Open a window or step outside for a minute |
+| `help_small_message` | Message someone, even just to say hi |
+| `help_small_sub` | Even one is enough. |
+| `help_good_saved` | Saved to your good moments |
+| `help_good_saved_sub` | Moments like this are worth keeping. |
 | `trigger_line_work` | Work can take a lot out of us. |
 | `trigger_line_family` | The people closest to us can affect us the most. |
 | `trigger_line_money` | Money worries are real, and tiring. |

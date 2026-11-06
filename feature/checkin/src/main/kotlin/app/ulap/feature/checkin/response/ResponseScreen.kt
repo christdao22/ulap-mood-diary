@@ -62,7 +62,7 @@ internal fun ResponseScreen(
             state = ready,
             showUlap = showUlap,
             onStartSupport = viewModel::startSupport,
-            onLater = onDone,
+            onFinish = onDone,
             modifier = modifier,
         )
     }
@@ -77,7 +77,7 @@ internal fun ResponseContent(
     state: ResponseUiState.Ready,
     showUlap: Boolean,
     onStartSupport: () -> Unit,
-    onLater: () -> Unit,
+    onFinish: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = UlapTheme.colors
@@ -126,10 +126,10 @@ internal fun ResponseContent(
             // The NCMH 1553 hotline card goes here (PHASES.md Phase 2, Hopeless 🔒).
             ResponseActions.Hotline -> Unit
 
-            // The support card takes the buttons' place after the tap (PHASES.md Phase 2,
-            // Support cards).
-            is ResponseActions.Offer -> if (state.startedSupport == null) {
-                OfferButtons(offer = actions, onStartSupport = onStartSupport, onLater = onLater)
+            // After the tap, the support card takes the buttons' place (design-spec.md §7.4).
+            is ResponseActions.Offer -> when (val support = state.startedSupport) {
+                null -> OfferButtons(offer = actions, onStartSupport = onStartSupport, onLater = onFinish)
+                else -> SupportCard(support = support, onFinish = onFinish)
             }
         }
     }
@@ -176,7 +176,7 @@ private fun ResponseContentPreview() {
             ),
             showUlap = true,
             onStartSupport = {},
-            onLater = {},
+            onFinish = {},
         )
     }
 }
