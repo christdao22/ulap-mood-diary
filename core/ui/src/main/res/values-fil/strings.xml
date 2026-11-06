@@ -104,7 +104,15 @@
     <string name="after_same_sub">Kailangan ng panahon para magbago ang nararamdaman. Maging mabait ka sa sarili mo ngayong araw.</string>
     <string name="after_higher">Tumaas ito sa %1$d.</string>
     <string name="after_higher_sub">Salamat sa tapat mong pagsagot. Kung patuloy itong tumataas, kausapin ang taong pinagkakatiwalaan mo o tumawag sa NCMH sa 1553.</string>
+    <string name="after_lower_sub_hopeless">Mabuti at gumaan nang kaunti. Nandito pa rin ang tulong kahit kailan mo kailanganin.</string>
+    <string name="after_higher_sub_hopeless">Salamat sa tapat mong pagsagot. Mukhang sobrang bigat nito. Makakatulong ang makipag-usap sa isang tao, kahit ngayon mismo.</string>
     <string name="after_action_week">Ang linggo ko</string>
+
+    <!-- The NCMH crisis hotline card (design-spec.md §6.8, hotline_*). Safety 🔒 -->
+    <string name="hotline_title">NCMH Crisis Hotline · bukas 24/7</string>
+    <string name="hotline_call">Tumawag sa %1$s</string>
+    <string name="hotline_helper">Bubuksan nito ang phone app mo. Ikaw ang bahala kung kailan tatawag.</string>
+    <string name="hotline_no_phone">Hindi makatawag ang device na ito. Puwede mong i-dial ang %1$s sa kahit anong phone.</string>
 
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Enerhiya</string>

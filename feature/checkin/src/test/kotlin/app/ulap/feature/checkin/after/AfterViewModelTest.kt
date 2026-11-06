@@ -74,6 +74,17 @@ class AfterViewModelTest {
     }
 
     @Test
+    fun `Hopeless stays quiet and keeps the hotline card, even when stress went down`() = runTest {
+        val state = assertIs<AfterUiState.Ready>(viewModel(save("hopeless", stress = 8, stressAfter = 5)).uiState.value)
+
+        assertEquals(Zone.BLUE, state.zone)
+        assertEquals(StressChange.LOWER, state.result.change)
+        assertEquals(UlapExpression.QUIET, state.result.expression)
+        assertEquals(false, state.result.floats)
+        assertEquals(true, state.result.showHotline)
+    }
+
+    @Test
     fun `a check-in without a stress check sends the screen away`() = runTest {
         assertEquals(AfterUiState.Missing, viewModel(save("worried", stress = 8, stressAfter = null)).uiState.value)
     }

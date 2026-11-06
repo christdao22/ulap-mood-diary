@@ -46,8 +46,15 @@ data class Response(
 /** How stress changed between the check-in and "How stressed do you feel now?". */
 enum class StressChange { LOWER, SAME, HIGHER }
 
-/** The After screen's face and message (design-spec.md §7.5 and §10.4). */
-data class AfterCheck(val change: StressChange, val expression: UlapExpression)
+/** The After screen's face, message and hotline card (design-spec.md §7.5 and §10.4). */
+data class AfterCheck(
+    val change: StressChange,
+    val expression: UlapExpression,
+    /** False for Hopeless: Ulap stays as still as it was on Response. */
+    val floats: Boolean,
+    /** The NCMH 1553 card. Hopeless only, whichever way stress went. */
+    val showHotline: Boolean,
+)
 
 /**
  * Ulap's response to a check-in (technical-plan.md §5 "Response rules"). Screens show what this
@@ -92,10 +99,12 @@ object ResponseRules {
     }
 
     /**
-     * The After screen for a stress of [before] that is now [now] (both 1..10). Ulap is calm when
-     * stress went down and gentle otherwise (design-spec.md §7.5).
+     * The After screen for [mood] logged at a stress of [before] that is now [now] (both 1..10).
+     * Ulap is calm when stress went down and gentle otherwise (design-spec.md §7.5). Hopeless keeps
+     * the quiet, still face from Response and shows the hotline card again, even when stress went
+     * down: help stays one tap away for the whole check-in.
      */
-    fun afterCheck(before: Int, now: Int): AfterCheck {
+    fun afterCheck(mood: Mood, before: Int, now: Int): AfterCheck {
         require(before in LEVEL_RANGE) { "before must be in $LEVEL_RANGE, was $before" }
         require(now in LEVEL_RANGE) { "now must be in $LEVEL_RANGE, was $now" }
         val change = when {
@@ -103,8 +112,13 @@ object ResponseRules {
             now == before -> StressChange.SAME
             else -> StressChange.HIGHER
         }
-        val expression = if (change == StressChange.LOWER) UlapExpression.CALM else UlapExpression.GENTLE
-        return AfterCheck(change, expression)
+        val isHopeless = mood.code == MoodCatalog.HOPELESS
+        val expression = when {
+            isHopeless -> UlapExpression.QUIET
+            change == StressChange.LOWER -> UlapExpression.CALM
+            else -> UlapExpression.GENTLE
+        }
+        return AfterCheck(change, expression, floats = !isHopeless, showHotline = isHopeless)
     }
 
     private fun Zone.expression(): UlapExpression = when (this) {

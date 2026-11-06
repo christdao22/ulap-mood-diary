@@ -104,7 +104,20 @@
     <string name="after_same_sub">Feelings take time to shift. Be gentle with yourself today.</string>
     <string name="after_higher">It went up to %1$d.</string>
     <string name="after_higher_sub">Thank you for checking honestly. If it keeps rising, reach out to someone you trust or call NCMH at 1553.</string>
+    <!-- Hopeless only: the hotline card is right below, so no "if it keeps rising" and no "remember what helped" (design-spec.md §10.4) -->
+    <string name="after_lower_sub_hopeless">I\'m glad something eased a little. Help is still here whenever you need it.</string>
+    <string name="after_higher_sub_hopeless">Thank you for checking honestly. This sounds really heavy. Talking to someone can help, even right now.</string>
     <string name="after_action_week">See my week</string>
+
+    <!-- The NCMH crisis hotline card (design-spec.md §6.8, technical-plan.md §13 and Appendix B, hotline_*). Safety 🔒 -->
+    <string name="hotline_title">NCMH Crisis Hotline · available 24/7</string>
+    <!-- The same number in every language, so it lives here only. -->
+    <string name="hotline_number" translatable="false">1553</string>
+    <!-- %1$s is hotline_number. -->
+    <string name="hotline_call">Call %1$s</string>
+    <string name="hotline_helper">This opens your phone app. You choose when to call.</string>
+    <!-- %1$s is hotline_number. Shown when the device has no phone app (design-spec.md §6.8). -->
+    <string name="hotline_no_phone">This device can\'t make calls. You can dial %1$s from any phone.</string>
 
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Energy</string>
