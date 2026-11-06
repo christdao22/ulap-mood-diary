@@ -191,7 +191,7 @@ Flat. Separate surfaces with a **1dp `line` border**, not shadows. The only "sha
 | Text link | ≥44 touch | `info` color, underline. Used for "Reset to default." |
 | Icon button | 44×44 | `surface` fill, radius 12 |
 
-At most **one primary button per screen**. When stress ≥ 8, show only the primary.
+At most **one primary button per screen**. When stress ≥ 8, show only the primary. On Response, the check-in card's **Check in** also waits until the support has started (§7.4).
 
 ### 6.7 Cards
 - Standard: `surface`, 1dp `line`, radius 16, padding 14.
@@ -282,7 +282,7 @@ Which actions appear is decided by `ResponseRules` ([Technical plan §5](technic
 - Title (displayM, centered) → body (bodyL) → trigger line (body, ink3) when relevant.
 - Actions: primary (zone action) + secondary (only when stress < 8).
 - After the primary tap: a support card replaces the buttons (breathing circle / small helps list / "Saved to your good moments"). The cards use the tinted-background card style (§6.7). The good-moment card has no check-in card after it, so a secondary **Done** under it ends the check-in. Text: `help_*` keys in [Technical plan, Appendix B](technical-plan.md#appendix-b-response-message-keys-english-source).
-- Red and Blue zones: a check-in card at the bottom: "When you're ready" / "How stressed do you feel now?" + slider (starts at the logged stress) + **Check in**.
+- Red and Blue zones: a check-in card at the bottom: "When you're ready" / "How stressed do you feel now?" + slider (starts at the logged stress) + **Check in**. At stress ≥ 8 the card appears only after the primary tap, so the screen opens with one button and no choice to make.
 - Hopeless: hotline card instead of action buttons. The check-in card is still shown, then a secondary **Done** at the bottom, so there is a way out that isn't Back and the check-in stays optional.
 
 ### 7.5 Check in · After

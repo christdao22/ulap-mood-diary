@@ -117,12 +117,29 @@ class ResponseViewModelTest {
 
     @Test
     fun `the stress check starts at the logged stress and follows the slider`() = runTest {
-        val viewModel = viewModel(save("worried", stress = 8))
-        assertTrue(viewModel.ready().response.showStressCheck)
-        assertEquals(8, viewModel.ready().stressNow)
+        val viewModel = viewModel(save("worried", stress = 7))
+        assertTrue(viewModel.ready().showsStressCheck)
+        assertEquals(7, viewModel.ready().stressNow)
 
         viewModel.setStressNow(5)
         assertEquals(5, viewModel.ready().stressNow)
+    }
+
+    @Test
+    fun `at stress 8 or more the stress check waits for the support to start`() = runTest {
+        val id = save("worried", stress = 8)
+        val viewModel = viewModel(id)
+        assertFalse(viewModel.ready().showsStressCheck)
+
+        // A Check in that can't be seen yet saves nothing.
+        viewModel.saveStressCheck()
+        assertFalse(viewModel.ready().stressCheckSaved)
+        assertNull(checkNotNull(checkIns.get(id)).stressAfter)
+
+        viewModel.startSupport()
+        assertTrue(viewModel.ready().showsStressCheck)
+        // It also shows when the screen is rebuilt with the support already started.
+        assertTrue(viewModel(id).ready().showsStressCheck)
     }
 
     @Test
@@ -158,7 +175,8 @@ class ResponseViewModelTest {
     fun `Hopeless still has the stress check`() = runTest {
         val id = save("hopeless", stress = 9)
         val viewModel = viewModel(id)
-        assertTrue(viewModel.ready().response.showStressCheck)
+        // No support button to wait for, so the card is there from the start.
+        assertTrue(viewModel.ready().showsStressCheck)
 
         viewModel.setStressNow(7)
         viewModel.saveStressCheck()
@@ -169,7 +187,7 @@ class ResponseViewModelTest {
     fun `Yellow and Green have no stress check, so nothing is saved`() = runTest {
         val id = save("calm", stress = 2)
         val viewModel = viewModel(id)
-        assertFalse(viewModel.ready().response.showStressCheck)
+        assertFalse(viewModel.ready().showsStressCheck)
 
         viewModel.saveStressCheck()
         assertFalse(viewModel.ready().stressCheckSaved)
@@ -178,7 +196,7 @@ class ResponseViewModelTest {
 
     @Test
     fun `a check-in deleted before Check in sends the screen away`() = runTest {
-        val id = save("worried", stress = 8)
+        val id = save("worried", stress = 7)
         val viewModel = viewModel(id)
         checkIns.delete(id)
         viewModel.saveStressCheck()
@@ -190,6 +208,7 @@ class ResponseViewModelTest {
     fun `a saved stress after comes back after the screen is rebuilt`() = runTest {
         val id = save("worried", stress = 8)
         viewModel(id).run {
+            startSupport()
             setStressNow(3)
             saveStressCheck()
         }

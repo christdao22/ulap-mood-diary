@@ -49,12 +49,19 @@ sealed interface ResponseUiState {
         val startedSupport: SupportType? = null,
         /**
          * The "How stressed do you feel now?" slider. It starts at the stress the person logged
-         * (design-spec.md §7.4). Only used when the response has [Response.showStressCheck].
+         * (design-spec.md §7.4). Only used while [showsStressCheck].
          */
         val stressNow: Int,
         /** True once Check in has saved [stressNow]; the screen then moves on. */
         val stressCheckSaved: Boolean = false,
-    ) : ResponseUiState
+    ) : ResponseUiState {
+        /**
+         * Whether the "How stressed do you feel now?" card shows. At stress 8 or more it waits for
+         * the support to start, so the screen opens with one button (technical-plan.md §5).
+         */
+        val showsStressCheck: Boolean
+            get() = response.stressCheck.isShown(supportStarted = startedSupport != null)
+    }
 }
 
 @HiltViewModel
@@ -133,7 +140,7 @@ class ResponseViewModel @Inject constructor(
      */
     fun saveStressCheck() {
         val state = (_uiState.value as? ResponseUiState.Ready)
-            ?.takeIf { it.response.showStressCheck && !savingStressCheck }
+            ?.takeIf { it.showsStressCheck && !savingStressCheck }
             ?: return
         // A double tap saves once. Saving to the phone's database is too quick to need a spinner.
         savingStressCheck = true

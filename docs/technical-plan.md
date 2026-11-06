@@ -142,7 +142,7 @@ The catalog lives in `shared` so the app and the server validate against the sam
 | Blue zone | Gentle Ulap, "something small that helps" list, check-in slider shown |
 | Yellow / Green | Happy or calm Ulap, "Save to good moments" offered, no check-in slider |
 | `hopeless` | Quiet Ulap (no animation), NCMH 1553 card instead of activity buttons, and a secondary **Done** at the bottom. The check-in slider is still shown (Blue zone). The After screen keeps the quiet, still Ulap and shows the 1553 card again, whichever way stress went. |
-| Stress ≥ 8 | Only one action button (no choices) |
+| Stress ≥ 8 | Only one action button (no choices): no "Maybe later", and in Red and Blue the check-in slider waits until the support has started. Hopeless keeps its slider from the start, since it has no support button to wait for. |
 | Unpleasant zone and a trigger is set | Add the trigger line (e.g. "Work can take a lot out of us.") |
 
 Put these rules in `shared/rules/ResponseRules.kt` and unit-test them. How each case looks on screen: [Design spec §7.4](design-spec.md#74-check-in--response-sympathetic).

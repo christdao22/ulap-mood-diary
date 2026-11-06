@@ -33,7 +33,7 @@ class ResponseRulesTest {
         assertEquals(UlapExpression.CONCERNED, response.expression)
         assertEquals(ResponseMessage.RED, response.message)
         assertEquals(ResponseActions.Offer(SupportType.BREATHE, showSecondary = true), response.actions)
-        assertTrue(response.showStressCheck)
+        assertEquals(StressCheck.NOW, response.stressCheck)
         assertTrue(response.floats)
     }
 
@@ -43,7 +43,7 @@ class ResponseRulesTest {
         assertEquals(UlapExpression.GENTLE, response.expression)
         assertEquals(ResponseMessage.BLUE, response.message)
         assertEquals(ResponseActions.Offer(SupportType.SMALL_HELPS, showSecondary = true), response.actions)
-        assertTrue(response.showStressCheck)
+        assertEquals(StressCheck.NOW, response.stressCheck)
     }
 
     @Test
@@ -52,7 +52,7 @@ class ResponseRulesTest {
         assertEquals(UlapExpression.HAPPY, response.expression)
         assertEquals(ResponseMessage.YELLOW, response.message)
         assertEquals(ResponseActions.Offer(SupportType.GOOD_MOMENT, showSecondary = true), response.actions)
-        assertFalse(response.showStressCheck)
+        assertEquals(StressCheck.NONE, response.stressCheck)
     }
 
     @Test
@@ -61,7 +61,7 @@ class ResponseRulesTest {
         assertEquals(UlapExpression.CALM, response.expression)
         assertEquals(ResponseMessage.GREEN, response.message)
         assertEquals(ResponseActions.Offer(SupportType.GOOD_MOMENT, showSecondary = true), response.actions)
-        assertFalse(response.showStressCheck)
+        assertEquals(StressCheck.NONE, response.stressCheck)
     }
 
     @Test
@@ -73,7 +73,8 @@ class ResponseRulesTest {
             assertEquals(UlapExpression.QUIET, response.expression)
             assertEquals(ResponseMessage.HOPELESS, response.message)
             assertFalse(response.floats)
-            assertTrue(response.showStressCheck)
+            // No support button to wait for, so the card shows from the start, even at 8 or more.
+            assertEquals(StressCheck.NOW, response.stressCheck, "stress $stress")
         }
     }
 
@@ -96,6 +97,26 @@ class ResponseRulesTest {
         // The person's slider value counts, not the mood's default.
         assertEquals(false, (respond("calm", stress = 9).actions as ResponseActions.Offer).showSecondary)
         assertEquals(true, (respond("panicked", stress = 5).actions as ResponseActions.Offer).showSecondary)
+    }
+
+    @Test
+    fun stressOfEightOrMoreHoldsTheStressCheckUntilTheSupportStarts() {
+        // Red and Blue open with the support button alone (technical-plan.md §5).
+        assertEquals(StressCheck.NOW, respond("worried", stress = 7).stressCheck)
+        assertEquals(StressCheck.AFTER_SUPPORT, respond("worried", stress = 8).stressCheck)
+        assertEquals(StressCheck.AFTER_SUPPORT, respond("sad", stress = 10).stressCheck)
+        // Pleasant zones have no card, at any stress.
+        assertEquals(StressCheck.NONE, respond("calm", stress = 9).stressCheck)
+    }
+
+    @Test
+    fun theStressCheckShowsWhenItsRuleSaysSo() {
+        assertFalse(StressCheck.NONE.isShown(supportStarted = false))
+        assertFalse(StressCheck.NONE.isShown(supportStarted = true))
+        assertTrue(StressCheck.NOW.isShown(supportStarted = false))
+        assertTrue(StressCheck.NOW.isShown(supportStarted = true))
+        assertFalse(StressCheck.AFTER_SUPPORT.isShown(supportStarted = false))
+        assertTrue(StressCheck.AFTER_SUPPORT.isShown(supportStarted = true))
     }
 
     @Test
@@ -128,7 +149,8 @@ class ResponseRulesTest {
         MoodCatalog.all.filter { it.code != MoodCatalog.HOPELESS }.forEach { mood ->
             val response = ResponseRules.respond(mood, mood.defaultStress, trigger = null)
             assertEquals(mood.zone.name, response.message.name, mood.code)
-            assertEquals(mood.zone == Zone.RED || mood.zone == Zone.BLUE, response.showStressCheck, mood.code)
+            val unpleasant = mood.zone == Zone.RED || mood.zone == Zone.BLUE
+            assertEquals(unpleasant, response.stressCheck != StressCheck.NONE, mood.code)
         }
     }
 
