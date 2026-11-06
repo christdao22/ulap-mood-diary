@@ -61,6 +61,15 @@ object UlapIcons {
         }
     }
 
+    /** A left chevron, for the back button on Details (design-spec.md §7.3). */
+    val Back: ImageVector by lazy {
+        lineIcon("Back") {
+            moveTo(13.5f, 5f)
+            lineTo(7.5f, 11f)
+            lineTo(13.5f, 17f)
+        }
+    }
+
     private const val GRID = 22f
     private const val STROKE = 1.8f
     private const val BASELINE = 18f

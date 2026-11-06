@@ -19,6 +19,54 @@
     <string name="pick_mood_reassurance">Okay ra bisan unsa imong tubag.</string>
     <string name="mood_tile_description">%1$s. %2$s. Sugod nga stress %3$d.</string>
 
+    <!-- Check in · Details (design-spec.md §7.3) -->
+    <string name="details_back">Balik sa mga mood</string>
+    <string name="details_logged_at">%1$s · %2$s</string>
+    <string name="details_defaults">Default sa %1$s: enerhiya %2$d, stress %3$d</string>
+    <string name="details_reset">Ibalik sa default</string>
+    <string name="details_trigger_question">Unsay nag-trigger ani?</string>
+    <string name="details_trigger_other_hint">Sa imong kaugalingong pulong</string>
+    <string name="details_journal_label">Journal · opsyonal</string>
+    <string name="details_save">I-save</string>
+
+    <!-- Ulap's soft-mirror line on the Details header (technical-plan.md Appendix B, pre_*) -->
+    <string name="pre_red">Bug-at gyud na. Ania ra ko.</string>
+    <string name="pre_blue">Salamat kay gisultihan ko nimo. Ayaw kadali.</string>
+    <string name="pre_yellow">Uy, sultihi pa ko!</string>
+    <string name="pre_green">Murag malinawon kana.</string>
+
+    <!-- The journal placeholder, per zone (technical-plan.md Appendix B, prompt_*) -->
+    <string name="prompt_red">Unsa imong gikabalak-an? Unsang bahin ang imong makontrol?</string>
+    <string name="prompt_blue">Unsay nahitabo? Unsay imong kinahanglan karon?</string>
+    <string name="prompt_yellow">Unsay nakapalipay nimo karon?</string>
+    <string name="prompt_green">Unsay nakatabang nimo nga mobati ani?</string>
+
+    <!-- Energy and stress sliders (design-spec.md §6.4) -->
+    <string name="slider_energy">Enerhiya</string>
+    <string name="slider_energy_start">Luya kaayo</string>
+    <string name="slider_energy_end">Kusgan</string>
+    <string name="slider_stress">Stress</string>
+    <string name="slider_stress_start">Ubos kaayo</string>
+    <string name="slider_stress_end">Taas kaayo</string>
+    <string name="slider_state">%1$d sa %2$d, %3$s</string>
+    <string name="stress_level_very_low">ubos kaayo</string>
+    <string name="stress_level_low">ubos</string>
+    <string name="stress_level_moderate">tunga-tunga</string>
+    <string name="stress_level_high">taas</string>
+    <string name="stress_level_very_high">taas kaayo</string>
+    <string name="energy_level_low">ubos</string>
+    <string name="energy_level_medium">tunga-tunga</string>
+    <string name="energy_level_high">taas</string>
+
+    <!-- Triggers (design-spec.md §6.5) -->
+    <string name="trigger_work">Trabaho</string>
+    <string name="trigger_family">Pamilya</string>
+    <string name="trigger_money">Kwarta</string>
+    <string name="trigger_health">Panglawas</string>
+    <string name="trigger_relationships">Relasyon</string>
+    <string name="trigger_school">Eskwelahan</string>
+    <string name="trigger_other">Uban pa</string>
+
     <!-- Zones (technical-plan.md §5) -->
     <string name="zone_red_name">Pula nga Zone</string>
     <string name="zone_red_descriptor">tensyonado · taas ang enerhiya</string>

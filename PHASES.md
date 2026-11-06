@@ -18,7 +18,7 @@ Last updated: November 5, 2026
 |---|---|---|---|
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
 | 1 | Project setup | ✅ Complete | 18 / 18 |
-| 2 | Offline check-in | 🟡 In progress | 18 / 25 |
+| 2 | Offline check-in | 🟡 In progress | 19 / 25 |
 | 3 | Logs | ⬜ Not started | 0 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
@@ -144,7 +144,7 @@ Spec: [Technical plan §5–§6](docs/technical-plan.md#5-shared-domain-model) �
 
 ### Screens
 - [x] Pick mood: Ulap greeting plus 4 zone sections in a 3-column grid
-- [ ] Details: mood header, energy and stress sliders with defaults, Reset to default, triggers, journal with zone prompt, Save
+- [x] Details: mood header, energy and stress sliders with defaults, Reset to default, triggers, journal with zone prompt, Save
 - [ ] Response: zone tint background, Ulap, message, trigger line, actions
 - [ ] Support cards: breathing circle (4-2-6), small helps list, saved to good moments
 - [ ] "How stressed do you feel now?" check-in (Red and Blue only)

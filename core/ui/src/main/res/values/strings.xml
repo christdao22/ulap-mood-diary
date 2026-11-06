@@ -18,6 +18,56 @@
     <!-- TalkBack for a mood tile (design-spec.md §11): mood, zone, default stress. -->
     <string name="mood_tile_description">%1$s. %2$s. Default stress %3$d.</string>
 
+    <!-- Check in · Details (design-spec.md §7.3) -->
+    <string name="details_back">Back to moods</string>
+    <!-- When the check-in is logged: the weekday and date, then the time. -->
+    <string name="details_logged_at">%1$s · %2$s</string>
+    <string name="details_defaults">Default for %1$s: energy %2$d, stress %3$d</string>
+    <string name="details_reset">Reset to default</string>
+    <string name="details_trigger_question">What triggered it?</string>
+    <string name="details_trigger_other_hint">In your own words</string>
+    <string name="details_journal_label">Journal · optional</string>
+    <string name="details_save">Save</string>
+
+    <!-- Ulap's soft-mirror line on the Details header (technical-plan.md Appendix B, pre_*) -->
+    <string name="pre_red">That can feel intense. I\'m right here.</string>
+    <string name="pre_blue">Thanks for telling me. Take your time.</string>
+    <string name="pre_yellow">Ooh, tell me more!</string>
+    <string name="pre_green">That sounds peaceful.</string>
+
+    <!-- The journal placeholder, per zone (technical-plan.md Appendix B, prompt_*) -->
+    <string name="prompt_red">What\'s the worry? What part is in your control?</string>
+    <string name="prompt_blue">What happened? What do you need right now?</string>
+    <string name="prompt_yellow">What made this moment good?</string>
+    <string name="prompt_green">What\'s helping you feel this way?</string>
+
+    <!-- Energy and stress sliders (design-spec.md §6.4) -->
+    <string name="slider_energy">Energy</string>
+    <string name="slider_energy_start">Drained</string>
+    <string name="slider_energy_end">Energized</string>
+    <string name="slider_stress">Stress</string>
+    <string name="slider_stress_start">Very low</string>
+    <string name="slider_stress_end">Very high</string>
+    <!-- TalkBack, after the slider's name (design-spec.md §11): "8 of 10, high". -->
+    <string name="slider_state">%1$d of %2$d, %3$s</string>
+    <string name="stress_level_very_low">very low</string>
+    <string name="stress_level_low">low</string>
+    <string name="stress_level_moderate">moderate</string>
+    <string name="stress_level_high">high</string>
+    <string name="stress_level_very_high">very high</string>
+    <string name="energy_level_low">low</string>
+    <string name="energy_level_medium">medium</string>
+    <string name="energy_level_high">high</string>
+
+    <!-- Triggers (design-spec.md §6.5) -->
+    <string name="trigger_work">Work</string>
+    <string name="trigger_family">Family</string>
+    <string name="trigger_money">Money</string>
+    <string name="trigger_health">Health</string>
+    <string name="trigger_relationships">Relationships</string>
+    <string name="trigger_school">School</string>
+    <string name="trigger_other">Other</string>
+
     <!-- Zones (technical-plan.md §5) -->
     <string name="zone_red_name">Red Zone</string>
     <string name="zone_red_descriptor">tense · high energy</string>

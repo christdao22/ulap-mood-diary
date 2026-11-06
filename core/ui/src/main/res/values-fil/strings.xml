@@ -19,6 +19,54 @@
     <string name="pick_mood_reassurance">Okay lang ang kahit anong sagot.</string>
     <string name="mood_tile_description">%1$s. %2$s. Panimulang stress %3$d.</string>
 
+    <!-- Check in · Details (design-spec.md §7.3) -->
+    <string name="details_back">Bumalik sa mga mood</string>
+    <string name="details_logged_at">%1$s · %2$s</string>
+    <string name="details_defaults">Default para sa %1$s: enerhiya %2$d, stress %3$d</string>
+    <string name="details_reset">Ibalik sa default</string>
+    <string name="details_trigger_question">Ano ang nag-trigger nito?</string>
+    <string name="details_trigger_other_hint">Sa sarili mong salita</string>
+    <string name="details_journal_label">Journal · opsyonal</string>
+    <string name="details_save">I-save</string>
+
+    <!-- Ulap's soft-mirror line on the Details header (technical-plan.md Appendix B, pre_*) -->
+    <string name="pre_red">Mabigat talaga \'yan. Nandito lang ako.</string>
+    <string name="pre_blue">Salamat sa pagsabi sa akin. Walang pagmamadali.</string>
+    <string name="pre_yellow">Uy, kuwentuhan mo pa ako!</string>
+    <string name="pre_green">Mukhang payapa \'yan.</string>
+
+    <!-- The journal placeholder, per zone (technical-plan.md Appendix B, prompt_*) -->
+    <string name="prompt_red">Ano\'ng bumabagabag sa\'yo? Alin dito ang hawak mo?</string>
+    <string name="prompt_blue">Ano ang nangyari? Ano ang kailangan mo ngayon?</string>
+    <string name="prompt_yellow">Ano\'ng nagpasaya sa\'yo ngayon?</string>
+    <string name="prompt_green">Ano\'ng nakakatulong para maramdaman mo \'to?</string>
+
+    <!-- Energy and stress sliders (design-spec.md §6.4) -->
+    <string name="slider_energy">Enerhiya</string>
+    <string name="slider_energy_start">Lupaypay</string>
+    <string name="slider_energy_end">Masigla</string>
+    <string name="slider_stress">Stress</string>
+    <string name="slider_stress_start">Napakababa</string>
+    <string name="slider_stress_end">Napakataas</string>
+    <string name="slider_state">%1$d sa %2$d, %3$s</string>
+    <string name="stress_level_very_low">napakababa</string>
+    <string name="stress_level_low">mababa</string>
+    <string name="stress_level_moderate">katamtaman</string>
+    <string name="stress_level_high">mataas</string>
+    <string name="stress_level_very_high">napakataas</string>
+    <string name="energy_level_low">mababa</string>
+    <string name="energy_level_medium">katamtaman</string>
+    <string name="energy_level_high">mataas</string>
+
+    <!-- Triggers (design-spec.md §6.5) -->
+    <string name="trigger_work">Trabaho</string>
+    <string name="trigger_family">Pamilya</string>
+    <string name="trigger_money">Pera</string>
+    <string name="trigger_health">Kalusugan</string>
+    <string name="trigger_relationships">Relasyon</string>
+    <string name="trigger_school">Paaralan</string>
+    <string name="trigger_other">Iba pa</string>
+
     <!-- Zones (technical-plan.md §5) -->
     <string name="zone_red_name">Pulang Zone</string>
     <string name="zone_red_descriptor">tensyonado · mataas ang enerhiya</string>

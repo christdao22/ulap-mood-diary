@@ -55,8 +55,7 @@ fun UlapAppRoot(modifier: Modifier = Modifier, navController: NavHostController 
                 .padding(padding)
                 .consumeWindowInsets(padding),
         ) {
-            // Details, the next screen, comes in the next task (PHASES.md Phase 2, Screens).
-            checkInGraph(onMoodClick = {})
+            checkInGraph(navController)
             logsScreen()
             reportsScreen()
             accountScreen()
