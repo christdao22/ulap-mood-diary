@@ -20,7 +20,7 @@ Last updated: November 7, 2026
 | 1 | Project setup | ✅ Complete | 18 / 18 |
 | 2 | Offline check-in | 🟡 In progress | 23 / 25 |
 | 3 | Logs | ✅ Complete | 13 / 13 |
-| 4 | Reports | ⬜ Not started | 0 / 17 |
+| 4 | Reports | 🟡 In progress | 1 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
 | 6 | Server and accounts | ⬜ Not started | 0 / 26 |
 | 7 | Sync | ⬜ Not started | 0 / 25 |
@@ -185,7 +185,7 @@ Spec: [Design spec §7.6](docs/design-spec.md#76-logs) · [Design spec §6.13](d
 Spec: [Technical plan §10](docs/technical-plan.md#10-reports-calculated-on-the-phone) · [Design spec §7.7](docs/design-spec.md#77-reports)
 
 ### Calculations (on the phone)
-- [ ] Period selection: Daily, Weekly (7 days), Monthly (calendar month)
+- [x] Period selection: Daily, Weekly (7 days), Monthly (calendar month)
 - [ ] Summary tiles: check-ins, average stress, most common mood, top trigger, change vs. previous period
 - [ ] Stress trend data (per check-in for Daily, per-day average for Weekly and Monthly)
 - [ ] Zone mix counts and percentages
