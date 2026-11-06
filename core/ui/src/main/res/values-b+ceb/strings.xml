@@ -23,6 +23,14 @@
     <string name="logs_row_meta">%1$s · Stress %2$d</string>
     <!-- The same, with %3$s the trigger, e.g. Trabaho -->
     <string name="logs_row_meta_trigger">%1$s · Stress %2$d · %3$s</string>
+    <!-- Search field placeholder; TalkBack also reads it as the field's name (design-spec.md §7.6) -->
+    <string name="logs_search_hint">Pangitaa ang mood, trigger o journal</string>
+    <!-- TalkBack name of the X button that empties the search field -->
+    <string name="logs_search_clear">I-clear ang gipangita</string>
+    <!-- Zone filter chip that shows every zone (design-spec.md §6.12) -->
+    <string name="logs_filter_all">Tanan</string>
+    <!-- When search or a zone chip leaves nothing to show (design-spec.md §7.6) -->
+    <string name="logs_no_match">Walay check-in nga mohaum. Sulayi ang laing pulong o zone.</string>
 
     <!-- Pick a mood (design-spec.md §7.2). Night uses the evening greeting. -->
     <string name="greeting_morning">Maayong buntag</string>
@@ -162,6 +170,11 @@
     <string name="zone_yellow_descriptor">masadya · taas ang enerhiya</string>
     <string name="zone_green_name">Berde nga Zone</string>
     <string name="zone_green_descriptor">hayahay · ubos ang enerhiya</string>
+    <!-- Short zone names, for the Logs zone filter chips (design-spec.md §6.12) -->
+    <string name="zone_red_short">Pula</string>
+    <string name="zone_blue_short">Asul</string>
+    <string name="zone_yellow_short">Dilaw</string>
+    <string name="zone_green_short">Berde</string>
 
     <!-- Moods, by code (technical-plan.md Appendix A draft). Frustrated and Disappointed are both
          "Nasagmuyo" in the draft; PHASES.md Phase 5 picks two different words. -->

@@ -1,35 +1,49 @@
 package app.ulap.feature.logs
 
 import android.text.format.DateFormat
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.ulap.core.designsystem.component.LogDayHeader
 import app.ulap.core.designsystem.component.LogRow
+import app.ulap.core.designsystem.component.SearchField
+import app.ulap.core.designsystem.component.ZoneFilterChip
 import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.ui.R
 import app.ulap.core.ui.nameRes
+import app.ulap.core.ui.shortNameRes
 import app.ulap.shared.catalog.MoodCatalog
 import app.ulap.shared.model.CheckIn
 import app.ulap.shared.model.Trigger
+import app.ulap.shared.model.Zone
+import app.ulap.shared.rules.SearchNames
 import java.math.RoundingMode
 import java.text.NumberFormat
 import java.time.ZoneOffset
@@ -41,15 +55,33 @@ import kotlin.time.toJavaInstant
 @Composable
 internal fun LogsScreen(modifier: Modifier = Modifier, viewModel: LogsViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    LogsContent(uiState = uiState, modifier = modifier)
+    // Search matches the names on screen, which only resources know, in the app's language.
+    val searchNames = rememberSearchNames()
+    LaunchedEffect(viewModel, searchNames) { viewModel.onSearchNames(searchNames) }
+    LogsContent(
+        uiState = uiState,
+        query = viewModel.query,
+        zone = viewModel.zone,
+        onQueryChange = viewModel::onQueryChange,
+        onZoneClick = viewModel::onZoneClick,
+        modifier = modifier,
+    )
 }
 
 /**
- * The title, then one group per local day, newest first: a day header ("Today",
- * "3 check-ins · avg stress 4.4"), then that day's log rows (design-spec.md §6.13).
+ * The title, the search field and zone chips, then one group per local day, newest first: a day
+ * header ("Today", "3 check-ins · avg stress 4.4"), then that day's log rows (design-spec.md
+ * §6.13). Search and chips are hidden until there's something to search.
  */
 @Composable
-internal fun LogsContent(uiState: LogsUiState, modifier: Modifier = Modifier) {
+internal fun LogsContent(
+    uiState: LogsUiState,
+    modifier: Modifier = Modifier,
+    query: String = "",
+    zone: Zone? = null,
+    onQueryChange: (String) -> Unit = {},
+    onZoneClick: (Zone?) -> Unit = {},
+) {
     val formats = rememberLogFormats()
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -64,27 +96,100 @@ internal fun LogsContent(uiState: LogsUiState, modifier: Modifier = Modifier) {
                 color = UlapTheme.colors.ink,
             )
         }
-        if (uiState is LogsUiState.Loaded) {
-            // Keys and content types let the list reuse rows while scrolling a long history.
-            uiState.days.forEach { logDay ->
-                item(key = "day-${logDay.day.epochDay}", contentType = "day") {
-                    LogDayHeader(
-                        day = dayLabelText(logDay.label, formats),
-                        summary = pluralStringResource(
-                            R.plurals.logs_day_summary,
-                            logDay.day.count,
-                            logDay.day.count,
-                            formats.averageStress(logDay.day.averageStress),
-                        ),
-                        // The gap above a day is wider than the gap between its rows.
-                        modifier = Modifier.padding(top = UlapSpacing.M),
-                    )
-                }
-                items(logDay.day.checkIns, key = { it.id }, contentType = { "row" }) { checkIn ->
-                    CheckInRow(checkIn = checkIn, formats = formats)
-                }
+        if (uiState is LogsUiState.Loaded && !uiState.isDiaryEmpty) {
+            item(key = "search", contentType = "search") {
+                SearchField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    placeholder = stringResource(R.string.logs_search_hint),
+                    clearLabel = stringResource(R.string.logs_search_clear),
+                    modifier = Modifier.padding(top = UlapSpacing.S),
+                )
             }
+            item(key = "zones", contentType = "zones") {
+                ZoneChips(selected = zone, onClick = onZoneClick)
+            }
+            if (uiState.isNoMatch) {
+                item(key = "no-match", contentType = "no-match") { NoMatch() }
+            }
+            logDays(uiState.days, formats)
         }
+    }
+}
+
+/** Keys and content types let the list reuse rows while scrolling a long history. */
+private fun LazyListScope.logDays(days: List<LogDay>, formats: LogFormats) {
+    days.forEach { logDay ->
+        item(key = "day-${logDay.day.epochDay}", contentType = "day") {
+            LogDayHeader(
+                day = dayLabelText(logDay.label, formats),
+                summary = pluralStringResource(
+                    R.plurals.logs_day_summary,
+                    logDay.day.count,
+                    logDay.day.count,
+                    formats.averageStress(logDay.day.averageStress),
+                ),
+                // The gap above a day is wider than the gap between its rows.
+                modifier = Modifier.padding(top = UlapSpacing.M),
+            )
+        }
+        items(logDay.day.checkIns, key = { it.id }, contentType = { "row" }) { checkIn ->
+            CheckInRow(checkIn = checkIn, formats = formats)
+        }
+    }
+}
+
+/** All · Red · Blue · Yellow · Green, scrolling sideways when they don't fit (design-spec.md §6.12). */
+@Composable
+private fun ZoneChips(selected: Zone?, onClick: (Zone?) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(UlapSpacing.Xs),
+    ) {
+        ZoneFilterChip(
+            label = stringResource(R.string.logs_filter_all),
+            zone = null,
+            selected = selected == null,
+            onClick = { onClick(null) },
+        )
+        Zone.entries.forEach { zone ->
+            ZoneFilterChip(
+                label = stringResource(zone.shortNameRes),
+                zone = zone,
+                selected = selected == zone,
+                onClick = { onClick(zone) },
+            )
+        }
+    }
+}
+
+/** "No check-ins match. Try another word or zone." (design-spec.md §7.6). */
+@Composable
+private fun NoMatch() {
+    Text(
+        text = stringResource(R.string.logs_no_match),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = UlapSpacing.Xl),
+        style = MaterialTheme.typography.bodyMedium,
+        color = UlapTheme.colors.muted,
+        textAlign = TextAlign.Center,
+    )
+}
+
+/** Every mood and trigger name in the app's language, read again when the language changes. */
+@Composable
+private fun rememberSearchNames(): SearchNames {
+    val resources = LocalResources.current
+    val locale = LocalConfiguration.current.locales[0]
+    return remember(resources, locale) {
+        SearchNames(
+            moods = MoodCatalog.all.associate { it.code to resources.getString(it.nameRes) },
+            triggers = Trigger.entries.associateWith { resources.getString(it.nameRes) },
+        )
     }
 }
 

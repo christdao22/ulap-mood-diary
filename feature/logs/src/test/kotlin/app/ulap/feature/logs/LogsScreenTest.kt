@@ -1,18 +1,27 @@
 package app.ulap.feature.logs
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.filter
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.shared.model.CheckIn
 import app.ulap.shared.model.SupportType
 import app.ulap.shared.model.Trigger
+import app.ulap.shared.model.Zone
 import app.ulap.shared.rules.CheckInDay
 import java.time.LocalDate
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.time.Instant
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -117,5 +126,58 @@ class LogsScreenTest {
         compose.onNodeWithText("Stress 3 · Traffic", substring = true, useUnmergedTree = true).assertExists()
         compose.onNodeWithText("Stress 2", substring = true, useUnmergedTree = true).assertExists()
         compose.onAllNodesWithText("Stress 2 ·", substring = true, useUnmergedTree = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun `search and zone chips show once there are check-ins`() {
+        show(LogDay(DayLabel.Today, CheckInDay(1, listOf(checkIn("a")))))
+
+        compose.onNodeWithContentDescription("Search mood, trigger or journal").assertExists()
+        listOf("All", "Red", "Blue", "Yellow", "Green").forEach { compose.onNodeWithText(it).assertExists() }
+        compose.onNodeWithText("All").assertIsSelected()
+    }
+
+    @Test
+    fun `an empty diary has nothing to search`() {
+        show()
+
+        compose.onNodeWithContentDescription("Search mood, trigger or journal").assertDoesNotExist()
+        compose.onNodeWithText("All").assertDoesNotExist()
+        compose.onNodeWithText("No check-ins match. Try another word or zone.").assertDoesNotExist()
+    }
+
+    @Test
+    fun `no match says so and offers another try`() {
+        compose.setContent {
+            UlapTheme {
+                LogsContent(uiState = LogsUiState.Loaded(days = emptyList(), isDiaryEmpty = false), zone = Zone.BLUE)
+            }
+        }
+
+        compose.onNodeWithText("No check-ins match. Try another word or zone.").assertExists()
+        compose.onNodeWithText("Blue").assertIsSelected()
+    }
+
+    @Test
+    fun `typing, clearing and tapping a chip reach the screen's callbacks`() {
+        var query by mutableStateOf("")
+        var zoneClicked: Zone? = null
+        compose.setContent {
+            UlapTheme {
+                LogsContent(
+                    uiState = LogsUiState.Loaded(listOf(LogDay(DayLabel.Today, CheckInDay(1, listOf(checkIn("a")))))),
+                    query = query,
+                    onQueryChange = { query = it },
+                    onZoneClick = { zoneClicked = it },
+                )
+            }
+        }
+
+        compose.onNodeWithContentDescription("Search mood, trigger or journal").performTextInput("work")
+        assertEquals("work", query)
+        compose.onNodeWithContentDescription("Clear search").performClick()
+        assertEquals("", query)
+        compose.onNodeWithText("Yellow").performClick()
+        assertEquals(Zone.YELLOW, zoneClicked)
     }
 }
