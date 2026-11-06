@@ -58,19 +58,24 @@ import kotlin.time.toJavaInstant
  * Logs (design-spec.md §7.6), wired to its ViewModel.
  *
  * @param onEditCheckIn Edit in a row's menu, with that check-in's ID.
+ * @param onCheckInNow "Check in now" on the empty diary: opens the Check in tab.
  */
 @Composable
 internal fun LogsScreen(
     onEditCheckIn: (String) -> Unit,
+    onCheckInNow: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LogsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val showUlap by viewModel.showUlap.collectAsStateWithLifecycle()
     // Search matches the names on screen, which only resources know, in the app's language.
     val searchNames = rememberSearchNames()
     LaunchedEffect(viewModel, searchNames) { viewModel.onSearchNames(searchNames) }
     LogsContent(
         uiState = uiState,
+        showUlap = showUlap,
+        onCheckInNow = onCheckInNow,
         query = viewModel.query,
         zone = viewModel.zone,
         onQueryChange = viewModel::onQueryChange,
@@ -87,13 +92,16 @@ internal fun LogsScreen(
 /**
  * The title, the search field and zone chips, then one group per local day, newest first: a day
  * header ("Today", "3 check-ins · avg stress 4.4"), then that day's log rows (design-spec.md
- * §6.13). Search and chips are hidden until there's something to search. Each row's menu has Edit
+ * §6.13). Search and chips are hidden until there's something to search: before the first
+ * check-in, Ulap says where they'll show up and offers "Check in now". Each row's menu has Edit
  * and Delete; while [pendingDeleteId] is set, "Delete this check-in?" asks before deleting.
  */
 @Composable
 internal fun LogsContent(
     uiState: LogsUiState,
     modifier: Modifier = Modifier,
+    showUlap: Boolean = true,
+    onCheckInNow: () -> Unit = {},
     query: String = "",
     zone: Zone? = null,
     onQueryChange: (String) -> Unit = {},
@@ -136,6 +144,11 @@ internal fun LogsContent(
                 item(key = "no-match", contentType = "no-match") { NoMatch() }
             }
             logDays(uiState.days, formats, rowActions)
+        }
+        if (uiState is LogsUiState.Loaded && uiState.isDiaryEmpty) {
+            item(key = "empty", contentType = "empty") {
+                EmptyDiary(showUlap = showUlap, onCheckInNow = onCheckInNow)
+            }
         }
     }
     if (pendingDeleteId != null) {
@@ -200,20 +213,6 @@ private fun ZoneChips(selected: Zone?, onClick: (Zone?) -> Unit) {
             )
         }
     }
-}
-
-/** "No check-ins match. Try another word or zone." (design-spec.md §7.6). */
-@Composable
-private fun NoMatch() {
-    Text(
-        text = stringResource(R.string.logs_no_match),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = UlapSpacing.Xl),
-        style = MaterialTheme.typography.bodyMedium,
-        color = UlapTheme.colors.muted,
-        textAlign = TextAlign.Center,
-    )
 }
 
 /** Every mood and trigger name in the app's language, read again when the language changes. */

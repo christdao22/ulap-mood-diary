@@ -19,7 +19,7 @@ Last updated: November 6, 2026
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
 | 1 | Project setup | ✅ Complete | 18 / 18 |
 | 2 | Offline check-in | 🟡 In progress | 23 / 25 |
-| 3 | Logs | 🟡 In progress | 9 / 13 |
+| 3 | Logs | 🟡 In progress | 10 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
 | 6 | Server and accounts | ⬜ Not started | 0 / 26 |
@@ -169,7 +169,7 @@ Spec: [Design spec §7.6](docs/design-spec.md#76-logs) · [Design spec §6.13](d
 - [x] Overflow menu: Edit, Delete
 - [x] Edit opens Details filled in, and saving updates `updatedAt`
 - [x] Delete confirmation ("This can't be undone"), then soft delete
-- [ ] Empty state: Ulap plus "Your check-ins will show up here."
+- [x] Empty state: Ulap plus "Your check-ins will show up here."
 - [x] Empty search result state
 - [ ] Paging or lazy loading for long histories (1,000+ entries)
 - [ ] TalkBack labels for rows and the menu

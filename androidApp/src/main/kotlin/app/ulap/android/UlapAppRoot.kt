@@ -62,7 +62,10 @@ fun UlapAppRoot(modifier: Modifier = Modifier, navController: NavHostController 
                 onSeeMyWeek = { navController.navigateToTab(TopLevelDestination.REPORTS) },
             )
             // Edit opens Check in's Details screen, filled in, inside the Logs tab (design-spec.md §7.6).
-            logsGraph(onEditCheckIn = navController::navigateToEditCheckIn) {
+            logsGraph(
+                onEditCheckIn = navController::navigateToEditCheckIn,
+                onCheckInNow = { navController.navigateToTab(TopLevelDestination.CHECK_IN) },
+            ) {
                 editCheckInScreen(navController)
             }
             reportsScreen()

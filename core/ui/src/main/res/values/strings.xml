@@ -29,6 +29,10 @@
     <string name="logs_filter_all">All</string>
     <!-- When search or a zone chip leaves nothing to show (design-spec.md §7.6) -->
     <string name="logs_no_match">No check-ins match. Try another word or zone.</string>
+    <!-- Logs before the first check-in, under a neutral Ulap (design-spec.md §7.6) -->
+    <string name="logs_empty">Your check-ins will show up here.</string>
+    <!-- The empty Logs screen's primary button: opens the Check in tab (design-spec.md §7.6) -->
+    <string name="logs_check_in_now">Check in now</string>
     <!-- TalkBack name of the three-dot button on a log row (design-spec.md §5, §6.13) -->
     <string name="logs_row_menu">Edit or delete this check-in</string>
     <!-- Log row menu items (design-spec.md §7.6). logs_delete is also the dialog's confirm button. -->
