@@ -33,6 +33,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.ulap.core.designsystem.component.LogDayHeader
 import app.ulap.core.designsystem.component.LogRow
 import app.ulap.core.designsystem.component.SearchField
+import app.ulap.core.designsystem.component.UlapConfirmDialog
+import app.ulap.core.designsystem.component.UlapMenuItem
+import app.ulap.core.designsystem.component.UlapOverflowMenu
 import app.ulap.core.designsystem.component.ZoneFilterChip
 import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
@@ -51,9 +54,17 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.time.toJavaInstant
 
-/** Logs (design-spec.md §7.6), wired to its ViewModel. */
+/**
+ * Logs (design-spec.md §7.6), wired to its ViewModel.
+ *
+ * @param onEditCheckIn Edit in a row's menu, with that check-in's ID.
+ */
 @Composable
-internal fun LogsScreen(modifier: Modifier = Modifier, viewModel: LogsViewModel = hiltViewModel()) {
+internal fun LogsScreen(
+    onEditCheckIn: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: LogsViewModel = hiltViewModel(),
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     // Search matches the names on screen, which only resources know, in the app's language.
     val searchNames = rememberSearchNames()
@@ -64,6 +75,11 @@ internal fun LogsScreen(modifier: Modifier = Modifier, viewModel: LogsViewModel 
         zone = viewModel.zone,
         onQueryChange = viewModel::onQueryChange,
         onZoneClick = viewModel::onZoneClick,
+        onEditClick = onEditCheckIn,
+        onDeleteClick = viewModel::onDeleteClick,
+        pendingDeleteId = viewModel.pendingDeleteId,
+        onDeleteConfirm = viewModel::onDeleteConfirm,
+        onDeleteDismiss = viewModel::onDeleteDismiss,
         modifier = modifier,
     )
 }
@@ -71,7 +87,8 @@ internal fun LogsScreen(modifier: Modifier = Modifier, viewModel: LogsViewModel 
 /**
  * The title, the search field and zone chips, then one group per local day, newest first: a day
  * header ("Today", "3 check-ins · avg stress 4.4"), then that day's log rows (design-spec.md
- * §6.13). Search and chips are hidden until there's something to search.
+ * §6.13). Search and chips are hidden until there's something to search. Each row's menu has Edit
+ * and Delete; while [pendingDeleteId] is set, "Delete this check-in?" asks before deleting.
  */
 @Composable
 internal fun LogsContent(
@@ -81,8 +98,14 @@ internal fun LogsContent(
     zone: Zone? = null,
     onQueryChange: (String) -> Unit = {},
     onZoneClick: (Zone?) -> Unit = {},
+    onEditClick: (String) -> Unit = {},
+    onDeleteClick: (String) -> Unit = {},
+    pendingDeleteId: String? = null,
+    onDeleteConfirm: () -> Unit = {},
+    onDeleteDismiss: () -> Unit = {},
 ) {
     val formats = rememberLogFormats()
+    val rowActions = remember(onEditClick, onDeleteClick) { RowActions(onEditClick, onDeleteClick) }
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(UlapSpacing.ScreenPadding),
@@ -112,13 +135,26 @@ internal fun LogsContent(
             if (uiState.isNoMatch) {
                 item(key = "no-match", contentType = "no-match") { NoMatch() }
             }
-            logDays(uiState.days, formats)
+            logDays(uiState.days, formats, rowActions)
         }
+    }
+    if (pendingDeleteId != null) {
+        UlapConfirmDialog(
+            title = stringResource(R.string.logs_delete_title),
+            text = stringResource(R.string.logs_delete_text),
+            confirmLabel = stringResource(R.string.logs_delete),
+            dismissLabel = stringResource(R.string.logs_delete_keep),
+            onConfirm = onDeleteConfirm,
+            onDismiss = onDeleteDismiss,
+        )
     }
 }
 
+/** What a row's menu items do, each given that row's check-in ID. */
+private class RowActions(val onEdit: (String) -> Unit, val onDelete: (String) -> Unit)
+
 /** Keys and content types let the list reuse rows while scrolling a long history. */
-private fun LazyListScope.logDays(days: List<LogDay>, formats: LogFormats) {
+private fun LazyListScope.logDays(days: List<LogDay>, formats: LogFormats, actions: RowActions) {
     days.forEach { logDay ->
         item(key = "day-${logDay.day.epochDay}", contentType = "day") {
             LogDayHeader(
@@ -134,7 +170,7 @@ private fun LazyListScope.logDays(days: List<LogDay>, formats: LogFormats) {
             )
         }
         items(logDay.day.checkIns, key = { it.id }, contentType = { "row" }) { checkIn ->
-            CheckInRow(checkIn = checkIn, formats = formats)
+            CheckInRow(checkIn = checkIn, formats = formats, actions = actions)
         }
     }
 }
@@ -194,7 +230,7 @@ private fun rememberSearchNames(): SearchNames {
 }
 
 @Composable
-private fun CheckInRow(checkIn: CheckIn, formats: LogFormats) {
+private fun CheckInRow(checkIn: CheckIn, formats: LogFormats, actions: RowActions) {
     // The ViewModel drops unknown mood codes, so the catalog always has this one.
     val mood = MoodCatalog.byCode(checkIn.moodCode) ?: return
     val time = formats.time(checkIn)
@@ -208,7 +244,24 @@ private fun CheckInRow(checkIn: CheckIn, formats: LogFormats) {
             stringResource(R.string.logs_row_meta_trigger, time, checkIn.stress, trigger)
         },
         note = checkIn.note,
-    )
+    ) {
+        UlapOverflowMenu(contentDescription = stringResource(R.string.logs_row_menu)) { close ->
+            UlapMenuItem(
+                text = stringResource(R.string.logs_edit),
+                onClick = {
+                    close()
+                    actions.onEdit(checkIn.id)
+                },
+            )
+            UlapMenuItem(
+                text = stringResource(R.string.logs_delete),
+                onClick = {
+                    close()
+                    actions.onDelete(checkIn.id)
+                },
+            )
+        }
+    }
 }
 
 /** "Work", or the person's own words when they picked Other and wrote some. */

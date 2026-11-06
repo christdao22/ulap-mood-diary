@@ -39,9 +39,18 @@ import app.ulap.shared.model.Zone
  * @param mood "Worried", in the user's language.
  * @param meta "9:15 AM · Stress 8 · Work", in the user's language.
  * @param note The journal note, or `null` for none. Shown on screen only, never logged.
+ * @param menu The 36dp overflow button on the right, usually an [UlapOverflowMenu] with Edit and
+ *   Delete. TalkBack reaches it on its own, after the row.
  */
 @Composable
-fun LogRow(zone: Zone, mood: String, meta: String, note: String?, modifier: Modifier = Modifier) {
+fun LogRow(
+    zone: Zone,
+    mood: String,
+    meta: String,
+    note: String?,
+    modifier: Modifier = Modifier,
+    menu: @Composable () -> Unit = {},
+) {
     val colors = UlapTheme.colors
     Surface(
         // TalkBack reads the whole row as one item.
@@ -94,6 +103,7 @@ fun LogRow(zone: Zone, mood: String, meta: String, note: String?, modifier: Modi
                     )
                 }
             }
+            menu()
         }
     }
 }
@@ -146,7 +156,12 @@ private fun LogRowPreview() {
                 meta = "9:15 AM · Stress 8 · Work",
                 note = "Report due tomorrow and I haven't started the slides. Maybe I can ask Ana for help " +
                     "with the charts after lunch.",
-            )
+            ) {
+                UlapOverflowMenu(contentDescription = "Edit or delete this check-in") { close ->
+                    UlapMenuItem(text = "Edit", onClick = close)
+                    UlapMenuItem(text = "Delete", onClick = close)
+                }
+            }
             LogRow(zone = Zone.GREEN, mood = "Calm", meta = "7:02 AM · Stress 3", note = null)
         }
     }

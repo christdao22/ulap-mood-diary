@@ -59,7 +59,8 @@ fun UlapAppRoot(modifier: Modifier = Modifier, navController: NavHostController 
                 navController = navController,
                 onSeeMyWeek = { navController.navigateToTab(TopLevelDestination.REPORTS) },
             )
-            logsScreen()
+            // Opening Details filled in is the next Phase 3 task (PHASES.md); until then Edit does nothing.
+            logsScreen(onEditCheckIn = {})
             reportsScreen()
             accountScreen()
         }

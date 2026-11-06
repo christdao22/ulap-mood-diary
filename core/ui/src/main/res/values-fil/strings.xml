@@ -31,6 +31,15 @@
     <string name="logs_filter_all">Lahat</string>
     <!-- When search or a zone chip leaves nothing to show (design-spec.md §7.6) -->
     <string name="logs_no_match">Walang tugmang check-in. Subukan ang ibang salita o zone.</string>
+    <!-- TalkBack name of the three-dot button on a log row (design-spec.md §5, §6.13) -->
+    <string name="logs_row_menu">I-edit o burahin ang check-in na ito</string>
+    <!-- Log row menu items (design-spec.md §7.6). logs_delete is also the dialog's confirm button. -->
+    <string name="logs_edit">I-edit</string>
+    <string name="logs_delete">Burahin</string>
+    <!-- Asked before a delete (design-spec.md §7.6): title, text, then Delete · Keep -->
+    <string name="logs_delete_title">Burahin ang check-in na ito?</string>
+    <string name="logs_delete_text">Hindi na ito maibabalik.</string>
+    <string name="logs_delete_keep">Huwag na</string>
 
     <!-- Pick a mood (design-spec.md §7.2). Night uses the evening greeting. -->
     <string name="greeting_morning">Magandang umaga</string>

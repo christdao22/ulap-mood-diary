@@ -4,10 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.filter
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -22,6 +24,7 @@ import app.ulap.shared.rules.CheckInDay
 import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.time.Instant
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -179,5 +182,61 @@ class LogsScreenTest {
         assertEquals("", query)
         compose.onNodeWithText("Yellow").performClick()
         assertEquals(Zone.YELLOW, zoneClicked)
+    }
+
+    private val oneDay = LogsUiState.Loaded(
+        listOf(LogDay(DayLabel.Today, CheckInDay(1, listOf(checkIn("a"), checkIn("b", moodCode = "calm"))))),
+    )
+
+    @Test
+    fun `each row's menu offers Edit and Delete for that check-in`() {
+        var edited: String? = null
+        var deleted: String? = null
+        compose.setContent {
+            UlapTheme {
+                LogsContent(uiState = oneDay, onEditClick = { edited = it }, onDeleteClick = { deleted = it })
+            }
+        }
+        val menus = compose.onAllNodesWithContentDescription("Edit or delete this check-in")
+        menus.assertCountEquals(2)
+
+        menus[0].performClick()
+        compose.onNodeWithText("Edit").performClick()
+        assertEquals("a", edited)
+        // Picking an item closes the menu.
+        compose.onNodeWithText("Delete").assertDoesNotExist()
+
+        menus[1].performClick()
+        compose.onNodeWithText("Delete").performClick()
+        assertEquals("b", deleted)
+    }
+
+    @Test
+    fun `a pending delete asks first, with Delete and Keep`() {
+        var confirmed = false
+        var dismissed = false
+        compose.setContent {
+            UlapTheme {
+                LogsContent(
+                    uiState = oneDay,
+                    pendingDeleteId = "a",
+                    onDeleteConfirm = { confirmed = true },
+                    onDeleteDismiss = { dismissed = true },
+                )
+            }
+        }
+
+        compose.onNodeWithText("Delete this check-in?").assertIsDisplayed()
+        compose.onNodeWithText("This can't be undone.").assertIsDisplayed()
+        compose.onNodeWithText("Keep").performClick()
+        assertTrue(dismissed)
+        compose.onNodeWithText("Delete").performClick()
+        assertTrue(confirmed)
+    }
+
+    @Test
+    fun `no question shows until Delete is picked`() {
+        compose.setContent { UlapTheme { LogsContent(uiState = oneDay) } }
+        compose.onNodeWithText("Delete this check-in?").assertDoesNotExist()
     }
 }

@@ -29,6 +29,15 @@
     <string name="logs_filter_all">All</string>
     <!-- When search or a zone chip leaves nothing to show (design-spec.md §7.6) -->
     <string name="logs_no_match">No check-ins match. Try another word or zone.</string>
+    <!-- TalkBack name of the three-dot button on a log row (design-spec.md §5, §6.13) -->
+    <string name="logs_row_menu">Edit or delete this check-in</string>
+    <!-- Log row menu items (design-spec.md §7.6). logs_delete is also the dialog's confirm button. -->
+    <string name="logs_edit">Edit</string>
+    <string name="logs_delete">Delete</string>
+    <!-- Asked before a delete (design-spec.md §7.6): title, text, then Delete · Keep -->
+    <string name="logs_delete_title">Delete this check-in?</string>
+    <string name="logs_delete_text">This can\'t be undone.</string>
+    <string name="logs_delete_keep">Keep</string>
 
     <!-- Pick a mood (design-spec.md §7.2). Night uses the evening greeting. -->
     <string name="greeting_morning">Good morning</string>
