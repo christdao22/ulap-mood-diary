@@ -21,6 +21,8 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -79,6 +81,9 @@ class LogsViewModelTest {
         )
     }
 
+    // The list's work runs on the test's dispatcher, so virtual time and runCurrent cover it.
+    private fun viewModel() = LogsViewModel(repository, settings, clock, mainDispatcherRule.testDispatcher)
+
     private fun LogsViewModel.loaded() = assertIs<LogsUiState.Loaded>(uiState.value)
 
     private fun LogsViewModel.days() = loaded().days
@@ -101,7 +106,7 @@ class LogsViewModelTest {
             log("2026-11-04T15:59:00Z") // 11:59 PM Nov 4
             log("2026-11-02T02:00:00Z") // Nov 2
             log("2025-12-31T02:00:00Z") // last year
-            val viewModel = LogsViewModel(repository, settings, clock)
+            val viewModel = viewModel()
             backgroundScope.launch { viewModel.uiState.collect {} }
             runCurrent()
 
@@ -121,7 +126,7 @@ class LogsViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             log("2026-11-05T01:00:00Z", stress = 8)
             log("2026-11-05T02:00:00Z", stress = 3)
-            val viewModel = LogsViewModel(repository, settings, clock)
+            val viewModel = viewModel()
             backgroundScope.launch { viewModel.uiState.collect {} }
             runCurrent()
 
@@ -134,7 +139,7 @@ class LogsViewModelTest {
     fun `a check-in stays on the day of the clock it was logged on`() = runTest(mainDispatcherRule.testDispatcher) {
         // 11 PM Nov 4 in New York is already Nov 5 in Manila, but it was logged in New York.
         log("2026-11-05T04:00:00Z", tzOffsetMin = -300)
-        val viewModel = LogsViewModel(repository, settings, clock)
+        val viewModel = viewModel()
         backgroundScope.launch { viewModel.uiState.collect {} }
         runCurrent()
 
@@ -145,7 +150,7 @@ class LogsViewModelTest {
     fun `Today becomes Yesterday at midnight while the screen is open`() = runTest(mainDispatcherRule.testDispatcher) {
         currentTime = Instant.parse("2026-11-05T15:58:00Z") // 11:58 PM Nov 5 in Manila
         log("2026-11-05T15:00:00Z")
-        val viewModel = LogsViewModel(repository, settings, clock)
+        val viewModel = viewModel()
         backgroundScope.launch { viewModel.uiState.collect {} }
         runCurrent()
         assertEquals(DayLabel.Today, viewModel.days().single().label)
@@ -158,7 +163,7 @@ class LogsViewModelTest {
 
     @Test
     fun `a new check-in shows up without reopening the screen`() = runTest(mainDispatcherRule.testDispatcher) {
-        val viewModel = LogsViewModel(repository, settings, clock)
+        val viewModel = viewModel()
         backgroundScope.launch { viewModel.uiState.collect {} }
         runCurrent()
         assertEquals(emptyList(), viewModel.days())
@@ -173,7 +178,7 @@ class LogsViewModelTest {
     fun `search narrows the list using the names on screen`() = runTest(mainDispatcherRule.testDispatcher) {
         log("2026-11-05T01:00:00Z", moodCode = "worried", trigger = Trigger.WORK)
         log("2026-11-05T02:00:00Z", moodCode = "calm", note = "Walked by the sea")
-        val viewModel = LogsViewModel(repository, settings, clock)
+        val viewModel = viewModel()
         backgroundScope.launch { viewModel.uiState.collect {} }
         viewModel.onSearchNames(
             SearchNames(moods = mapOf("worried" to "Nag-aalala"), triggers = mapOf(Trigger.WORK to "Trabaho")),
@@ -194,7 +199,7 @@ class LogsViewModelTest {
     fun `a zone chip keeps that zone, and tapping it again shows all`() = runTest(mainDispatcherRule.testDispatcher) {
         log("2026-11-05T01:00:00Z", moodCode = "worried")
         log("2026-11-05T02:00:00Z", moodCode = "calm")
-        val viewModel = LogsViewModel(repository, settings, clock)
+        val viewModel = viewModel()
         backgroundScope.launch { viewModel.uiState.collect {} }
 
         viewModel.onZoneClick(Zone.RED)
@@ -209,8 +214,34 @@ class LogsViewModelTest {
     }
 
     @Test
+    fun `a long history lists all 1,000 check-ins and search reaches the oldest`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            // 10 a day for 100 days, ending 9 PM Nov 5 in Manila; the oldest note is different.
+            val newest = Instant.parse("2026-11-05T13:00:00Z")
+            repeat(1_000) { i ->
+                log(
+                    loggedAt = (newest - (i / 10).days - (i % 10).hours).toString(),
+                    note = if (i == 999) "First week with the diary" else "Note $i",
+                )
+            }
+            val viewModel = viewModel()
+            backgroundScope.launch { viewModel.uiState.collect {} }
+            runCurrent()
+
+            assertEquals(100, viewModel.days().size)
+            assertEquals(1_000, viewModel.days().sumOf { it.day.count })
+            assertEquals(DayLabel.Today, viewModel.days().first().label)
+
+            viewModel.onQueryChange("first week")
+            applyStateChanges()
+            val oldest = viewModel.days().single()
+            assertEquals(DayLabel.Date(LocalDate.of(2026, 7, 29), showYear = false), oldest.label)
+            assertEquals(1, oldest.day.count)
+        }
+
+    @Test
     fun `no match is told apart from an empty diary`() = runTest(mainDispatcherRule.testDispatcher) {
-        val viewModel = LogsViewModel(repository, settings, clock)
+        val viewModel = viewModel()
         backgroundScope.launch { viewModel.uiState.collect {} }
         runCurrent()
         assertTrue(viewModel.loaded().isDiaryEmpty)
@@ -227,7 +258,7 @@ class LogsViewModelTest {
     @Test
     fun `Delete asks first and deletes nothing on its own`() = runTest(mainDispatcherRule.testDispatcher) {
         log("2026-11-05T01:00:00Z")
-        val viewModel = LogsViewModel(repository, settings, clock)
+        val viewModel = viewModel()
         backgroundScope.launch { viewModel.uiState.collect {} }
         runCurrent()
         val id = viewModel.days().single().day.checkIns.single().id
@@ -243,7 +274,7 @@ class LogsViewModelTest {
     fun `confirming the delete takes the check-in off the list`() = runTest(mainDispatcherRule.testDispatcher) {
         log("2026-11-05T01:00:00Z", moodCode = "worried")
         log("2026-11-05T02:00:00Z", moodCode = "calm")
-        val viewModel = LogsViewModel(repository, settings, clock)
+        val viewModel = viewModel()
         backgroundScope.launch { viewModel.uiState.collect {} }
         runCurrent()
         val calm = viewModel.days().single().day.checkIns.first { it.moodCode == "calm" }
@@ -260,7 +291,7 @@ class LogsViewModelTest {
     @Test
     fun `Keep closes the question and keeps the check-in`() = runTest(mainDispatcherRule.testDispatcher) {
         log("2026-11-05T01:00:00Z")
-        val viewModel = LogsViewModel(repository, settings, clock)
+        val viewModel = viewModel()
         backgroundScope.launch { viewModel.uiState.collect {} }
         runCurrent()
         val id = viewModel.days().single().day.checkIns.single().id
@@ -277,7 +308,7 @@ class LogsViewModelTest {
 
     @Test
     fun `Ulap shows on the empty diary unless the user turned Ulap off`() = runTest(mainDispatcherRule.testDispatcher) {
-        val viewModel = LogsViewModel(repository, settings, clock)
+        val viewModel = viewModel()
         backgroundScope.launch { viewModel.showUlap.collect {} }
         runCurrent()
         assertTrue(viewModel.showUlap.value)
@@ -290,7 +321,7 @@ class LogsViewModelTest {
 
     @Test
     fun `nothing is listed until the check-ins are read`() {
-        val viewModel = LogsViewModel(repository, settings, clock)
+        val viewModel = viewModel()
         assertEquals(LogsUiState.Loading, viewModel.uiState.value)
     }
 }
