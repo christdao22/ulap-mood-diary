@@ -36,6 +36,8 @@
     <string name="logs_search_hint">Search mood, trigger or journal</string>
     <!-- TalkBack name of the X button that empties the search field -->
     <string name="logs_search_clear">Clear search</string>
+    <!-- Logs: icon button that jumps back to the newest check-ins (TalkBack label) -->
+    <string name="logs_back_to_top">Back to top</string>
     <!-- Zone filter chip that shows every zone (design-spec.md §6.12) -->
     <string name="logs_filter_all">All</string>
     <!-- When search or a zone chip leaves nothing to show (design-spec.md §7.6) -->

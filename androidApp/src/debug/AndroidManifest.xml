@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- Debug builds only: fills Room with fake check-ins for scroll and report checks.
+             DUMP is held by adb shell, not by other apps, so only a connected computer can
+             trigger it. Usage is in SeedCheckInsReceiver. -->
+        <receiver
+            android:name=".debug.SeedCheckInsReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="app.ulap.debug.SEED_CHECK_INS" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

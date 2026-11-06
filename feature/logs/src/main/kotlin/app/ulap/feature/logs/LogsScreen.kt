@@ -3,6 +3,7 @@ package app.ulap.feature.logs
 import android.text.format.DateFormat
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -119,42 +122,47 @@ internal fun LogsContent(
 ) {
     val formats = rememberLogFormats()
     val rowActions = remember(onEditClick, onDeleteClick) { RowActions(onEditClick, onDeleteClick) }
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(UlapSpacing.ScreenPadding),
-        verticalArrangement = Arrangement.spacedBy(UlapSpacing.Xs),
-    ) {
-        item(key = "title", contentType = "title") {
-            Text(
-                text = stringResource(R.string.tab_logs),
-                modifier = Modifier.semantics { heading() },
-                style = MaterialTheme.typography.headlineMedium,
-                color = UlapTheme.colors.ink,
-            )
-        }
-        if (uiState is LogsUiState.Loaded && !uiState.isDiaryEmpty) {
-            item(key = "search", contentType = "search") {
-                SearchField(
-                    value = query,
-                    onValueChange = onQueryChange,
-                    placeholder = stringResource(R.string.logs_search_hint),
-                    clearLabel = stringResource(R.string.logs_search_clear),
-                    modifier = Modifier.padding(top = UlapSpacing.S),
+    val listState = rememberLazyListState()
+    Box(modifier = modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = listState,
+            contentPadding = PaddingValues(UlapSpacing.ScreenPadding),
+            verticalArrangement = Arrangement.spacedBy(UlapSpacing.Xs),
+        ) {
+            item(key = "title", contentType = "title") {
+                Text(
+                    text = stringResource(R.string.tab_logs),
+                    modifier = Modifier.semantics { heading() },
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = UlapTheme.colors.ink,
                 )
             }
-            item(key = "zones", contentType = "zones") {
-                ZoneChips(selected = zone, onClick = onZoneClick)
+            if (uiState is LogsUiState.Loaded && !uiState.isDiaryEmpty) {
+                item(key = "search", contentType = "search") {
+                    SearchField(
+                        value = query,
+                        onValueChange = onQueryChange,
+                        placeholder = stringResource(R.string.logs_search_hint),
+                        clearLabel = stringResource(R.string.logs_search_clear),
+                        modifier = Modifier.padding(top = UlapSpacing.S),
+                    )
+                }
+                item(key = "zones", contentType = "zones") {
+                    ZoneChips(selected = zone, onClick = onZoneClick)
+                }
+                if (uiState.isNoMatch) {
+                    item(key = "no-match", contentType = "no-match") { NoMatch() }
+                }
+                logDays(uiState.days, formats, rowActions)
             }
-            if (uiState.isNoMatch) {
-                item(key = "no-match", contentType = "no-match") { NoMatch() }
+            if (uiState is LogsUiState.Loaded && uiState.isDiaryEmpty) {
+                item(key = "empty", contentType = "empty") {
+                    EmptyDiary(showUlap = showUlap, onCheckInNow = onCheckInNow)
+                }
             }
-            logDays(uiState.days, formats, rowActions)
         }
-        if (uiState is LogsUiState.Loaded && uiState.isDiaryEmpty) {
-            item(key = "empty", contentType = "empty") {
-                EmptyDiary(showUlap = showUlap, onCheckInNow = onCheckInNow)
-            }
-        }
+        BackToTop(listState = listState, modifier = Modifier.align(Alignment.BottomEnd))
     }
     if (pendingDeleteId != null) {
         UlapConfirmDialog(

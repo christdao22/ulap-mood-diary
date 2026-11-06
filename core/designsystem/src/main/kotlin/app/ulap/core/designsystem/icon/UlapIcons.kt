@@ -81,6 +81,17 @@ object UlapIcons {
         }
     }
 
+    /** An up arrow, for Logs' back-to-top button (design-spec.md §7.6). */
+    val Up: ImageVector by lazy {
+        lineIcon("Up") {
+            moveTo(11f, 18f)
+            lineTo(11f, 4f)
+            moveTo(6f, 9f)
+            lineTo(11f, 4f)
+            lineTo(16f, 9f)
+        }
+    }
+
     /** A magnifying glass, at the start of the Logs search field (design-spec.md §7.6). */
     val Search: ImageVector by lazy {
         lineIcon("Search") {

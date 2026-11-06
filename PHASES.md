@@ -8,7 +8,7 @@ Track progress by ticking boxes: change `- [ ]` to `- [x]` when a task is **done
 
 **Legend:** `- [x]` complete · `- [ ]` not started or in progress · 🔒 needs two-reviewer approval (auth, sync, encryption, safety)
 
-Last updated: November 6, 2026
+Last updated: November 7, 2026
 
 ---
 
@@ -19,12 +19,12 @@ Last updated: November 6, 2026
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
 | 1 | Project setup | ✅ Complete | 18 / 18 |
 | 2 | Offline check-in | 🟡 In progress | 23 / 25 |
-| 3 | Logs | 🟡 In progress | 13 / 13 |
+| 3 | Logs | ✅ Complete | 13 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
 | 6 | Server and accounts | ⬜ Not started | 0 / 26 |
 | 7 | Sync | ⬜ Not started | 0 / 25 |
-| 8 | Privacy, safety and polish | ⬜ Not started | 0 / 22 |
+| 8 | Privacy, safety and polish | ⬜ Not started | 0 / 23 |
 | 9 | Testing and beta | ⬜ Not started | 0 / 15 |
 | 10 | Release v1.0 | ⬜ Not started | 0 / 15 |
 | 11 | After v1 (backlog) | ⬜ Planned | 0 / 13 |
@@ -156,7 +156,7 @@ Spec: [Technical plan §5–§6](docs/technical-plan.md#5-shared-domain-model) �
 
 ---
 
-## Phase 3: Logs
+## Phase 3: Logs ✅ (Nov 2026)
 
 **Goal:** people can review, search, edit and delete their check-ins.
 Spec: [Design spec §7.6](docs/design-spec.md#76-logs) · [Design spec §6.13](docs/design-spec.md#613-log-row)
@@ -355,6 +355,7 @@ Spec: [Technical plan §13](docs/technical-plan.md#13-safety-privacy-and-store-r
 - [ ] App icon (Ulap) tested at 48dp
 - [ ] Polished Ulap illustration set for onboarding and the store
 - [ ] Performance: cold start < 2 seconds on a mid-range phone, smooth scrolling in Logs
+- [ ] Details shows an edited check-in's date and time on the clock it was logged on (`tz_offset_min`), as Logs rows do, so after a trip the two never disagree
 - [ ] Crash reporting with Sentry on Android and the server (D11): `sendDefaultPii = false`, a `beforeSend` that drops request bodies and any field named `note` or `triggerOther`, no emails
 
 **Phase 8 complete when:** an accessibility and safety review passes with no blocking issues.

@@ -299,6 +299,7 @@ Which actions appear is decided by `ResponseRules` ([Technical plan §5](technic
 - Tapping the selected zone chip goes back to All. Search and chips are hidden while the diary is empty.
 - Empty search result: "No check-ins match. Try another word or zone."
 - Empty diary: Ulap (neutral) + "Your check-ins will show up here." + primary "Check in now."
+- A few screens down, a round 48dp "Back to top" button (up arrow, surface with a line border) fades in at the bottom right. Near the top it scrolls up; far down, or with reduced motion, it jumps.
 - Edit opens Details filled in, at the time it was logged, with Back labeled "Back to logs". Save returns to Logs with no message: the updated row shows the change. Response and After don't show again, and an edit keeps the after-check and support used. If the check-in was deleted on another phone, Details closes. Delete asks first: "Delete this check-in? This can't be undone." (Delete · Keep).
 
 ### 7.7 Reports
