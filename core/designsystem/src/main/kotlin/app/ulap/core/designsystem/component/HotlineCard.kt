@@ -27,12 +27,17 @@ import app.ulap.core.designsystem.theme.UlapTheme
  * a change here needs two reviewers.
  *
  * The words come from the caller, because every string lives in core:ui's strings.xml.
+ *
+ * @param callDescription What TalkBack reads for the call button, with the number digit by
+ *   digit ("Call 1 5 5 3"), like the number above it. Without it TalkBack reads [callLabel]'s
+ *   number as "one thousand five hundred fifty-three".
  */
 @Composable
 fun UlapHotlineCard(
     title: String,
     number: String,
     callLabel: String,
+    callDescription: String,
     helper: String,
     onCall: () -> Unit,
     modifier: Modifier = Modifier,
@@ -58,13 +63,25 @@ fun UlapHotlineCard(
                 style = HotlineNumberStyle,
                 color = colors.ink,
                 // TalkBack reads "1 5 5 3", the way a person dials it, not "one thousand five hundred…".
-                modifier = Modifier.semantics { contentDescription = number.toList().joinToString(" ") },
+                modifier = Modifier.semantics { contentDescription = number.spokenDigits() },
             )
-            UlapPrimaryButton(text = callLabel, onClick = onCall, modifier = Modifier.fillMaxWidth())
+            UlapPrimaryButton(
+                text = callLabel,
+                onClick = onCall,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics { contentDescription = callDescription },
+            )
             Text(text = helper, style = MaterialTheme.typography.bodySmall, color = colors.ink2)
         }
     }
 }
+
+/**
+ * "1553" as "1 5 5 3", so TalkBack reads it the way a person dials it. Pass it into the call
+ * button's [UlapHotlineCard] `callDescription` too.
+ */
+fun String.spokenDigits(): String = toList().joinToString(" ")
 
 /** The number: Bricolage 34/700 (design-spec.md §6.8). Only this card uses it, so it isn't a Material role. */
 private val HotlineNumberStyle = TextStyle(
@@ -82,6 +99,7 @@ private fun UlapHotlineCardPreview() {
             title = "NCMH Crisis Hotline · available 24/7",
             number = "1553",
             callLabel = "Call 1553",
+            callDescription = "Call 1 5 5 3",
             helper = "This opens your phone app. You choose when to call.",
             onCall = {},
         )

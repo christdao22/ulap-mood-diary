@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import app.ulap.core.designsystem.component.UlapHotlineCard
+import app.ulap.core.designsystem.component.spokenDigits
 
 /**
  * The NCMH 1553 card with its words, wired to the phone's dialer (technical-plan.md §13). Used on
@@ -25,6 +26,8 @@ fun HotlineCard(modifier: Modifier = Modifier) {
         title = stringResource(R.string.hotline_title),
         number = number,
         callLabel = stringResource(R.string.hotline_call, number),
+        // TalkBack: "Call 1 5 5 3", the way the person will dial it (design-spec.md §6.8).
+        callDescription = stringResource(R.string.hotline_call, number.spokenDigits()),
         helper = stringResource(R.string.hotline_helper),
         onCall = { context.openDialer(number) },
         modifier = modifier,
