@@ -24,18 +24,22 @@ data class PickMoodUiState(
 )
 
 @HiltViewModel
-class PickMoodViewModel @Inject constructor(settingsRepository: SettingsRepository, clock: Clock) : ViewModel() {
-    // Read once when the screen opens. Guests have no name, so the greeting has none (§7.2).
-    private val timeOfDay = TimeOfDay.ofHour(clock.now().toJavaInstant().atZone(ZoneId.systemDefault()).hour)
-
+class PickMoodViewModel @Inject constructor(settingsRepository: SettingsRepository, private val clock: Clock) :
+    ViewModel() {
+    // Pick mood stays on the back stack all day, so the clock is read again each time the screen
+    // comes back (WhileSubscribed restarts the flow), not once: a morning greeting mustn't last
+    // into the evening. Guests have no name, so the greeting has none (§7.2).
     val uiState: StateFlow<PickMoodUiState> = settingsRepository.settings
-        .map { PickMoodUiState(timeOfDay = timeOfDay, showUlap = it.mascotEnabled) }
+        .map { PickMoodUiState(timeOfDay = timeOfDayNow(), showUlap = it.mascotEnabled) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
             // Until DataStore answers (a few milliseconds), assume the default: Ulap on.
-            initialValue = PickMoodUiState(timeOfDay = timeOfDay, showUlap = UserSettings().mascotEnabled),
+            initialValue = PickMoodUiState(timeOfDay = timeOfDayNow(), showUlap = UserSettings().mascotEnabled),
         )
+
+    private fun timeOfDayNow(): TimeOfDay =
+        TimeOfDay.ofHour(clock.now().toJavaInstant().atZone(ZoneId.systemDefault()).hour)
 
     private companion object {
         // Keeps the flow alive through a screen rotation, which takes well under 5 seconds.

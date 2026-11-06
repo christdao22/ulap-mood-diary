@@ -5,6 +5,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -149,6 +150,13 @@ class ResponseScreenTest {
         compose.onNodeWithContentDescription("1 5 5 3").assertExists()
         compose.onNodeWithText("Call 1553").assertExists()
         compose.onNodeWithText("This opens your phone app. You choose when to call.").assertExists()
+    }
+
+    @Test
+    fun `TalkBack reads the call button's number digit by digit too`() {
+        show("hopeless", stress = 9)
+        // Not "Call one thousand five hundred fifty-three".
+        compose.onNodeWithContentDescription("Call 1 5 5 3").assertHasClickAction()
     }
 
     @Test

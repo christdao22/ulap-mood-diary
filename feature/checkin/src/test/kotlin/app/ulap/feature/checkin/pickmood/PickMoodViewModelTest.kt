@@ -12,10 +12,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 
@@ -43,6 +45,29 @@ class PickMoodViewModelTest {
         // 22:30 UTC is 06:30 the next morning in Manila.
         val viewModel = PickMoodViewModel(settings, clockAt("2026-11-05T22:30:00Z"))
         assertEquals(TimeOfDay.MORNING, viewModel.uiState.value.timeOfDay)
+    }
+
+    @Test
+    fun `the greeting reads the clock again when the screen comes back`() = runTest(mainDispatcherRule.testDispatcher) {
+        // 09:00 in Manila.
+        var currentTime = Instant.parse("2026-11-05T01:00:00Z")
+        val viewModel = PickMoodViewModel(
+            settings,
+            object : Clock {
+                override fun now(): Instant = currentTime
+            },
+        )
+        val morningVisit = launch { viewModel.uiState.collect {} }
+        assertEquals(TimeOfDay.MORNING, viewModel.uiState.value.timeOfDay)
+
+        // Pick mood stays on the back stack. The person leaves it and comes back at 19:00.
+        morningVisit.cancel()
+        currentTime = Instant.parse("2026-11-05T11:00:00Z")
+        advanceTimeBy(10.seconds)
+        val eveningVisit = launch { viewModel.uiState.collect {} }
+
+        assertEquals(TimeOfDay.EVENING, viewModel.uiState.value.timeOfDay)
+        eveningVisit.cancel()
     }
 
     @Test
