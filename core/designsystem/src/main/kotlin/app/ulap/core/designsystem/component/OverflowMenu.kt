@@ -26,8 +26,9 @@ import app.ulap.core.designsystem.theme.UlapTheme
 /**
  * A 36dp three-dot button that opens a small menu, e.g. a log row's Edit and Delete
  * (design-spec.md §6.13). The touch area is still 48dp (§11): Compose widens it around small
- * buttons. Like every icon-only button it needs a [contentDescription] (§5), e.g. "Edit or
- * delete this check-in".
+ * buttons. Like every icon-only button it needs a [contentDescription] (§5). In a list, name the
+ * item, since TalkBack reads every row's button the same way otherwise: "Edit or delete
+ * check-in: Worried, 9:15 AM".
  *
  * @param items The menu's [UlapMenuItem]s. Each gets `close`, to call before it acts.
  */
@@ -80,7 +81,7 @@ private val IconSize = 18.dp
 @Composable
 private fun OverflowMenuPreview() {
     UlapTheme {
-        UlapOverflowMenu(contentDescription = "Edit or delete this check-in") { close ->
+        UlapOverflowMenu(contentDescription = "Edit or delete check-in: Worried, 9:15 AM") { close ->
             UlapMenuItem(text = "Edit", onClick = close)
             UlapMenuItem(text = "Delete", onClick = close)
         }

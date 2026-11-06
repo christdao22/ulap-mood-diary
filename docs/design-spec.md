@@ -483,6 +483,8 @@ These match the `after_*` keys in [Technical plan, Appendix B](technical-plan.md
 - TalkBack:
   - Mood tile: "{Mood}. {Zone}. Default stress {n}." The mood face (§8.7) is decorative and not read.
   - Slider: "Stress, 8 of 10, high."
+  - Log row, read as one item: "{Mood}. {Zone}. {time}. Stress {n} of 10, {level}. Trigger: {trigger}. Journal: {note}." Edit and Delete are also TalkBack actions on the row. The overflow button names its check-in: "Edit or delete check-in: {Mood}, {time}."
+  - Log day header, a heading: "{Day}. {n} check-ins, average stress {avg}." ("average", not "avg").
   - Chart: a summary sentence ("Daily average stress this week. Highest Monday, 6.8. Lowest Sunday, 2.4.").
   - Ulap: a content description per expression. Mark it decorative when it's next to a bubble that already says the same thing.
 - Font scaling up to 200% without clipping.

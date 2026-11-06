@@ -20,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,6 +41,9 @@ import app.ulap.shared.model.Zone
  * @param mood "Worried", in the user's language.
  * @param meta "9:15 AM · Stress 8 · Work", in the user's language.
  * @param note The journal note, or `null` for none. Shown on screen only, never logged.
+ * @param contentDescription What TalkBack reads for the row, as one item, instead of its text:
+ *   "Worried. Red Zone. 9:15 AM. Stress 8 of 10, high. Trigger: Work. Journal: …". It says the zone in
+ *   words and doesn't read "·" aloud (§11).
  * @param menu The 36dp overflow button on the right, usually an [UlapOverflowMenu] with Edit and
  *   Delete. TalkBack reaches it on its own, after the row.
  */
@@ -48,6 +53,7 @@ fun LogRow(
     mood: String,
     meta: String,
     note: String?,
+    contentDescription: String,
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
 ) {
@@ -56,7 +62,7 @@ fun LogRow(
         // TalkBack reads the whole row as one item.
         modifier = modifier
             .fillMaxWidth()
-            .semantics(mergeDescendants = true) {},
+            .semantics(mergeDescendants = true) { this.contentDescription = contentDescription },
         shape = UlapShape.Button,
         color = colors.surface,
         border = BorderStroke(UlapSpacing.Border, colors.line),
@@ -75,7 +81,10 @@ fun LogRow(
                     .background(colors.zone(zone).strong, RoundedCornerShape(StripeRadius)),
             )
             Column(
-                modifier = Modifier.weight(1f),
+                // The row's contentDescription already says all of this.
+                modifier = Modifier
+                    .weight(1f)
+                    .clearAndSetSemantics {},
                 verticalArrangement = Arrangement.spacedBy(UlapSpacing.Xxs),
             ) {
                 // A FlowRow, so at large font sizes the meta wraps under the mood instead of squeezing.
@@ -112,13 +121,19 @@ fun LogRow(
  * The header above one day's log rows (design-spec.md §6.13): "Today" on the left and
  * "5 check-ins · avg stress 4.4" on the right. TalkBack reads it as one heading, so a person can
  * jump from day to day.
+ *
+ * @param contentDescription What TalkBack reads instead of the text, with "average" spelled out:
+ *   "Today. 5 check-ins, average stress 4.4."
  */
 @Composable
-fun LogDayHeader(day: String, summary: String, modifier: Modifier = Modifier) {
+fun LogDayHeader(day: String, summary: String, contentDescription: String, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .semantics(mergeDescendants = true) { heading() },
+            .clearAndSetSemantics {
+                heading()
+                this.contentDescription = contentDescription
+            },
         horizontalArrangement = Arrangement.spacedBy(UlapSpacing.Xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -149,20 +164,31 @@ private fun LogRowPreview() {
             modifier = Modifier.padding(UlapSpacing.M),
             verticalArrangement = Arrangement.spacedBy(UlapSpacing.Xs),
         ) {
-            LogDayHeader(day = "Today", summary = "2 check-ins · avg stress 5.5")
+            LogDayHeader(
+                day = "Today",
+                summary = "2 check-ins · avg stress 5.5",
+                contentDescription = "Today. 2 check-ins, average stress 5.5.",
+            )
             LogRow(
                 zone = Zone.RED,
                 mood = "Worried",
                 meta = "9:15 AM · Stress 8 · Work",
                 note = "Report due tomorrow and I haven't started the slides. Maybe I can ask Ana for help " +
                     "with the charts after lunch.",
+                contentDescription = "Worried. Red Zone. 9:15 AM. Stress 8 of 10, high. Trigger: Work.",
             ) {
-                UlapOverflowMenu(contentDescription = "Edit or delete this check-in") { close ->
+                UlapOverflowMenu(contentDescription = "Edit or delete check-in: Worried, 9:15 AM") { close ->
                     UlapMenuItem(text = "Edit", onClick = close)
                     UlapMenuItem(text = "Delete", onClick = close)
                 }
             }
-            LogRow(zone = Zone.GREEN, mood = "Calm", meta = "7:02 AM · Stress 3", note = null)
+            LogRow(
+                zone = Zone.GREEN,
+                mood = "Calm",
+                meta = "7:02 AM · Stress 3",
+                note = null,
+                contentDescription = "Calm. Green Zone. 7:02 AM. Stress 3 of 10, low.",
+            )
         }
     }
 }

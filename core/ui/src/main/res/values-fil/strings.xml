@@ -19,10 +19,21 @@
         <item quantity="one">%1$d check-in · avg na stress %2$s</item>
         <item quantity="other">%1$d check-in · avg na stress %2$s</item>
     </plurals>
+    <!-- TalkBack for the day header (design-spec.md §11), with "average" spelled out. %1$s is the day, %2$d the count, %3$s the average. -->
+    <plurals name="logs_day_description">
+        <item quantity="one">%1$s. %2$d check-in, average na stress %3$s.</item>
+        <item quantity="other">%1$s. %2$d check-in, average na stress %3$s.</item>
+    </plurals>
     <!-- Log row, after the mood. %1$s is the time, %2$d the stress. -->
     <string name="logs_row_meta">%1$s · Stress %2$d</string>
     <!-- The same, with %3$s the trigger, e.g. Trabaho -->
     <string name="logs_row_meta_trigger">%1$s · Stress %2$d · %3$s</string>
+    <!-- TalkBack for a log row, read as one item (design-spec.md §11): %1$s mood, %2$s zone name, %3$s time, %4$s slider_state for stress, e.g. "8 of 10, high". -->
+    <string name="logs_row_description">%1$s. %2$s. %3$s. Stress %4$s.</string>
+    <!-- The same, with %5$s the trigger, e.g. Work -->
+    <string name="logs_row_description_trigger">%1$s. %2$s. %3$s. Stress %4$s. Trigger: %5$s.</string>
+    <!-- When the row has a journal note: %1$s is the description above, %2$s the note. -->
+    <string name="logs_row_description_note">%1$s Journal: %2$s</string>
     <!-- Search field placeholder; TalkBack also reads it as the field's name (design-spec.md §7.6) -->
     <string name="logs_search_hint">Hanapin ang mood, trigger o journal</string>
     <!-- TalkBack name of the X button that empties the search field -->
@@ -35,8 +46,8 @@
     <string name="logs_empty">Dito lalabas ang mga check-in mo.</string>
     <!-- The empty Logs screen's primary button: opens the Check in tab (design-spec.md §7.6) -->
     <string name="logs_check_in_now">Mag-check in</string>
-    <!-- TalkBack name of the three-dot button on a log row (design-spec.md §5, §6.13) -->
-    <string name="logs_row_menu">I-edit o burahin ang check-in na ito</string>
+    <!-- TalkBack name of the three-dot button on a log row (design-spec.md §5, §6.13). %1$s is the mood, %2$s the time, so each row's button is told apart. -->
+    <string name="logs_row_menu">I-edit o burahin ang check-in: %1$s, %2$s</string>
     <!-- Log row menu items (design-spec.md §7.6). logs_delete is also the dialog's confirm button. -->
     <string name="logs_edit">I-edit</string>
     <string name="logs_delete">Burahin</string>
