@@ -62,6 +62,10 @@ class FakeCheckInRepository(private val now: () -> Instant = { Instant.parse("20
         list.filter { it.localDate() == day }.sortedByDescending { it.loggedAt }
     }
 
+    override fun observeAll(): Flow<List<CheckIn>> = checkIns.map { list ->
+        list.sortedWith(compareByDescending<CheckIn> { it.loggedAt }.thenByDescending { it.id })
+    }
+
     private fun validate(input: CheckInInput) = CheckInValidator.validate(input, now())
 
     private fun CheckIn.localDate(): LocalDate =

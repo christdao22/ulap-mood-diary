@@ -162,4 +162,14 @@ class OfflineFirstCheckInRepositoryTest {
         assertEquals(listOf(id), repository.observeDay(LocalDate(2026, 11, 4)).first().map { it.id })
         assertEquals(emptyList(), repository.observeDay(LocalDate(2026, 11, 3)).first())
     }
+
+    @Test
+    fun `all shows live check-ins, newest first, and drops deleted ones`() = runTest {
+        val older = assertIs<SaveResult.Saved>(repository.add(input.copy(loggedAt = t0 - 1.minutes))).checkIn.id
+        val newer = added()
+        val deleted = added()
+        repository.delete(deleted)
+
+        assertEquals(listOf(newer, older), repository.observeAll().first().map { it.id })
+    }
 }

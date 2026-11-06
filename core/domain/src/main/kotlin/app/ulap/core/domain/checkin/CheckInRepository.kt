@@ -25,6 +25,9 @@ interface CheckInRepository {
 
     /** The live check-ins of one local day, newest first, updated on every change. */
     fun observeDay(day: LocalDate): Flow<List<CheckIn>>
+
+    /** Every live check-in, newest first, updated on every change. Logs reads this. */
+    fun observeAll(): Flow<List<CheckIn>>
 }
 
 sealed interface SaveResult {

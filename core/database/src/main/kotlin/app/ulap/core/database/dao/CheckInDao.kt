@@ -60,4 +60,12 @@ interface CheckInDao {
         """,
     )
     fun observeDay(epochDay: Long): Flow<List<CheckInEntity>>
+
+    /**
+     * Every live check-in, newest first, re-emitted on every change. Logs groups them by local day
+     * in memory (`groupByLocalDay` in :shared). The `(deleted_at, logged_at)` index serves both
+     * the filter and the order.
+     */
+    @Query("SELECT * FROM check_ins WHERE deleted_at IS NULL ORDER BY logged_at DESC, id DESC")
+    fun observeAll(): Flow<List<CheckInEntity>>
 }
