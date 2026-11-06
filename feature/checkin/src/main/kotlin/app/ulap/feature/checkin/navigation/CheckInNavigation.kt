@@ -25,6 +25,13 @@ data object PickMoodRoute
 @Serializable
 data class DetailsRoute(val moodCode: String)
 
+/**
+ * Details again, filled in from the saved check-in with this ID, to change it (design-spec.md
+ * §7.6). It sits in the Logs tab, so the app root places it with [editCheckInScreen].
+ */
+@Serializable
+data class EditCheckInRoute(val checkInId: String)
+
 /** Check in · Response to the saved check-in with this ID (design-spec.md §7.4). */
 @Serializable
 data class ResponseRoute(val checkInId: String)
@@ -90,6 +97,26 @@ fun NavGraphBuilder.checkInGraph(navController: NavController, onSeeMyWeek: () -
         }
     }
 }
+
+/**
+ * Adds Details in edit mode. Save and Back both return to the screen that opened it. If the
+ * check-in is gone (deleted on another phone and synced), it closes on its own.
+ */
+fun NavGraphBuilder.editCheckInScreen(navController: NavController) {
+    composable<EditCheckInRoute> { entry ->
+        val close = { entry.ifResumed { navController.popBackStack() } }
+        DetailsScreen(
+            onBack = close,
+            onCheckInSave = { close() },
+            // Not tied to a tap, so it may arrive before the screen is resumed. Popping this
+            // route by type is safe to repeat: once it's gone there is nothing left to pop.
+            onCheckInMissing = { navController.popBackStack<EditCheckInRoute>(inclusive = true) },
+        )
+    }
+}
+
+/** Opens Details filled in from the check-in with this ID. */
+fun NavController.navigateToEditCheckIn(checkInId: String) = navigate(EditCheckInRoute(checkInId))
 
 /**
  * Runs [action] only while this screen is the one on top. A quick double tap would otherwise

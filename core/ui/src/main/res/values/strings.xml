@@ -50,6 +50,7 @@
 
     <!-- Check in · Details (design-spec.md §7.3) -->
     <string name="details_back">Back to moods</string>
+    <string name="details_back_to_logs">Back to logs</string>
     <!-- When the check-in is logged: the weekday and date, then the time. -->
     <string name="details_logged_at">%1$s · %2$s</string>
     <string name="details_defaults">Default for %1$s: energy %2$d, stress %3$d</string>

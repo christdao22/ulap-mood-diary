@@ -62,18 +62,28 @@ import java.time.format.DateTimeFormatter
 import kotlin.time.Instant
 import kotlin.time.toJavaInstant
 
-/** Check in · Details (design-spec.md §7.3), wired to its ViewModel. */
+/**
+ * Check in · Details (design-spec.md §7.3), wired to its ViewModel. The same screen edits a saved
+ * check-in from Logs (design-spec.md §7.6).
+ *
+ * @param onCheckInMissing The check-in to edit is gone, e.g. deleted on another phone and synced.
+ */
 @Composable
 internal fun DetailsScreen(
     onBack: () -> Unit,
     onCheckInSave: (checkInId: String) -> Unit,
     modifier: Modifier = Modifier,
+    onCheckInMissing: () -> Unit = {},
     viewModel: DetailsViewModel = hiltViewModel(),
 ) {
     val showUlap by viewModel.showUlap.collectAsStateWithLifecycle()
     val form = viewModel.form
     val currentOnCheckInSave by rememberUpdatedState(onCheckInSave)
-    LaunchedEffect(form.savedId) { form.savedId?.let { currentOnCheckInSave(it) } }
+    val currentOnCheckInMissing by rememberUpdatedState(onCheckInMissing)
+    LaunchedEffect(form?.savedId) { form?.savedId?.let { currentOnCheckInSave(it) } }
+    LaunchedEffect(viewModel.isMissing) { if (viewModel.isMissing) currentOnCheckInMissing() }
+    // An edit reads one row from the phone's database, so this blank moment is too short to see.
+    if (form == null) return
     // The content sees only the actions, never the whole ViewModel.
     val actions: DetailsActions = viewModel
 
@@ -106,7 +116,7 @@ internal fun DetailsContent(
             .padding(UlapSpacing.ScreenPadding),
         verticalArrangement = Arrangement.spacedBy(UlapSpacing.CardGap),
     ) {
-        TopRow(loggedAt = form.loggedAt, onBack = onBack)
+        TopRow(loggedAt = form.loggedAt, isEditing = form.isEditing, onBack = onBack)
         MoodHeader(form = form, showUlap = showUlap)
         Levels(form = form, actions = actions)
         Triggers(form = form, actions = actions)
@@ -121,12 +131,14 @@ internal fun DetailsContent(
 }
 
 @Composable
-private fun TopRow(loggedAt: Instant, onBack: () -> Unit) {
+private fun TopRow(loggedAt: Instant, isEditing: Boolean, onBack: () -> Unit) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(UlapSpacing.S),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        UlapIconButton(onClick = onBack, contentDescription = stringResource(R.string.details_back)) {
+        // Back goes where Details came from: Pick mood, or Logs for an edit.
+        val backLabel = stringResource(if (isEditing) R.string.details_back_to_logs else R.string.details_back)
+        UlapIconButton(onClick = onBack, contentDescription = backLabel) {
             Icon(imageVector = UlapIcons.Back, contentDescription = null)
         }
         Text(
