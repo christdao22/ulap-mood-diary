@@ -65,6 +65,24 @@
     <string name="resp_action_small_helps">Something small that helps</string>
     <string name="resp_action_good_moment">Save to good moments</string>
     <string name="resp_action_later">Maybe later</string>
+    <string name="resp_action_done">Done</string>
+
+    <!-- The support card that replaces the buttons after the primary tap (design-spec.md §6.9, §7.4, technical-plan.md Appendix B, help_*) -->
+    <string name="help_breathe_steps">In for 4 · hold for 2 · out for 6</string>
+    <string name="help_breathe_sub">Follow the circle. Five slow breaths is enough.</string>
+    <!-- The counter under a still circle when animations are off. %1$d is the seconds left in this part -->
+    <string name="help_breathe_in">Breathe in · %1$d</string>
+    <string name="help_breathe_hold">Hold · %1$d</string>
+    <string name="help_breathe_out">Breathe out · %1$d</string>
+    <string name="help_small_title">Want to try one?</string>
+    <string name="help_small_water">Drink a glass of water</string>
+    <string name="help_small_song">Play a song you like</string>
+    <string name="help_small_stretch">Stretch your neck and shoulders</string>
+    <string name="help_small_air">Open a window or step outside for a minute</string>
+    <string name="help_small_message">Message someone, even just to say hi</string>
+    <string name="help_small_sub">Even one is enough.</string>
+    <string name="help_good_saved">Saved to your good moments</string>
+    <string name="help_good_saved_sub">Moments like this are worth keeping.</string>
 
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Energy</string>

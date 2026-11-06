@@ -1,5 +1,8 @@
 package app.ulap.feature.checkin.response
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -35,7 +38,7 @@ class ResponseScreenTest {
                     ),
                     showUlap = true,
                     onStartSupport = { events += "support" },
-                    onLater = { events += "later" },
+                    onFinish = { events += "finish" },
                 )
             }
         }
@@ -56,7 +59,7 @@ class ResponseScreenTest {
         show("worried", stress = 6)
         compose.onNodeWithText("Breathe with me · 1 minute").performClick()
         compose.onNodeWithText("Maybe later").performClick()
-        assertEquals(listOf("support", "later"), events)
+        assertEquals(listOf("support", "finish"), events)
     }
 
     @Test
@@ -88,6 +91,33 @@ class ResponseScreenTest {
         show("worried", stress = 6, startedSupport = SupportType.BREATHE)
         compose.onNodeWithText("Breathe with me · 1 minute").assertDoesNotExist()
         compose.onNodeWithText("Maybe later").assertDoesNotExist()
+    }
+
+    @Test
+    fun `after Breathe with me, the breathing card shows its steps`() {
+        show("worried", stress = 6, startedSupport = SupportType.BREATHE)
+        compose.onNodeWithText("In for 4 · hold for 2 · out for 6").assertExists()
+        compose.onNodeWithText("Follow the circle. Five slow breaths is enough.").assertExists()
+    }
+
+    @Test
+    fun `after Something small that helps, the list shows`() {
+        show("sad", stress = 6, startedSupport = SupportType.SMALL_HELPS)
+        compose.onNodeWithText(
+            "Want to try one?",
+        ).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+        compose.onNodeWithText("Drink a glass of water").assertExists()
+        compose.onNodeWithText("Message someone, even just to say hi").assertExists()
+        compose.onNodeWithText("Even one is enough.").assertExists()
+    }
+
+    @Test
+    fun `after Save to good moments, it says so and Done ends the check-in`() {
+        show("excited", stress = 3, startedSupport = SupportType.GOOD_MOMENT)
+        compose.onNodeWithText("Saved to your good moments").assertExists()
+        compose.onNodeWithText("Save to good moments").assertDoesNotExist()
+        compose.onNodeWithText("Done").performClick()
+        assertEquals(listOf("finish"), events)
     }
 
     @Test
