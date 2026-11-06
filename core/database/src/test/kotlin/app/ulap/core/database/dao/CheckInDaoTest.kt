@@ -10,6 +10,7 @@ import app.ulap.core.database.checkIn
 import app.ulap.core.database.model.SyncState
 import app.ulap.shared.model.SupportType
 import app.ulap.shared.model.Trigger
+import app.ulap.shared.rules.localEpochDay
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -17,6 +18,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.first
@@ -130,6 +132,48 @@ class CheckInDaoTest {
 
         assertEquals(listOf("new-york", "late"), dao.observeDay(epochDay("2026-11-04")).first().map { it.id })
         assertEquals(listOf("midnight"), dao.observeDay(epochDay("2026-11-05")).first().map { it.id })
+    }
+
+    @Test
+    fun `the database and the shared rule agree on the day at every UTC offset`() = runTest {
+        // UTC−12 to UTC+14, with the half- and quarter-hour zones (Marquesas −9:30, India +5:30,
+        // Nepal +5:45, Chatham +12:45), a millisecond either side of local midnight on Nov 5.
+        val offsets = listOf(-720, -570, -300, -240, 0, 330, 345, MANILA, 765, 840)
+        val rows = offsets.flatMap { offset ->
+            val midnight = Instant.parse("2026-11-05T00:00:00Z") - offset.minutes
+            listOf(
+                checkIn("$offset-before", loggedAt = midnight - 1.milliseconds, tzOffsetMin = offset),
+                checkIn("$offset-at", loggedAt = midnight, tzOffsetMin = offset),
+            )
+        }
+        rows.forEach { dao.insert(it) }
+        val nov4 = epochDay("2026-11-04")
+        val nov5 = epochDay("2026-11-05")
+
+        assertEquals(offsets.map { "$it-before" }.toSet(), dao.observeDay(nov4).first().mapTo(mutableSetOf()) { it.id })
+        assertEquals(offsets.map { "$it-at" }.toSet(), dao.observeDay(nov5).first().mapTo(mutableSetOf()) { it.id })
+        // Logs groups with :shared's rule, so it must put every row on the same day as the query.
+        rows.forEach { row ->
+            val expected = if (row.id.endsWith("-before")) nov4 else nov5
+            assertEquals(expected, localEpochDay(row.loggedAt, row.tzOffsetMin), row.id)
+        }
+    }
+
+    @Test
+    fun `the hour repeated when daylight saving ends stays on one day`() = runTest {
+        // New York falls back on Nov 1, 2026: 1:30 AM happens twice, first at −4 and then at −5.
+        // Each row keeps the offset the phone had then, so both are on Nov 1.
+        dao.insert(checkIn("first-1-30", loggedAt = Instant.parse("2026-11-01T05:30:00Z"), tzOffsetMin = -240))
+        dao.insert(checkIn("second-1-30", loggedAt = Instant.parse("2026-11-01T06:30:00Z"), tzOffsetMin = -300))
+        // 11:30 PM Oct 31, still on daylight time, and 11:30 PM Nov 1, on standard time.
+        dao.insert(checkIn("oct-31-late", loggedAt = Instant.parse("2026-11-01T03:30:00Z"), tzOffsetMin = -240))
+        dao.insert(checkIn("nov-1-late", loggedAt = Instant.parse("2026-11-02T04:30:00Z"), tzOffsetMin = -300))
+
+        assertEquals(
+            listOf("nov-1-late", "second-1-30", "first-1-30"),
+            dao.observeDay(epochDay("2026-11-01")).first().map { it.id },
+        )
+        assertEquals(listOf("oct-31-late"), dao.observeDay(epochDay("2026-10-31")).first().map { it.id })
     }
 
     @Test

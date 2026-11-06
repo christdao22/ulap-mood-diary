@@ -51,7 +51,7 @@ class LocalDayTest {
     }
 
     @Test
-    fun `groups keep the given order, of days and inside each day`() {
+    fun `days come newest first, and check-ins keep the given order inside each day`() {
         val newestFirst = listOf(
             checkIn("c", "2026-11-04T10:00:00Z"), // 6 PM Nov 4 in Manila
             checkIn("b", "2026-11-04T01:00:00Z"), // 9 AM Nov 4
@@ -75,6 +75,24 @@ class LocalDayTest {
 
         assertEquals(1, days.size)
         assertEquals(day("2026-11-03"), days.single().epochDay)
+    }
+
+    @Test
+    fun `after a trip west the days still come newest first`() {
+        // 12:30 AM Nov 5 in Manila, then a flight to New York and a check-in at 10 PM Nov 4 there.
+        // The New York one is later in real time, so it comes first from the database, but its
+        // day is earlier on the calendar.
+        val newestFirst = listOf(
+            checkIn("ny", "2026-11-05T03:00:00Z", newYork), // 10 PM Nov 4 in New York
+            checkIn("mnl-late", "2026-11-04T16:30:00Z", manila), // 12:30 AM Nov 5 in Manila
+            checkIn("mnl-early", "2026-11-04T02:00:00Z", manila), // 10 AM Nov 4 in Manila
+        )
+
+        val days = newestFirst.groupByLocalDay()
+
+        assertEquals(listOf(day("2026-11-05"), day("2026-11-04")), days.map { it.epochDay })
+        assertEquals(listOf("mnl-late"), days[0].checkIns.map { it.id })
+        assertEquals(listOf("ny", "mnl-early"), days[1].checkIns.map { it.id })
     }
 
     @Test

@@ -43,9 +43,14 @@ data class CheckInDay(
 }
 
 /**
- * Groups check-ins by [localEpochDay], keeping the order they came in, both of the days (by each
- * day's first check-in) and inside each day. Given newest first, that's newest day first with its
- * newest check-in on top, which is how Logs shows them (design-spec.md §7.6).
+ * Groups check-ins by [localEpochDay]: newest day first, and inside each day the order they came
+ * in. Given newest first, that puts each day's newest check-in on top, which is how Logs shows
+ * them (design-spec.md §7.6).
+ *
+ * The days are sorted rather than kept in arrival order because real time and the calendar can
+ * disagree after a trip: a check-in at 10 PM Nov 4 in New York happens after one at 12:30 AM
+ * Nov 5 in Manila, so the database lists it first, yet its day is the earlier one.
  */
-fun List<CheckIn>.groupByLocalDay(): List<CheckInDay> =
-    groupBy { it.localEpochDay }.map { (day, checkIns) -> CheckInDay(day, checkIns) }
+fun List<CheckIn>.groupByLocalDay(): List<CheckInDay> = groupBy { it.localEpochDay }
+    .map { (day, checkIns) -> CheckInDay(day, checkIns) }
+    .sortedByDescending { it.epochDay }
