@@ -55,7 +55,10 @@ fun UlapAppRoot(modifier: Modifier = Modifier, navController: NavHostController 
                 .padding(padding)
                 .consumeWindowInsets(padding),
         ) {
-            checkInGraph(navController)
+            checkInGraph(
+                navController = navController,
+                onSeeMyWeek = { navController.navigateToTab(TopLevelDestination.REPORTS) },
+            )
             logsScreen()
             reportsScreen()
             accountScreen()

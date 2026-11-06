@@ -89,6 +89,23 @@
     <string name="check_title">Unsa ka ka-stressed karon?</string>
     <string name="check_action">Mag-check in</string>
 
+    <!-- The After screen: stress before and now, then a message (design-spec.md §7.5, §10.4, technical-plan.md Appendix B, after_*) -->
+    <!-- The two pills. %1$d is the stress the person logged, then the stress they feel now -->
+    <string name="after_before">Ganiha %1$d</string>
+    <string name="after_now">Karon %1$d</string>
+    <!-- %1$d is the logged stress, %2$d is the stress now -->
+    <string name="after_lower">Mius ang imong stress gikan %1$d ngadto %2$d.</string>
+    <!-- %1$d is how many points lower -->
+    <plurals name="after_lower_sub">
+        <item quantity="one">Mas ubos kana og %1$d ka puntos. Hinumdumi kung unsa ang nakatabang, aron magamit nimo kini pag-usab.</item>
+        <item quantity="other">Mas ubos kana og %1$d ka puntos. Hinumdumi kung unsa ang nakatabang, aron magamit nimo kini pag-usab.</item>
+    </plurals>
+    <string name="after_same">Naa gihapon sa %1$d, ug okay ra kana.</string>
+    <string name="after_same_sub">Nagkinahanglan og panahon ang pagbag-o sa gibati. Pagmalumo sa imong kaugalingon karong adlawa.</string>
+    <string name="after_higher">Misaka kini ngadto %1$d.</string>
+    <string name="after_higher_sub">Salamat sa imong tinuod nga tubag. Kung magpadayon kini sa pagsaka, pakigsulti sa tawo nga imong gisaligan o tawag sa NCMH sa 1553.</string>
+    <string name="after_action_week">Akong semana</string>
+
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Enerhiya</string>
     <string name="slider_energy_start">Luya kaayo</string>

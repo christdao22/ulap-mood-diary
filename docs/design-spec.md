@@ -286,10 +286,11 @@ Which actions appear is decided by `ResponseRules` ([Technical plan §5](technic
 - Hopeless: hotline card instead of action buttons. The check-in card is still shown.
 
 ### 7.5 Check in · After
+- The same zone tint background as Response, so the check-in reads as one flow.
 - Ulap 150dp (calm when stress dropped, gentle otherwise).
-- "Before 8 → Now 5" pills.
+- "Before 8 → Now 5" pills: neutral (`surface`, 1dp `line`, pill radius), not the stress band colors, which are for Reports only (§2.3). The arrow is decorative for TalkBack.
 - Title + sub (see §10.4).
-- Primary **Done** · secondary **See my week**.
+- Primary **Done** · secondary **See my week**. Both end the check-in, so Back and the Check in tab return to Pick mood.
 
 ### 7.6 Logs
 - Title "Logs" → search field (46dp, radius 14) → zone filter chips → day groups of log rows.

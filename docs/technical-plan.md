@@ -559,6 +559,8 @@ This is the source for app text. Tone rules: [Design spec §10](design-spec.md#1
 | `after_same_sub` | Feelings take time to shift. Be gentle with yourself today. |
 | `after_higher` | It went up to %1$d. |
 | `after_higher_sub` | Thank you for checking honestly. If it keeps rising, reach out to someone you trust or call NCMH at 1553. |
+| `after_before` / `after_now` | Before %1$d / Now %1$d (the two pills at the top of the After screen) |
+| `after_action_week` | See my week (the After screen's secondary button; it opens Reports. Its primary button reuses `resp_action_done`) |
 | `prompt_red` | What's the worry? What part is in your control? |
 | `prompt_blue` | What happened? What do you need right now? |
 | `prompt_yellow` | What made this moment good? |
