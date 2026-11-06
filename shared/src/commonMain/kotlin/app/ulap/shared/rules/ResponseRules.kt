@@ -30,6 +30,29 @@ sealed interface ResponseActions {
     data class Offer(val primary: SupportType, val showSecondary: Boolean) : ResponseActions
 }
 
+/** When the Response screen shows the "How stressed do you feel now?" card (design-spec.md §7.4). */
+enum class StressCheck {
+    /** Yellow and Green: no card. */
+    NONE,
+
+    /** From the start: Red and Blue under stress 8, and Hopeless at every stress. */
+    NOW,
+
+    /**
+     * Red and Blue at stress 8 or more: only once the support has started, so the screen opens
+     * with one button and no choice to make (technical-plan.md §5).
+     */
+    AFTER_SUPPORT,
+    ;
+
+    /** Whether the card shows, given whether the person has started the support yet. */
+    fun isShown(supportStarted: Boolean): Boolean = when (this) {
+        NONE -> false
+        NOW -> true
+        AFTER_SUPPORT -> supportStarted
+    }
+}
+
 /** Everything the Response screen needs to know, decided in one place. */
 data class Response(
     val expression: UlapExpression,
@@ -40,7 +63,7 @@ data class Response(
     val triggerLine: Trigger?,
     val actions: ResponseActions,
     /** The "How stressed do you feel now?" card. Red and Blue zones only (Hopeless included). */
-    val showStressCheck: Boolean,
+    val stressCheck: StressCheck,
 )
 
 /** How stress changed between the check-in and "How stressed do you feel now?". */
@@ -62,7 +85,10 @@ data class AfterCheck(
  * a change to it needs two reviewers.
  */
 object ResponseRules {
-    /** At or above this stress, the Response screen shows one button only (design-spec.md §6.6). */
+    /**
+     * At or above this stress, the Response screen opens with one button only: no "Maybe later",
+     * and the stress check waits until the support has started (design-spec.md §6.6).
+     */
     const val ONE_BUTTON_STRESS: Int = 8
 
     /**
@@ -94,8 +120,18 @@ object ResponseRules {
             } else {
                 ResponseActions.Offer(primary = zone.support(), showSecondary = stress < ONE_BUTTON_STRESS)
             },
-            showStressCheck = zone.isUnpleasant,
+            stressCheck = stressCheck(zone, stress, isHopeless),
         )
+    }
+
+    /**
+     * Hopeless has no support button to wait for, so its card shows from the start at any stress
+     * (🔒 safety rule, technical-plan.md §5).
+     */
+    private fun stressCheck(zone: Zone, stress: Int, isHopeless: Boolean): StressCheck = when {
+        !zone.isUnpleasant -> StressCheck.NONE
+        isHopeless || stress < ONE_BUTTON_STRESS -> StressCheck.NOW
+        else -> StressCheck.AFTER_SUPPORT
     }
 
     /**

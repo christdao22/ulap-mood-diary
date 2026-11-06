@@ -162,8 +162,8 @@ private fun ResponseActionsArea(state: ResponseUiState.Ready, actions: ResponseS
             else -> SupportCard(support = support, onFinish = actions.onFinish)
         }
     }
-    // Red and Blue, Hopeless included, whether or not a support was started (§7.4).
-    if (state.response.showStressCheck) {
+    // Red and Blue, Hopeless included (§7.4). At stress 8 or more it waits for the support to start.
+    if (state.showsStressCheck) {
         StressCheckCard(
             zone = state.mood.zone,
             stress = state.stressNow,

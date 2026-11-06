@@ -190,12 +190,12 @@ class ResponseScreenTest {
 
     @Test
     fun `Red asks how stressed the person feels now, starting at the logged stress`() {
-        show("worried", stress = 8)
+        show("worried", stress = 7)
         compose.onNodeWithText("When you're ready").assertExists()
         compose.onNodeWithText("How stressed do you feel now?")
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
         compose.onNodeWithContentDescription("Stress")
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "8 of 10, high"))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "7 of 10, high"))
     }
 
     @Test
@@ -205,6 +205,21 @@ class ResponseScreenTest {
             .performSemanticsAction(SemanticsActions.SetProgress) { setProgress -> setProgress(4f) }
         compose.onNodeWithText("Check in").performClick()
         assertEquals(listOf("stress 4", "check in"), events)
+    }
+
+    @Test
+    fun `at stress 8 or more the screen opens with the support button alone`() {
+        show("worried", stress = 8)
+        compose.onNodeWithText("Breathe with me · 1 minute").assertExists()
+        compose.onNodeWithText("How stressed do you feel now?").assertDoesNotExist()
+        compose.onNodeWithText("Check in").assertDoesNotExist()
+    }
+
+    @Test
+    fun `at stress 8 or more the stress check comes once the support has started`() {
+        show("sad", stress = 9, startedSupport = SupportType.SMALL_HELPS)
+        compose.onNodeWithText("How stressed do you feel now?").assertExists()
+        compose.onNodeWithText("Check in").assertExists()
     }
 
     @Test
