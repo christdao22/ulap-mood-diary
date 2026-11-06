@@ -22,12 +22,13 @@ internal fun buildEncryptedDatabase(
 ): UlapDatabase = Room.databaseBuilder(context, UlapDatabase::class.java, name)
     .openHelperFactory(
         DeferredOpenHelperFactory { configuration ->
-            val passphrase = passphraseStore().getOrCreate()
-            if (passphrase.isNew) {
-                // On a first install there's nothing to delete. Phase 7 sync also has to reset
-                // last_pull_seq to 0 here so a signed-in user's check-ins come back.
-                context.deleteDatabase(name)
-            }
+            val passphrase = passphraseStore().getOrCreate(
+                beforeNewPassphrase = {
+                    // On a first install there's nothing to delete. Phase 7 sync also has to
+                    // reset last_pull_seq to 0 here so a signed-in user's check-ins come back.
+                    context.deleteDatabase(name)
+                },
+            )
             System.loadLibrary("sqlcipher")
             SupportOpenHelperFactory(passphrase.bytes).create(configuration)
         },

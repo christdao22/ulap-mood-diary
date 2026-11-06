@@ -26,11 +26,18 @@ import java.security.SecureRandom
 internal class DatabasePassphrase(private val file: File, private val aead: Aead) {
     /**
      * [isNew] is true when no earlier passphrase could be read. Any database left from before
-     * can't be opened any more and must be deleted.
+     * can't be opened any more, so [getOrCreate]'s caller deletes it before the save.
      */
     class Passphrase(val bytes: ByteArray, val isNew: Boolean)
 
-    fun getOrCreate(): Passphrase {
+    /**
+     * [beforeNewPassphrase] runs only when a new passphrase is made, before it's saved. Delete
+     * the old database there. If the app is killed before the save, the next start makes a new
+     * passphrase again. If the old database were deleted after the save instead, a kill in
+     * between would leave a file the saved passphrase can't open, and the app would crash on
+     * every start.
+     */
+    fun getOrCreate(beforeNewPassphrase: () -> Unit = {}): Passphrase {
         val stored = AtomicFile(file)
         if (file.exists()) {
             try {
@@ -44,6 +51,7 @@ internal class DatabasePassphrase(private val file: File, private val aead: Aead
                 stored.delete()
             }
         }
+        beforeNewPassphrase()
         val bytes = ByteArray(PASSPHRASE_BYTES).also(SecureRandom()::nextBytes)
         val encrypted = aead.encrypt(bytes, ASSOCIATED_DATA)
         val out = stored.startWrite()
