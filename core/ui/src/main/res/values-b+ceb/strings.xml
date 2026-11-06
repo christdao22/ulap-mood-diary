@@ -41,6 +41,31 @@
     <string name="prompt_yellow">Unsay nakapalipay nimo karon?</string>
     <string name="prompt_green">Unsay nakatabang nimo nga mobati ani?</string>
 
+    <!-- Ulap's response after Save (technical-plan.md Appendix B, resp_*). %1$s is the mood name, lowercased -->
+    <string name="resp_red_title">Bug-at kaayo ang imong gidala karon.</string>
+    <string name="resp_red_body">Normal ra ang pagbati nga %1$s kung nagdungan-dungan ang mga butang. Alerto kaayo imong lawas karon, ug okay ra na.</string>
+    <string name="resp_blue_title">Salamat sa imong pagkamatinud-anon.</string>
+    <string name="resp_blue_body">Naa gyud mga adlaw nga luya. Dili nimo kinahanglan ayohon kini karon.</string>
+    <string name="resp_yellow_title">Nindot kaayo!</string>
+    <string name="resp_yellow_body">Unsay naghatag nimo sa pagbati nga %1$s? Makatabang ang paghinumdom ani sa mas lisod nga mga adlaw.</string>
+    <string name="resp_green_title">Usa ka malinawon nga higayon.</string>
+    <string name="resp_green_body">Pansina kung unsay nakatabang sa pagbati nga %1$s, aron mabalikan nimo kini.</string>
+    <string name="resp_hopeless_title">Nalipay gyud ko nga gisultihan ko nimo.</string>
+    <string name="resp_hopeless_body">Dili nimo kinahanglan agian kini nga mag-inusara. Makatabang ang pakigsulti sa usa ka tawo, bisan karon.</string>
+
+    <!-- The line under the response when an unpleasant check-in has a trigger (technical-plan.md Appendix B, trigger_line_*) -->
+    <string name="trigger_line_work">Makakapoy gyud usahay ang trabaho.</string>
+    <string name="trigger_line_family">Ang mga labing duol nato ang labing makaapekto nato.</string>
+    <string name="trigger_line_money">Tinuod ug makakapoy ang kabalaka sa kwarta.</string>
+    <string name="trigger_line_health">Nangayo og gamay nga atiman ang imong lawas.</string>
+    <string name="trigger_line_school">Lisod ang pagtuon kung naay pressure.</string>
+
+    <!-- The Response screen's buttons (design-spec.md §7.4, technical-plan.md Appendix B, resp_action_*) -->
+    <string name="resp_action_breathe">Mag-ginhawa ta · 1 minuto</string>
+    <string name="resp_action_small_helps">Usa ka gamay nga makatabang</string>
+    <string name="resp_action_good_moment">I-save sa nindot nga higayon</string>
+    <string name="resp_action_later">Unya na lang</string>
+
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Enerhiya</string>
     <string name="slider_energy_start">Luya kaayo</string>

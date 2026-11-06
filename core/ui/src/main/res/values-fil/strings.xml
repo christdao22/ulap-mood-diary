@@ -41,6 +41,31 @@
     <string name="prompt_yellow">Ano\'ng nagpasaya sa\'yo ngayon?</string>
     <string name="prompt_green">Ano\'ng nakakatulong para maramdaman mo \'to?</string>
 
+    <!-- Ulap's response after Save (technical-plan.md Appendix B, resp_*). %1$s is the mood name, lowercased -->
+    <string name="resp_red_title">Ang bigat ng dinadala mo ngayon.</string>
+    <string name="resp_red_body">Natural lang ang pakiramdam na %1$s kapag patong-patong ang mga bagay. Alerto ang katawan mo ngayon, at okay lang \'yon.</string>
+    <string name="resp_blue_title">Salamat sa pagiging tapat.</string>
+    <string name="resp_blue_body">Talagang may mga araw na matamlay. Hindi mo kailangang ayusin ito ngayon.</string>
+    <string name="resp_yellow_title">Ang saya nito!</string>
+    <string name="resp_yellow_body">Ano\'ng nagbigay sa\'yo ng pakiramdam na %1$s? Makakatulong ang pag-alala nito sa mas mabibigat na araw.</string>
+    <string name="resp_green_title">Isang payapang sandali.</string>
+    <string name="resp_green_body">Pansinin mo kung ano\'ng nakakatulong sa pakiramdam na %1$s, para mabalikan mo ito.</string>
+    <string name="resp_hopeless_title">Mabuti at sinabi mo sa akin.</string>
+    <string name="resp_hopeless_body">Hindi mo kailangang pagdaanan ito nang mag-isa. Makakatulong ang makipag-usap sa isang tao, kahit ngayon mismo.</string>
+
+    <!-- The line under the response when an unpleasant check-in has a trigger (technical-plan.md Appendix B, trigger_line_*) -->
+    <string name="trigger_line_work">Nakakapagod talaga ang trabaho minsan.</string>
+    <string name="trigger_line_family">Ang mga pinakamalapit sa atin ang pinakanakakaapekto sa atin.</string>
+    <string name="trigger_line_money">Totoo at nakakapagod ang alalahanin sa pera.</string>
+    <string name="trigger_line_health">Humihingi ng kaunting alaga ang katawan mo.</string>
+    <string name="trigger_line_school">Mahirap mag-aral nang may pressure.</string>
+
+    <!-- The Response screen's buttons (design-spec.md §7.4, technical-plan.md Appendix B, resp_action_*) -->
+    <string name="resp_action_breathe">Sabay tayong huminga · 1 minuto</string>
+    <string name="resp_action_small_helps">Isang maliit na makakatulong</string>
+    <string name="resp_action_good_moment">I-save sa magagandang sandali</string>
+    <string name="resp_action_later">Mamaya na lang</string>
+
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Enerhiya</string>
     <string name="slider_energy_start">Lupaypay</string>
