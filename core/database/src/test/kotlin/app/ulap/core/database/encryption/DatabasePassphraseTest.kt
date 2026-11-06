@@ -70,6 +70,37 @@ class DatabasePassphraseTest {
         assertTrue(DatabasePassphrase(file, aead).getOrCreate().isNew)
     }
 
+    @Test
+    fun `the old database is cleared before a new passphrase is saved`() {
+        val savedWhenCleared = mutableListOf<Boolean>()
+
+        DatabasePassphrase(file, aead).getOrCreate(beforeNewPassphrase = { savedWhenCleared += file.exists() })
+
+        // Killed between the two steps, the next start still has no passphrase, so it clears
+        // the database again instead of keeping a file nothing can open.
+        assertEquals(listOf(false), savedWhenCleared)
+    }
+
+    @Test
+    fun `an existing passphrase leaves the database alone`() {
+        DatabasePassphrase(file, aead).getOrCreate()
+        var cleared = false
+
+        DatabasePassphrase(file, aead).getOrCreate(beforeNewPassphrase = { cleared = true })
+
+        assertFalse(cleared)
+    }
+
+    @Test
+    fun `a passphrase the keyset can't decrypt clears the database before the new one is saved`() {
+        DatabasePassphrase(file, newAead()).getOrCreate()
+        val savedWhenCleared = mutableListOf<Boolean>()
+
+        DatabasePassphrase(file, aead).getOrCreate(beforeNewPassphrase = { savedWhenCleared += file.exists() })
+
+        assertEquals(listOf(false), savedWhenCleared)
+    }
+
     private fun ByteArray.containsSequence(part: ByteArray): Boolean =
         (0..size - part.size).any { start -> part.indices.all { this[start + it] == part[it] } }
 

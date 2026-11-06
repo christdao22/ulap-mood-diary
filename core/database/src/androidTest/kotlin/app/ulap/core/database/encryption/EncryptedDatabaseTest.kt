@@ -101,6 +101,17 @@ class EncryptedDatabaseTest {
     }
 
     @Test
+    fun missingPassphraseFileStartsAnEmptyDatabase() = runTest {
+        // What a kill between clearing the database and saving a new passphrase can leave.
+        buildEncryptedDatabase(context, name).use { it.checkInDao().insert(row) }
+        DatabasePassphrase.passphraseFile(context).delete()
+
+        buildEncryptedDatabase(context, name).use { db ->
+            assertNull(db.checkInDao().get(row.id))
+        }
+    }
+
+    @Test
     fun lostKeystoreKeyStartsAnEmptyDatabase() = runTest {
         buildEncryptedDatabase(context, name).use { it.checkInDao().insert(row) }
         // What a lock-screen reset can do: the Keystore key that locks the keyset is gone.
