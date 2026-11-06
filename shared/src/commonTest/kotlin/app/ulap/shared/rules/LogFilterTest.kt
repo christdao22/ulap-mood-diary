@@ -8,6 +8,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
 class LogFilterTest {
@@ -99,6 +101,44 @@ class LogFilterTest {
     fun `without names search still finds notes`() {
         val all = listOf(checkIn("a", moodCode = "worried", note = "exam"))
         assertEquals(listOf("a"), all.filterLogs(LogFilter(query = "exam"), SearchNames.None).map { it.id })
+    }
+
+    @Test
+    fun `one index answers filter after filter, like typing does`() {
+        val index = LogSearchIndex(
+            listOf(checkIn("a", trigger = Trigger.WORK), checkIn("b", moodCode = "worried", note = "exam")),
+            names,
+        )
+        assertEquals(listOf("a"), index.filter(LogFilter(query = "trab")).map { it.id })
+        assertEquals(listOf("b"), index.filter(LogFilter(query = "exa")).map { it.id })
+        assertEquals(listOf("b"), index.filter(LogFilter(zone = Zone.RED)).map { it.id })
+        assertEquals(listOf("a", "b"), index.filter(LogFilter()).map { it.id })
+        assertFalse(index.isEmpty)
+        assertTrue(LogSearchIndex(emptyList(), names).isEmpty)
+    }
+
+    @Test
+    fun `a long history of 1,000 check-ins searches, filters and groups correctly`() {
+        // 10 check-ins a day for 100 days, newest first, the way Room hands them over. Red and
+        // Green take turns; every 100th note mentions an exam.
+        val newest = Instant.parse("2026-11-05T13:00:00Z") // 9 PM in Manila
+        val all = (0 until 1_000).map { i ->
+            checkIn(
+                id = "c$i",
+                moodCode = if (i % 2 == 0) "worried" else "calm",
+                note = if (i % 100 == 0) "Exam week, note $i" else "Note $i",
+            ).copy(loggedAt = newest - (i / 10).days - (i % 10).hours)
+        }
+        val index = LogSearchIndex(all, names)
+
+        val days = index.filter(LogFilter()).groupByLocalDay()
+        assertEquals(100, days.size)
+        assertTrue(days.all { it.count == 10 })
+        assertEquals(all.map { it.id }, days.flatMap { day -> day.checkIns.map { it.id } })
+
+        assertEquals(500, index.filter(LogFilter(zone = Zone.RED)).size)
+        assertEquals((0 until 1_000 step 100).map { "c$it" }, index.filter(LogFilter(query = "exam")).map { it.id })
+        assertEquals(listOf("c999"), index.filter(LogFilter(query = "note 999")).map { it.id })
     }
 
     @Test

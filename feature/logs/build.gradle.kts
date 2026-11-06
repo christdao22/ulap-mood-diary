@@ -7,3 +7,8 @@ plugins {
 android {
     namespace = "app.ulap.feature.logs"
 }
+
+dependencies {
+    // @DefaultDispatcher: the list is searched and grouped off the main thread.
+    implementation(projects.core.common)
+}

@@ -34,12 +34,36 @@ data class SearchNames(val moods: Map<String, String>, val triggers: Map<Trigger
  * somewhere in its mood name, trigger name, "Other" trigger text or note. Case doesn't matter, and
  * neither does word order: "work tired" finds a Work check-in whose note says "so tired".
  * This runs on the decrypted rows in memory; nothing is searched on disk (PHASES.md Phase 3).
+ *
+ * To filter the same rows again and again, as the search field does while someone types, build a
+ * [LogSearchIndex] once instead.
  */
-fun List<CheckIn>.filterLogs(filter: LogFilter, names: SearchNames): List<CheckIn> {
-    val words = filter.query.lowercase().split(Whitespace).filter { it.isNotEmpty() }
-    return filter { checkIn ->
-        val inZone = filter.zone == null || MoodCatalog.byCode(checkIn.moodCode)?.zone == filter.zone
-        inZone && (words.isEmpty() || checkIn.searchText(names).let { text -> words.all { it in text } })
+fun List<CheckIn>.filterLogs(filter: LogFilter, names: SearchNames): List<CheckIn> =
+    LogSearchIndex(this, names).filter(filter)
+
+/**
+ * [checkIns] ready to be filtered many times: each one's zone and lowercased search text are
+ * worked out once, not on every keystroke. A long history has thousands of rows and notes of up
+ * to 5,000 characters, so rebuilding that text per keystroke would make typing lag (PHASES.md
+ * Phase 3, long histories). Build a new index when the rows or the [names] change.
+ *
+ * The search text is built on the first search, so a list nobody searches never pays for it.
+ * It holds journal words: never log it.
+ */
+class LogSearchIndex(private val checkIns: List<CheckIn>, names: SearchNames) {
+    private val zones: List<Zone?> = checkIns.map { MoodCatalog.byCode(it.moodCode)?.zone }
+    private val texts: List<String> by lazy { checkIns.map { it.searchText(names) } }
+
+    /** True when there are no check-ins at all, whatever the filter. */
+    val isEmpty: Boolean get() = checkIns.isEmpty()
+
+    /** The check-ins that match [filter], in the order given (see [filterLogs]). */
+    fun filter(filter: LogFilter): List<CheckIn> {
+        if (!filter.isActive) return checkIns
+        val words = filter.query.lowercase().split(Whitespace).filter { it.isNotEmpty() }
+        return checkIns.filterIndexed { i, _ ->
+            (filter.zone == null || zones[i] == filter.zone) && words.all { it in texts[i] }
+        }
     }
 }
 

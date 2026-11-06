@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.ulap.core.common.dispatchers.DefaultDispatcher
 import app.ulap.core.domain.checkin.CheckInRepository
 import app.ulap.core.domain.settings.SettingsRepository
 import app.ulap.core.model.UserSettings
@@ -13,8 +14,8 @@ import app.ulap.shared.catalog.MoodCatalog
 import app.ulap.shared.model.Zone
 import app.ulap.shared.rules.CheckInDay
 import app.ulap.shared.rules.LogFilter
+import app.ulap.shared.rules.LogSearchIndex
 import app.ulap.shared.rules.SearchNames
-import app.ulap.shared.rules.filterLogs
 import app.ulap.shared.rules.groupByLocalDay
 import app.ulap.shared.rules.localEpochDay
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,6 +25,7 @@ import javax.inject.Inject
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.toJavaInstant
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,6 +33,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -81,6 +84,7 @@ class LogsViewModel @Inject constructor(
     private val checkInRepository: CheckInRepository,
     settingsRepository: SettingsRepository,
     private val clock: Clock,
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     // Compose state rather than a StateFlow, so the search field updates in the same frame as the
     // keystroke and the cursor never jumps (Android's guidance for text field state).
@@ -144,25 +148,30 @@ class LogsViewModel @Inject constructor(
     // The screen reads Room only (technical-plan.md §3). Each row's day is the one on its own clock
     // when it was logged; "Today" is the phone's day now. Both come from :shared's local-day rule,
     // and search and the zone chip come from its LogFilter rule.
+    //
+    // A long history (1,000+ check-ins) stays one in-memory list: search reads every note and each
+    // day header counts the rows shown, so a page of rows wouldn't be enough. LazyColumn only
+    // draws the rows on screen. To keep typing smooth, the search index is built once per change
+    // to the rows or the language, not per keystroke, and all of it runs off the main thread.
+    private val searchIndex: Flow<LogSearchIndex> =
+        combine(checkInRepository.observeAll(), snapshotFlow { searchNames }) { checkIns, names ->
+            // CheckInValidator rejects unknown mood codes, so this filter should never drop a row.
+            // It keeps one bad row from breaking the whole list.
+            LogSearchIndex(checkIns.filter { MoodCatalog.byCode(it.moodCode) != null }, names)
+        }
+
     val uiState: StateFlow<LogsUiState> =
-        combine(
-            checkInRepository.observeAll(),
-            todayEpochDay(),
-            snapshotFlow { LogFilter(query, zone) to searchNames },
-        ) { checkIns, today, (filter, names) ->
-            // CheckInValidator rejects unknown mood codes, so this filter should never drop a row. It
-            // keeps one bad row from breaking the whole list.
-            val known = checkIns.filter { MoodCatalog.byCode(it.moodCode) != null }
-            val days = known
-                .filterLogs(filter, names)
+        combine(searchIndex, todayEpochDay(), snapshotFlow { LogFilter(query, zone) }) { index, today, filter ->
+            val days = index.filter(filter)
                 .groupByLocalDay()
                 .map { LogDay(label = DayLabel.of(it.epochDay, today), day = it) }
-            LogsUiState.Loaded(days, isDiaryEmpty = known.isEmpty())
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
-            initialValue = LogsUiState.Loading,
-        )
+            LogsUiState.Loaded(days, isDiaryEmpty = index.isEmpty)
+        }.flowOn(defaultDispatcher)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+                initialValue = LogsUiState.Loading,
+            )
 
     /**
      * Today's local day on the phone, again at each local midnight, so "Today" moves to
