@@ -23,6 +23,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTouchHeightIsEqualTo
+import androidx.compose.ui.test.assertTouchWidthIsEqualTo
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -189,6 +190,32 @@ class ComponentsTest {
         compose.onNodeWithContentDescription("Back to moods")
             .assertHasClickAction()
             .assertTouchHeightIsEqualTo(48.dp)
+    }
+
+    @Test
+    fun `the overflow button is named for TalkBack, keeps a 48dp touch area and opens its menu`() {
+        var picked = ""
+        show {
+            UlapOverflowMenu(contentDescription = "Edit or delete this check-in") { close ->
+                UlapMenuItem(
+                    text = "Delete",
+                    onClick = {
+                        close()
+                        picked = "Delete"
+                    },
+                )
+            }
+        }
+
+        compose.onNodeWithContentDescription("Edit or delete this check-in")
+            .assertHasClickAction()
+            .assertTouchHeightIsEqualTo(48.dp)
+            .assertTouchWidthIsEqualTo(48.dp)
+            .performClick()
+        compose.onNodeWithText("Delete").assertHeightIsAtLeast(48.dp).performClick()
+
+        assertEquals("Delete", picked)
+        compose.onNodeWithText("Delete").assertDoesNotExist()
     }
 
     @Test

@@ -100,6 +100,14 @@ object UlapIcons {
         }
     }
 
+    /** Three dots stacked up, for a log row's overflow menu (design-spec.md §6.13). */
+    val More: ImageVector by lazy {
+        lineIcon("More") {
+            // Small rings: the stroke fills them in, so each dot is about 4dp wide, easy to see.
+            listOf(5f, 11f, 17f).forEach { y -> circle(cx = 11f, cy = y, r = 1f) }
+        }
+    }
+
     private const val GRID = 22f
     private const val STROKE = 1.8f
     private const val BASELINE = 18f

@@ -222,6 +222,57 @@ class LogsViewModelTest {
     }
 
     @Test
+    fun `Delete asks first and deletes nothing on its own`() = runTest(mainDispatcherRule.testDispatcher) {
+        log("2026-11-05T01:00:00Z")
+        val viewModel = LogsViewModel(repository, clock)
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        runCurrent()
+        val id = viewModel.days().single().day.checkIns.single().id
+
+        viewModel.onDeleteClick(id)
+        runCurrent()
+
+        assertEquals(id, viewModel.pendingDeleteId)
+        assertEquals(1, viewModel.days().single().day.count)
+    }
+
+    @Test
+    fun `confirming the delete takes the check-in off the list`() = runTest(mainDispatcherRule.testDispatcher) {
+        log("2026-11-05T01:00:00Z", moodCode = "worried")
+        log("2026-11-05T02:00:00Z", moodCode = "calm")
+        val viewModel = LogsViewModel(repository, clock)
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        runCurrent()
+        val calm = viewModel.days().single().day.checkIns.first { it.moodCode == "calm" }
+
+        viewModel.onDeleteClick(calm.id)
+        viewModel.onDeleteConfirm()
+        runCurrent()
+
+        assertNull(viewModel.pendingDeleteId)
+        assertNull(repository.get(calm.id))
+        assertEquals(listOf("worried"), viewModel.moods())
+    }
+
+    @Test
+    fun `Keep closes the question and keeps the check-in`() = runTest(mainDispatcherRule.testDispatcher) {
+        log("2026-11-05T01:00:00Z")
+        val viewModel = LogsViewModel(repository, clock)
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        runCurrent()
+        val id = viewModel.days().single().day.checkIns.single().id
+
+        viewModel.onDeleteClick(id)
+        viewModel.onDeleteDismiss()
+        // A stray confirm after Keep (a double tap) must not delete anything.
+        viewModel.onDeleteConfirm()
+        runCurrent()
+
+        assertNull(viewModel.pendingDeleteId)
+        assertEquals(1, viewModel.days().single().day.count)
+    }
+
+    @Test
     fun `nothing is listed until the check-ins are read`() {
         val viewModel = LogsViewModel(repository, clock)
         assertEquals(LogsUiState.Loading, viewModel.uiState.value)

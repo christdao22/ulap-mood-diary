@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 /** What the Logs screen shows (design-spec.md §7.6). */
 sealed interface LogsUiState {
@@ -73,7 +74,7 @@ sealed interface DayLabel {
 }
 
 @HiltViewModel
-class LogsViewModel @Inject constructor(checkInRepository: CheckInRepository, private val clock: Clock) :
+class LogsViewModel @Inject constructor(private val checkInRepository: CheckInRepository, private val clock: Clock) :
     ViewModel() {
     // Compose state rather than a StateFlow, so the search field updates in the same frame as the
     // keystroke and the cursor never jumps (Android's guidance for text field state).
@@ -88,6 +89,13 @@ class LogsViewModel @Inject constructor(checkInRepository: CheckInRepository, pr
 
     private var searchNames by mutableStateOf(SearchNames.None)
 
+    /**
+     * The check-in whose Delete was tapped, while "Delete this check-in?" waits for an answer
+     * (design-spec.md §7.6). Kept here, not in the screen, so the question survives a rotation.
+     */
+    var pendingDeleteId by mutableStateOf<String?>(null)
+        private set
+
     fun onQueryChange(value: String) {
         query = value
     }
@@ -100,6 +108,26 @@ class LogsViewModel @Inject constructor(checkInRepository: CheckInRepository, pr
     /** The mood and trigger names in the app's language, which only the screen can read. */
     fun onSearchNames(names: SearchNames) {
         searchNames = names
+    }
+
+    /** Delete in a row's menu: ask first, never delete on one tap. */
+    fun onDeleteClick(checkInId: String) {
+        pendingDeleteId = checkInId
+    }
+
+    /**
+     * "Delete" in the dialog. The repository writes a tombstone, so the delete syncs (technical-plan
+     * §8), and the row leaves the list when Room tells observeAll.
+     */
+    fun onDeleteConfirm() {
+        val id = pendingDeleteId ?: return
+        pendingDeleteId = null
+        viewModelScope.launch { checkInRepository.delete(id) }
+    }
+
+    /** "Keep", Back or a tap outside the dialog: nothing changes. */
+    fun onDeleteDismiss() {
+        pendingDeleteId = null
     }
 
     // The screen reads Room only (technical-plan.md §3). Each row's day is the one on its own clock

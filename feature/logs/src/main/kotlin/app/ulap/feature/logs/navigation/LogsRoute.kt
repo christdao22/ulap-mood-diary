@@ -9,9 +9,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object LogsRoute
 
-/** Adds the Logs tab: the person's check-ins, grouped by day. */
-fun NavGraphBuilder.logsScreen() {
+/**
+ * Adds the Logs tab: the person's check-ins, grouped by day.
+ *
+ * @param onEditCheckIn Edit in a row's menu, with that check-in's ID (design-spec.md §7.6).
+ */
+fun NavGraphBuilder.logsScreen(onEditCheckIn: (String) -> Unit) {
     composable<LogsRoute> {
-        LogsScreen()
+        LogsScreen(onEditCheckIn = onEditCheckIn)
     }
 }
