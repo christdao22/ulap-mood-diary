@@ -19,7 +19,7 @@ Last updated: November 6, 2026
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
 | 1 | Project setup | ✅ Complete | 18 / 18 |
 | 2 | Offline check-in | 🟡 In progress | 23 / 25 |
-| 3 | Logs | 🟡 In progress | 3 / 13 |
+| 3 | Logs | 🟡 In progress | 6 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
 | 6 | Server and accounts | ⬜ Not started | 0 / 26 |
@@ -164,13 +164,13 @@ Spec: [Design spec §7.6](docs/design-spec.md#76-logs) · [Design spec §6.13](d
 - [x] Logs list grouped by local day (Today, Yesterday, dates)
 - [x] Day header with check-in count and average stress
 - [x] Log row: zone stripe, mood, time, stress, trigger, 2-line note
-- [ ] Search across mood name, trigger and note (decrypted in memory only)
-- [ ] Zone filter chips (All, Red, Blue, Yellow, Green)
+- [x] Search across mood name, trigger and note (decrypted in memory only)
+- [x] Zone filter chips (All, Red, Blue, Yellow, Green)
 - [ ] Overflow menu: Edit, Delete
 - [ ] Edit opens Details filled in, and saving updates `updatedAt`
 - [ ] Delete confirmation ("This can't be undone"), then soft delete
 - [ ] Empty state: Ulap plus "Your check-ins will show up here."
-- [ ] Empty search result state
+- [x] Empty search result state
 - [ ] Paging or lazy loading for long histories (1,000+ entries)
 - [ ] TalkBack labels for rows and the menu
 - [ ] Tests: DAO day grouping across midnight and time zones

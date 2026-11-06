@@ -2,7 +2,6 @@ package app.ulap.core.designsystem.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -37,6 +36,21 @@ import app.ulap.core.designsystem.theme.UlapTheme
  */
 @Composable
 fun TriggerChip(label: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    ChoiceChip(label = label, selected = selected, onClick = onClick, modifier = modifier)
+}
+
+/**
+ * The single-select pill that trigger chips and the Logs zone chips share (design-spec.md §6.5,
+ * §6.12), with an optional [leading] mark before the label.
+ */
+@Composable
+internal fun ChoiceChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    leading: (@Composable () -> Unit)? = null,
+) {
     val colors = UlapTheme.colors
     Surface(
         selected = selected,
@@ -47,12 +61,14 @@ fun TriggerChip(label: String, selected: Boolean, onClick: () -> Unit, modifier:
         contentColor = if (selected) colors.onInk else colors.ink,
         border = BorderStroke(BorderWidth, if (selected) colors.ink else colors.lineStrong),
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .heightIn(min = MinHeight)
                 .padding(horizontal = 14.dp, vertical = 6.dp),
-            contentAlignment = Alignment.Center,
+            horizontalArrangement = Arrangement.spacedBy(UlapSpacing.Xs),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+            leading?.invoke()
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp, fontWeight = FontWeight.Medium),

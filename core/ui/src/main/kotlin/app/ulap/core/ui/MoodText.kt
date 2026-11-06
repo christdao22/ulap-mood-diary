@@ -53,6 +53,16 @@ val Zone.nameRes: Int
         Zone.GREEN -> R.string.zone_green_name
     }
 
+/** The zone's short name, e.g. "Red", for the Logs zone filter chips (design-spec.md §6.12). */
+@get:StringRes
+val Zone.shortNameRes: Int
+    get() = when (this) {
+        Zone.RED -> R.string.zone_red_short
+        Zone.BLUE -> R.string.zone_blue_short
+        Zone.YELLOW -> R.string.zone_yellow_short
+        Zone.GREEN -> R.string.zone_green_short
+    }
+
 /** How the zone feels, e.g. "tense · high energy" (design-spec.md §6.2). */
 @get:StringRes
 val Zone.descriptorRes: Int

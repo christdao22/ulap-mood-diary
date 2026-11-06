@@ -81,6 +81,25 @@ object UlapIcons {
         }
     }
 
+    /** A magnifying glass, at the start of the Logs search field (design-spec.md §7.6). */
+    val Search: ImageVector by lazy {
+        lineIcon("Search") {
+            circle(cx = 9.5f, cy = 9.5f, r = 5.5f)
+            moveTo(13.5f, 13.5f)
+            lineTo(18f, 18f)
+        }
+    }
+
+    /** An X, to clear the search field. */
+    val Clear: ImageVector by lazy {
+        lineIcon("Clear") {
+            moveTo(6f, 6f)
+            lineTo(16f, 16f)
+            moveTo(16f, 6f)
+            lineTo(6f, 16f)
+        }
+    }
+
     private const val GRID = 22f
     private const val STROKE = 1.8f
     private const val BASELINE = 18f

@@ -295,6 +295,8 @@ Which actions appear is decided by `ResponseRules` ([Technical plan §5](technic
 
 ### 7.6 Logs
 - Title "Logs" → search field (46dp, radius 14) → zone filter chips → day groups of log rows.
+- Search filters as you type. Every typed word must appear, in any order and any case, in the mood name (in the app's language), the trigger, the "Other" text or the note. An X button clears it. Day headers count only the rows shown.
+- Tapping the selected zone chip goes back to All. Search and chips are hidden while the diary is empty.
 - Empty search result: "No check-ins match. Try another word or zone."
 - Empty diary: Ulap (neutral) + "Your check-ins will show up here." + primary "Check in now."
 - Edit opens Details filled in. Delete asks first: "Delete this check-in? This can't be undone." (Delete · Keep).

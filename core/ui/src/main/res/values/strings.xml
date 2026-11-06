@@ -21,6 +21,14 @@
     <string name="logs_row_meta">%1$s · Stress %2$d</string>
     <!-- The same, with %3$s the trigger, e.g. Work -->
     <string name="logs_row_meta_trigger">%1$s · Stress %2$d · %3$s</string>
+    <!-- Search field placeholder; TalkBack also reads it as the field's name (design-spec.md §7.6) -->
+    <string name="logs_search_hint">Search mood, trigger or journal</string>
+    <!-- TalkBack name of the X button that empties the search field -->
+    <string name="logs_search_clear">Clear search</string>
+    <!-- Zone filter chip that shows every zone (design-spec.md §6.12) -->
+    <string name="logs_filter_all">All</string>
+    <!-- When search or a zone chip leaves nothing to show (design-spec.md §7.6) -->
+    <string name="logs_no_match">No check-ins match. Try another word or zone.</string>
 
     <!-- Pick a mood (design-spec.md §7.2). Night uses the evening greeting. -->
     <string name="greeting_morning">Good morning</string>
@@ -168,6 +176,11 @@
     <string name="zone_yellow_descriptor">bright · high energy</string>
     <string name="zone_green_name">Green Zone</string>
     <string name="zone_green_descriptor">easy · low energy</string>
+    <!-- Short zone names, for the Logs zone filter chips (design-spec.md §6.12) -->
+    <string name="zone_red_short">Red</string>
+    <string name="zone_blue_short">Blue</string>
+    <string name="zone_yellow_short">Yellow</string>
+    <string name="zone_green_short">Green</string>
 
     <!-- Moods, by code (technical-plan.md §5, Appendix A) -->
     <string name="mood_panicked">Panicked</string>
