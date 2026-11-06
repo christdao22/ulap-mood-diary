@@ -19,7 +19,9 @@ import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.feature.account.navigation.accountScreen
 import app.ulap.feature.checkin.navigation.CheckInGraph
 import app.ulap.feature.checkin.navigation.checkInGraph
-import app.ulap.feature.logs.navigation.logsScreen
+import app.ulap.feature.checkin.navigation.editCheckInScreen
+import app.ulap.feature.checkin.navigation.navigateToEditCheckIn
+import app.ulap.feature.logs.navigation.logsGraph
 import app.ulap.feature.reports.navigation.reportsScreen
 
 /**
@@ -59,8 +61,10 @@ fun UlapAppRoot(modifier: Modifier = Modifier, navController: NavHostController 
                 navController = navController,
                 onSeeMyWeek = { navController.navigateToTab(TopLevelDestination.REPORTS) },
             )
-            // Opening Details filled in is the next Phase 3 task (PHASES.md); until then Edit does nothing.
-            logsScreen(onEditCheckIn = {})
+            // Edit opens Check in's Details screen, filled in, inside the Logs tab (design-spec.md §7.6).
+            logsGraph(onEditCheckIn = navController::navigateToEditCheckIn) {
+                editCheckInScreen(navController)
+            }
             reportsScreen()
             accountScreen()
         }

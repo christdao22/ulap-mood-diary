@@ -12,6 +12,7 @@ import app.ulap.core.ui.R
 import app.ulap.feature.account.navigation.AccountRoute
 import app.ulap.feature.checkin.navigation.CheckInGraph
 import app.ulap.feature.checkin.navigation.PickMoodRoute
+import app.ulap.feature.logs.navigation.LogsGraph
 import app.ulap.feature.logs.navigation.LogsRoute
 import app.ulap.feature.reports.navigation.ReportsRoute
 import kotlin.reflect.KClass
@@ -27,14 +28,14 @@ enum class TopLevelDestination(
     val startRoute: Any = route,
 ) {
     CHECK_IN(CheckInGraph, R.string.tab_check_in, UlapIcons.CheckIn, startRoute = PickMoodRoute),
-    LOGS(LogsRoute, R.string.tab_logs, UlapIcons.Logs),
+    LOGS(LogsGraph, R.string.tab_logs, UlapIcons.Logs, startRoute = LogsRoute),
     REPORTS(ReportsRoute, R.string.tab_reports, UlapIcons.Reports),
     ACCOUNT(AccountRoute, R.string.tab_account, UlapIcons.Account),
     ;
 
     private val routeClass: KClass<*> get() = route::class
 
-    /** True when [destination] is this tab's screen or any screen inside it (e.g. Details). */
+    /** True when [destination] is this tab's screen or any screen inside it (e.g. Details, or an edit from Logs). */
     fun isSelected(destination: NavDestination?): Boolean =
         destination?.hierarchy?.any { it.hasRoute(routeClass) } == true
 }

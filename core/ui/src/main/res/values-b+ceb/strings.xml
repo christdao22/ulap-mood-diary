@@ -51,6 +51,7 @@
 
     <!-- Check in · Details (design-spec.md §7.3) -->
     <string name="details_back">Balik sa mga mood</string>
+    <string name="details_back_to_logs">Balik sa listahan</string>
     <string name="details_logged_at">%1$s · %2$s</string>
     <string name="details_defaults">Default sa %1$s: enerhiya %2$d, stress %3$d</string>
     <string name="details_reset">Ibalik sa default</string>

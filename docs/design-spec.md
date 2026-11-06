@@ -299,7 +299,7 @@ Which actions appear is decided by `ResponseRules` ([Technical plan §5](technic
 - Tapping the selected zone chip goes back to All. Search and chips are hidden while the diary is empty.
 - Empty search result: "No check-ins match. Try another word or zone."
 - Empty diary: Ulap (neutral) + "Your check-ins will show up here." + primary "Check in now."
-- Edit opens Details filled in. Delete asks first: "Delete this check-in? This can't be undone." (Delete · Keep).
+- Edit opens Details filled in, at the time it was logged, with Back labeled "Back to logs". Save returns to Logs with no message: the updated row shows the change. Response and After don't show again, and an edit keeps the after-check and support used. If the check-in was deleted on another phone, Details closes. Delete asks first: "Delete this check-in? This can't be undone." (Delete · Keep).
 
 ### 7.7 Reports
 - Title + "Sample data" badge (mockup only) → Daily/Weekly/Monthly control → period label ("Oct 29 – Nov 4").
