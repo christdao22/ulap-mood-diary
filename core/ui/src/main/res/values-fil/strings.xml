@@ -11,6 +11,19 @@
     <string name="tab_reports">Ulat</string>
     <string name="tab_account">Account</string>
 
+    <!-- Logs (design-spec.md §6.13, §7.6). The screen title is tab_logs. -->
+    <string name="logs_today">Ngayon</string>
+    <string name="logs_yesterday">Kahapon</string>
+    <!-- Day header. %1$d is how many check-ins that day, %2$s the average stress with one decimal, e.g. 4.4 -->
+    <plurals name="logs_day_summary">
+        <item quantity="one">%1$d check-in · avg na stress %2$s</item>
+        <item quantity="other">%1$d check-in · avg na stress %2$s</item>
+    </plurals>
+    <!-- Log row, after the mood. %1$s is the time, %2$d the stress. -->
+    <string name="logs_row_meta">%1$s · Stress %2$d</string>
+    <!-- The same, with %3$s the trigger, e.g. Trabaho -->
+    <string name="logs_row_meta_trigger">%1$s · Stress %2$d · %3$s</string>
+
     <!-- Pick a mood (design-spec.md §7.2). Night uses the evening greeting. -->
     <string name="greeting_morning">Magandang umaga</string>
     <string name="greeting_afternoon">Magandang hapon</string>

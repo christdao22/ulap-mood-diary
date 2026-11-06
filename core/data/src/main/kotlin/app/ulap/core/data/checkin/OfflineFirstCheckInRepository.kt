@@ -69,6 +69,8 @@ internal class OfflineFirstCheckInRepository @Inject constructor(
 
     override fun observeDay(day: LocalDate): Flow<List<CheckIn>> =
         dao.observeDay(day.toEpochDays()).map { rows -> rows.map { it.toCheckIn() } }
+
+    override fun observeAll(): Flow<List<CheckIn>> = dao.observeAll().map { rows -> rows.map { it.toCheckIn() } }
 }
 
 private fun CheckInInput.toNewEntity(id: String, now: Instant) = CheckInEntity(

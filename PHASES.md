@@ -8,7 +8,7 @@ Track progress by ticking boxes: change `- [ ]` to `- [x]` when a task is **done
 
 **Legend:** `- [x]` complete · `- [ ]` not started or in progress · 🔒 needs two-reviewer approval (auth, sync, encryption, safety)
 
-Last updated: November 5, 2026
+Last updated: November 6, 2026
 
 ---
 
@@ -19,7 +19,7 @@ Last updated: November 5, 2026
 | 0 | Research and planning | ✅ Complete | 19 / 19 |
 | 1 | Project setup | ✅ Complete | 18 / 18 |
 | 2 | Offline check-in | 🟡 In progress | 23 / 25 |
-| 3 | Logs | ⬜ Not started | 0 / 13 |
+| 3 | Logs | 🟡 In progress | 3 / 13 |
 | 4 | Reports | ⬜ Not started | 0 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
 | 6 | Server and accounts | ⬜ Not started | 0 / 26 |
@@ -161,9 +161,9 @@ Spec: [Technical plan §5–§6](docs/technical-plan.md#5-shared-domain-model) �
 **Goal:** people can review, search, edit and delete their check-ins.
 Spec: [Design spec §7.6](docs/design-spec.md#76-logs) · [Design spec §6.13](docs/design-spec.md#613-log-row)
 
-- [ ] Logs list grouped by local day (Today, Yesterday, dates)
-- [ ] Day header with check-in count and average stress
-- [ ] Log row: zone stripe, mood, time, stress, trigger, 2-line note
+- [x] Logs list grouped by local day (Today, Yesterday, dates)
+- [x] Day header with check-in count and average stress
+- [x] Log row: zone stripe, mood, time, stress, trigger, 2-line note
 - [ ] Search across mood name, trigger and note (decrypted in memory only)
 - [ ] Zone filter chips (All, Red, Blue, Yellow, Green)
 - [ ] Overflow menu: Edit, Delete

@@ -142,4 +142,23 @@ class CheckInDaoTest {
 
         assertEquals(emptyList(), dao.observeDay(day).first())
     }
+
+    @Test
+    fun `all lists every live check-in across days, newest first`() = runTest {
+        dao.insert(checkIn("nov-3", loggedAt = Instant.parse("2026-11-03T02:00:00Z")))
+        dao.insert(checkIn("nov-5", loggedAt = Instant.parse("2026-11-05T02:00:00Z")))
+        dao.insert(checkIn("nov-4", loggedAt = Instant.parse("2026-11-04T02:00:00Z")))
+        dao.insert(checkIn("deleted", loggedAt = Instant.parse("2026-11-04T03:00:00Z"), deletedAt = T0))
+
+        assertEquals(listOf("nov-5", "nov-4", "nov-3"), dao.observeAll().first().map { it.id })
+    }
+
+    @Test
+    fun `check-ins logged at the same moment keep a fixed order`() = runTest {
+        // UUIDv7 IDs are time-ordered, so the larger ID is the later one when the clock ties.
+        dao.insert(checkIn("0001", loggedAt = T0))
+        dao.insert(checkIn("0002", loggedAt = T0))
+
+        assertEquals(listOf("0002", "0001"), dao.observeAll().first().map { it.id })
+    }
 }
