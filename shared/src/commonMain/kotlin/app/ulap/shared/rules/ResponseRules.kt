@@ -65,13 +65,20 @@ object ResponseRules {
     private val triggersWithLine: Set<Trigger> =
         setOf(Trigger.WORK, Trigger.FAMILY, Trigger.MONEY, Trigger.HEALTH, Trigger.SCHOOL)
 
+    /**
+     * Ulap's face for [mood], on Details and Response alike (design-spec.md §7.3, §8.3): the
+     * zone's face, or the quiet one for Hopeless, which never floats.
+     */
+    fun expression(mood: Mood): UlapExpression =
+        if (mood.code == MoodCatalog.HOPELESS) UlapExpression.QUIET else mood.zone.expression()
+
     /** The response for [mood] logged at [stress] (1..10) with an optional [trigger]. */
     fun respond(mood: Mood, stress: Int, trigger: Trigger?): Response {
         require(stress in LEVEL_RANGE) { "stress must be in $LEVEL_RANGE, was $stress" }
         val zone = mood.zone
         val isHopeless = mood.code == MoodCatalog.HOPELESS
         return Response(
-            expression = if (isHopeless) UlapExpression.QUIET else zone.expression(),
+            expression = expression(mood),
             floats = !isHopeless,
             message = if (isHopeless) ResponseMessage.HOPELESS else zone.message(),
             triggerLine = trigger?.takeIf { zone.isUnpleasant && it in triggersWithLine },

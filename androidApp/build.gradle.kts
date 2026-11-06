@@ -107,6 +107,8 @@ dependencies {
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
+    // The NavHost and the tab bar's back stack. Features add their own screens to it.
+    implementation(libs.androidx.navigation.compose)
 
     testImplementation(projects.core.testing)
     testImplementation(libs.androidx.test.core)

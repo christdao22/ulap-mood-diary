@@ -62,6 +62,9 @@ object UlapSize {
     val ReportBubble = 64.dp
     val DetailsHeader = 82.dp
     val Greeting = 88.dp
+
+    /** A mood face on a pick-mood tile (§8.7). */
+    val MoodTileFace = 46.dp
     val After = 150.dp
     val Response = 168.dp
 }
@@ -108,7 +111,7 @@ fun Ulap(
         // The float is in dp (§9), not in viewBox units, so it's the same lift at every size.
         translate(top = -FLOAT_HEIGHT.toPx() * lift.value) {
             scale(scale = unit, pivot = Offset.Zero) {
-                drawBody(colors, face)
+                drawUlapBody(colors, face.body)
                 drawFace(colors, face)
             }
         }
@@ -141,12 +144,20 @@ private fun DrawScope.drawShadow(colors: UlapColors, unit: Float) {
     )
 }
 
-private fun DrawScope.drawBody(colors: UlapColors, face: UlapFace) {
-    drawPath(face.body, colors.ulapBody)
-    drawPath(face.body, colors.ulapStroke, style = Stroke(width = 2.5f, join = StrokeJoin.Round))
+/** Ulap's cloud outline in viewBox units (design-spec.md §8.2). The mood faces use it too. */
+internal const val ULAP_BODY_PATH = "M30 90 A22 22 0 0 1 24 47 A30 30 0 0 1 80 30 A26 26 0 0 1 112 60 " +
+    "A20 20 0 0 1 104 90 Z"
+
+/** The white cloud, its outline and both cheeks, in viewBox units (§8.2). */
+internal fun DrawScope.drawUlapBody(colors: UlapColors, body: Path, strokeWidth: Float = 2.5f) {
+    drawPath(body, colors.ulapBody)
+    drawPath(body, colors.ulapStroke, style = Stroke(width = strokeWidth, join = StrokeJoin.Round))
     drawCircle(colors.cheek, radius = 5f, center = Offset(47f, 71f))
     drawCircle(colors.cheek, radius = 5f, center = Offset(85f, 71f))
 }
+
+/** Parses one SVG path string (viewBox units) into a Compose [Path]. */
+internal fun svgPath(svg: String): Path = PathParser().parsePathString(svg).toPath()
 
 private fun DrawScope.drawFace(colors: UlapColors, face: UlapFace) {
     val faceStroke = Stroke(width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
@@ -183,7 +194,7 @@ private class UlapFace(
     fillSvg: List<String> = emptyList(),
     accentSvg: List<String> = emptyList(),
 ) {
-    val body = path(BODY)
+    val body = path(ULAP_BODY_PATH)
 
     /** Eyes, brows and mouths drawn as ink lines. */
     val strokes = strokeSvg.map(::path)
@@ -195,8 +206,6 @@ private class UlapFace(
     val accent = accentSvg.map(::path)
 
     companion object {
-        const val BODY = "M30 90 A22 22 0 0 1 24 47 A30 30 0 0 1 80 30 A26 26 0 0 1 112 60 " +
-            "A20 20 0 0 1 104 90 Z"
         private const val SMILE = "M60 72 Q66 77 72 72"
         private val CLOSED_EYES = listOf("M50 62 Q55 66 60 62", "M72 62 Q77 66 82 62")
 
@@ -249,7 +258,7 @@ private class UlapFace(
             )
         }
 
-        private fun path(svg: String): Path = PathParser().parsePathString(svg).toPath()
+        private fun path(svg: String): Path = svgPath(svg)
     }
 }
 

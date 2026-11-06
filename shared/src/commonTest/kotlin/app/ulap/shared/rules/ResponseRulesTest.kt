@@ -19,6 +19,15 @@ class ResponseRulesTest {
         ResponseRules.respond(mood(code), stress, trigger)
 
     @Test
+    fun detailsShowsTheSameFaceAsTheResponseForEveryMood() {
+        MoodCatalog.all.forEach { mood ->
+            assertEquals(respond(mood.code).expression, ResponseRules.expression(mood), mood.code)
+        }
+        assertEquals(UlapExpression.QUIET, ResponseRules.expression(mood(MoodCatalog.HOPELESS)))
+        assertEquals(UlapExpression.GENTLE, ResponseRules.expression(mood("burned_out")))
+    }
+
+    @Test
     fun redOffersBreathingAndTheStressCheck() {
         val response = respond("nervous", stress = 6)
         assertEquals(UlapExpression.CONCERNED, response.expression)

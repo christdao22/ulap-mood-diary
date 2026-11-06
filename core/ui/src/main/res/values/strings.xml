@@ -2,4 +2,131 @@
 <resources>
     <!-- The app name is the same in English, Filipino and Bisaya (README §13). -->
     <string name="app_name">Ulap</string>
+
+    <!-- Bottom tab bar (design-spec.md §6.10) -->
+    <string name="tab_check_in">Check in</string>
+    <string name="tab_logs">Logs</string>
+    <string name="tab_reports">Reports</string>
+    <string name="tab_account">Account</string>
+
+    <!-- Pick a mood (design-spec.md §7.2). Night uses the evening greeting. -->
+    <string name="greeting_morning">Good morning</string>
+    <string name="greeting_afternoon">Good afternoon</string>
+    <string name="greeting_evening">Good evening</string>
+    <string name="pick_mood_question">How are you feeling right now?</string>
+    <string name="pick_mood_reassurance">Any answer is okay.</string>
+    <!-- TalkBack for a mood tile (design-spec.md §11): mood, zone, default stress. -->
+    <string name="mood_tile_description">%1$s. %2$s. Default stress %3$d.</string>
+
+    <!-- Check in · Details (design-spec.md §7.3) -->
+    <string name="details_back">Back to moods</string>
+    <!-- When the check-in is logged: the weekday and date, then the time. -->
+    <string name="details_logged_at">%1$s · %2$s</string>
+    <string name="details_defaults">Default for %1$s: energy %2$d, stress %3$d</string>
+    <string name="details_reset">Reset to default</string>
+    <string name="details_trigger_question">What triggered it?</string>
+    <string name="details_trigger_other_hint">In your own words</string>
+    <string name="details_journal_label">Journal · optional</string>
+    <string name="details_save">Save</string>
+
+    <!-- Ulap's soft-mirror line on the Details header (technical-plan.md Appendix B, pre_*) -->
+    <string name="pre_red">That can feel intense. I\'m right here.</string>
+    <string name="pre_blue">Thanks for telling me. Take your time.</string>
+    <string name="pre_yellow">Ooh, tell me more!</string>
+    <string name="pre_green">That sounds peaceful.</string>
+
+    <!-- The journal placeholder, per zone (technical-plan.md Appendix B, prompt_*) -->
+    <string name="prompt_red">What\'s the worry? What part is in your control?</string>
+    <string name="prompt_blue">What happened? What do you need right now?</string>
+    <string name="prompt_yellow">What made this moment good?</string>
+    <string name="prompt_green">What\'s helping you feel this way?</string>
+
+    <!-- Ulap's response after Save (technical-plan.md Appendix B, resp_*). %1$s is the mood name, lowercased -->
+    <string name="resp_red_title">That\'s a lot to carry right now.</string>
+    <string name="resp_red_body">Feeling %1$s makes sense when things pile up. Your body is on high alert, and that\'s okay.</string>
+    <string name="resp_blue_title">Thank you for being honest.</string>
+    <string name="resp_blue_body">Low days happen. You don\'t have to fix this today.</string>
+    <string name="resp_yellow_title">Love this!</string>
+    <string name="resp_yellow_body">What made you feel %1$s? Remembering it can help on harder days.</string>
+    <string name="resp_green_title">A calm moment.</string>
+    <string name="resp_green_body">Notice what\'s helping you feel %1$s, so you can come back to it.</string>
+    <string name="resp_hopeless_title">I\'m really glad you told me.</string>
+    <string name="resp_hopeless_body">You don\'t have to go through this alone. Talking to someone can help, even right now.</string>
+
+    <!-- The line under the response when an unpleasant check-in has a trigger (technical-plan.md Appendix B, trigger_line_*) -->
+    <string name="trigger_line_work">Work can take a lot out of us.</string>
+    <string name="trigger_line_family">The people closest to us can affect us the most.</string>
+    <string name="trigger_line_money">Money worries are real, and tiring.</string>
+    <string name="trigger_line_health">Your body is asking for some care.</string>
+    <string name="trigger_line_school">Learning under pressure is hard.</string>
+
+    <!-- The Response screen's buttons (design-spec.md §7.4, technical-plan.md Appendix B, resp_action_*) -->
+    <string name="resp_action_breathe">Breathe with me · 1 minute</string>
+    <string name="resp_action_small_helps">Something small that helps</string>
+    <string name="resp_action_good_moment">Save to good moments</string>
+    <string name="resp_action_later">Maybe later</string>
+
+    <!-- Energy and stress sliders (design-spec.md §6.4) -->
+    <string name="slider_energy">Energy</string>
+    <string name="slider_energy_start">Drained</string>
+    <string name="slider_energy_end">Energized</string>
+    <string name="slider_stress">Stress</string>
+    <string name="slider_stress_start">Very low</string>
+    <string name="slider_stress_end">Very high</string>
+    <!-- TalkBack, after the slider's name (design-spec.md §11): "8 of 10, high". -->
+    <string name="slider_state">%1$d of %2$d, %3$s</string>
+    <string name="stress_level_very_low">very low</string>
+    <string name="stress_level_low">low</string>
+    <string name="stress_level_moderate">moderate</string>
+    <string name="stress_level_high">high</string>
+    <string name="stress_level_very_high">very high</string>
+    <string name="energy_level_low">low</string>
+    <string name="energy_level_medium">medium</string>
+    <string name="energy_level_high">high</string>
+
+    <!-- Triggers (design-spec.md §6.5) -->
+    <string name="trigger_work">Work</string>
+    <string name="trigger_family">Family</string>
+    <string name="trigger_money">Money</string>
+    <string name="trigger_health">Health</string>
+    <string name="trigger_relationships">Relationships</string>
+    <string name="trigger_school">School</string>
+    <string name="trigger_other">Other</string>
+
+    <!-- Zones (technical-plan.md §5) -->
+    <string name="zone_red_name">Red Zone</string>
+    <string name="zone_red_descriptor">tense · high energy</string>
+    <string name="zone_blue_name">Blue Zone</string>
+    <string name="zone_blue_descriptor">heavy · low energy</string>
+    <string name="zone_yellow_name">Yellow Zone</string>
+    <string name="zone_yellow_descriptor">bright · high energy</string>
+    <string name="zone_green_name">Green Zone</string>
+    <string name="zone_green_descriptor">easy · low energy</string>
+
+    <!-- Moods, by code (technical-plan.md §5, Appendix A) -->
+    <string name="mood_panicked">Panicked</string>
+    <string name="mood_overwhelmed">Overwhelmed</string>
+    <string name="mood_anxious">Anxious</string>
+    <string name="mood_angry">Angry</string>
+    <string name="mood_worried">Worried</string>
+    <string name="mood_frustrated">Frustrated</string>
+    <string name="mood_nervous">Nervous</string>
+    <string name="mood_irritated">Irritated</string>
+    <string name="mood_restless">Restless</string>
+    <string name="mood_hopeless">Hopeless</string>
+    <string name="mood_burned_out">Burned out</string>
+    <string name="mood_sad">Sad</string>
+    <string name="mood_lonely">Lonely</string>
+    <string name="mood_guilty">Guilty</string>
+    <string name="mood_disappointed">Disappointed</string>
+    <string name="mood_tired">Tired</string>
+    <string name="mood_bored">Bored</string>
+    <string name="mood_excited">Excited</string>
+    <string name="mood_motivated">Motivated</string>
+    <string name="mood_proud">Proud</string>
+    <string name="mood_happy">Happy</string>
+    <string name="mood_content">Content</string>
+    <string name="mood_grateful">Grateful</string>
+    <string name="mood_relaxed">Relaxed</string>
+    <string name="mood_calm">Calm</string>
 </resources>

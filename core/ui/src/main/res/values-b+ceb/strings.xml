@@ -2,4 +2,131 @@
 <resources>
     <!-- The app name is the same in English, Filipino and Bisaya (README §13). -->
     <string name="app_name">Ulap</string>
+
+    <!-- Draft: every Bisaya string below needs a native-speaker review (PHASES.md Phase 5). -->
+
+    <!-- Bottom tab bar (design-spec.md §6.10) -->
+    <string name="tab_check_in">Check in</string>
+    <string name="tab_logs">Listahan</string>
+    <string name="tab_reports">Report</string>
+    <string name="tab_account">Account</string>
+
+    <!-- Pick a mood (design-spec.md §7.2). Night uses the evening greeting. -->
+    <string name="greeting_morning">Maayong buntag</string>
+    <string name="greeting_afternoon">Maayong hapon</string>
+    <string name="greeting_evening">Maayong gabii</string>
+    <string name="pick_mood_question">Unsa imong gibati karon?</string>
+    <string name="pick_mood_reassurance">Okay ra bisan unsa imong tubag.</string>
+    <string name="mood_tile_description">%1$s. %2$s. Sugod nga stress %3$d.</string>
+
+    <!-- Check in · Details (design-spec.md §7.3) -->
+    <string name="details_back">Balik sa mga mood</string>
+    <string name="details_logged_at">%1$s · %2$s</string>
+    <string name="details_defaults">Default sa %1$s: enerhiya %2$d, stress %3$d</string>
+    <string name="details_reset">Ibalik sa default</string>
+    <string name="details_trigger_question">Unsay nag-trigger ani?</string>
+    <string name="details_trigger_other_hint">Sa imong kaugalingong pulong</string>
+    <string name="details_journal_label">Journal · opsyonal</string>
+    <string name="details_save">I-save</string>
+
+    <!-- Ulap's soft-mirror line on the Details header (technical-plan.md Appendix B, pre_*) -->
+    <string name="pre_red">Bug-at gyud na. Ania ra ko.</string>
+    <string name="pre_blue">Salamat kay gisultihan ko nimo. Ayaw kadali.</string>
+    <string name="pre_yellow">Uy, sultihi pa ko!</string>
+    <string name="pre_green">Murag malinawon kana.</string>
+
+    <!-- The journal placeholder, per zone (technical-plan.md Appendix B, prompt_*) -->
+    <string name="prompt_red">Unsa imong gikabalak-an? Unsang bahin ang imong makontrol?</string>
+    <string name="prompt_blue">Unsay nahitabo? Unsay imong kinahanglan karon?</string>
+    <string name="prompt_yellow">Unsay nakapalipay nimo karon?</string>
+    <string name="prompt_green">Unsay nakatabang nimo nga mobati ani?</string>
+
+    <!-- Ulap's response after Save (technical-plan.md Appendix B, resp_*). %1$s is the mood name, lowercased -->
+    <string name="resp_red_title">Bug-at kaayo ang imong gidala karon.</string>
+    <string name="resp_red_body">Normal ra ang pagbati nga %1$s kung nagdungan-dungan ang mga butang. Alerto kaayo imong lawas karon, ug okay ra na.</string>
+    <string name="resp_blue_title">Salamat sa imong pagkamatinud-anon.</string>
+    <string name="resp_blue_body">Naa gyud mga adlaw nga luya. Dili nimo kinahanglan ayohon kini karon.</string>
+    <string name="resp_yellow_title">Nindot kaayo!</string>
+    <string name="resp_yellow_body">Unsay naghatag nimo sa pagbati nga %1$s? Makatabang ang paghinumdom ani sa mas lisod nga mga adlaw.</string>
+    <string name="resp_green_title">Usa ka malinawon nga higayon.</string>
+    <string name="resp_green_body">Pansina kung unsay nakatabang sa pagbati nga %1$s, aron mabalikan nimo kini.</string>
+    <string name="resp_hopeless_title">Nalipay gyud ko nga gisultihan ko nimo.</string>
+    <string name="resp_hopeless_body">Dili nimo kinahanglan agian kini nga mag-inusara. Makatabang ang pakigsulti sa usa ka tawo, bisan karon.</string>
+
+    <!-- The line under the response when an unpleasant check-in has a trigger (technical-plan.md Appendix B, trigger_line_*) -->
+    <string name="trigger_line_work">Makakapoy gyud usahay ang trabaho.</string>
+    <string name="trigger_line_family">Ang mga labing duol nato ang labing makaapekto nato.</string>
+    <string name="trigger_line_money">Tinuod ug makakapoy ang kabalaka sa kwarta.</string>
+    <string name="trigger_line_health">Nangayo og gamay nga atiman ang imong lawas.</string>
+    <string name="trigger_line_school">Lisod ang pagtuon kung naay pressure.</string>
+
+    <!-- The Response screen's buttons (design-spec.md §7.4, technical-plan.md Appendix B, resp_action_*) -->
+    <string name="resp_action_breathe">Mag-ginhawa ta · 1 minuto</string>
+    <string name="resp_action_small_helps">Usa ka gamay nga makatabang</string>
+    <string name="resp_action_good_moment">I-save sa nindot nga higayon</string>
+    <string name="resp_action_later">Unya na lang</string>
+
+    <!-- Energy and stress sliders (design-spec.md §6.4) -->
+    <string name="slider_energy">Enerhiya</string>
+    <string name="slider_energy_start">Luya kaayo</string>
+    <string name="slider_energy_end">Kusgan</string>
+    <string name="slider_stress">Stress</string>
+    <string name="slider_stress_start">Ubos kaayo</string>
+    <string name="slider_stress_end">Taas kaayo</string>
+    <string name="slider_state">%1$d sa %2$d, %3$s</string>
+    <string name="stress_level_very_low">ubos kaayo</string>
+    <string name="stress_level_low">ubos</string>
+    <string name="stress_level_moderate">tunga-tunga</string>
+    <string name="stress_level_high">taas</string>
+    <string name="stress_level_very_high">taas kaayo</string>
+    <string name="energy_level_low">ubos</string>
+    <string name="energy_level_medium">tunga-tunga</string>
+    <string name="energy_level_high">taas</string>
+
+    <!-- Triggers (design-spec.md §6.5) -->
+    <string name="trigger_work">Trabaho</string>
+    <string name="trigger_family">Pamilya</string>
+    <string name="trigger_money">Kwarta</string>
+    <string name="trigger_health">Panglawas</string>
+    <string name="trigger_relationships">Relasyon</string>
+    <string name="trigger_school">Eskwelahan</string>
+    <string name="trigger_other">Uban pa</string>
+
+    <!-- Zones (technical-plan.md §5) -->
+    <string name="zone_red_name">Pula nga Zone</string>
+    <string name="zone_red_descriptor">tensyonado · taas ang enerhiya</string>
+    <string name="zone_blue_name">Asul nga Zone</string>
+    <string name="zone_blue_descriptor">bug-at · ubos ang enerhiya</string>
+    <string name="zone_yellow_name">Dilaw nga Zone</string>
+    <string name="zone_yellow_descriptor">masadya · taas ang enerhiya</string>
+    <string name="zone_green_name">Berde nga Zone</string>
+    <string name="zone_green_descriptor">hayahay · ubos ang enerhiya</string>
+
+    <!-- Moods, by code (technical-plan.md Appendix A draft). Frustrated and Disappointed are both
+         "Nasagmuyo" in the draft; PHASES.md Phase 5 picks two different words. -->
+    <string name="mood_panicked">Nataranta</string>
+    <string name="mood_overwhelmed">Nabug-atan kaayo</string>
+    <string name="mood_anxious">Kulbaan</string>
+    <string name="mood_angry">Nasuko</string>
+    <string name="mood_worried">Nabalaka</string>
+    <string name="mood_frustrated">Nasagmuyo</string>
+    <string name="mood_nervous">Gikulbaan</string>
+    <string name="mood_irritated">Nalagot</string>
+    <string name="mood_restless">Dili mahimutang</string>
+    <string name="mood_hopeless">Nawad-an og paglaum</string>
+    <string name="mood_burned_out">Kapoy na kaayo</string>
+    <string name="mood_sad">Masulub-on</string>
+    <string name="mood_lonely">Mingaw</string>
+    <string name="mood_guilty">Nakonsensya</string>
+    <string name="mood_disappointed">Nasagmuyo</string>
+    <string name="mood_tired">Gikapoy</string>
+    <string name="mood_bored">Nalaay</string>
+    <string name="mood_excited">Naghinamhinam</string>
+    <string name="mood_motivated">Ganado</string>
+    <string name="mood_proud">Garbo sa kaugalingon</string>
+    <string name="mood_happy">Malipayon</string>
+    <string name="mood_content">Kontento</string>
+    <string name="mood_grateful">Mapasalamaton</string>
+    <string name="mood_relaxed">Relaks</string>
+    <string name="mood_calm">Kalma</string>
 </resources>

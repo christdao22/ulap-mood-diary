@@ -43,7 +43,7 @@ class UlapColors(
     val lineStrong: Color,
     val lineSoft: Color,
     val outlineButton: Color,
-    /** Secondary text on a zone tint: the mood tile's "Stress N" (design-spec.md §6.1). */
+    /** Secondary text on a zone tint (design-spec.md §12). */
     val mutedOnTint: Color,
     /** Text on `ink` and on the Red, Blue and Green strong colors. Never on Yellow strong (§2.2). */
     val onInk: Color,

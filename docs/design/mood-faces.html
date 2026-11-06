@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ulap · mood tile faces (preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#F4F5F8; --surface:#FFFFFF; --ink:#1B1F2A; --muted:#5B6272; --line:#E1E4EA; --mutedOnTint:#4A5162;
+    --red-tint:#FCECEA; --blue-tint:#E8EFFC; --yellow-tint:#FFF5D9; --green-tint:#E3F4EA;
+    --red:#C7392F; --blue:#2F62C9; --yellow:#E9AE1F; --green:#267A4C;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#E9EBF0; font-family:Figtree, system-ui, sans-serif; color:var(--ink); }
+  main { max-width:1180px; margin:0 auto; padding:32px 24px 64px; }
+  h1 { font-size:26px; margin:0 0 6px; }
+  h2 { font-size:19px; margin:40px 0 6px; }
+  p.lead { color:var(--muted); margin:0 0 4px; max-width:760px; line-height:1.5; }
+  .layout { display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap; margin-top:24px; }
+
+  /* Phone frame at real dp size (1 CSS px = 1 dp) */
+  .phone { width:360px; background:var(--bg); border-radius:28px; border:8px solid #1B1F2A; overflow:hidden; flex:none; }
+  .phone-inner { padding:16px; display:flex; flex-direction:column; gap:12px; }
+  .zone { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:12px; display:flex; flex-direction:column; gap:10px; }
+  .zone-head { display:flex; align-items:baseline; gap:8px; }
+  .dot { width:10px; height:10px; border-radius:3px; flex:none; transform:translateY(1px); }
+  .zone-name { font-weight:600; font-size:15px; }
+  .zone-desc { font-size:12px; color:var(--muted); }
+  .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+  .tile { border-radius:12px; min-height:52px; padding:8px 6px 9px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; text-align:center; }
+  .tile .name { font-weight:600; font-size:14px; line-height:1.25; }
+  .tile.off { align-items:flex-start; text-align:left; padding:8px 10px; }
+  .tile.off .stress { font-size:11px; color:var(--mutedOnTint); }
+
+  /* Large faces */
+  .big-zone { margin-top:22px; }
+  .big-zone h3 { font-size:15px; margin:0 0 10px; display:flex; gap:8px; align-items:center; }
+  .big-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px; }
+  .card { border-radius:14px; padding:14px; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .card .name { font-weight:700; font-size:15px; }
+  .card .note { font-size:12.5px; color:var(--mutedOnTint); text-align:center; line-height:1.4; }
+  .card .flag { font-size:11.5px; font-weight:600; color:#8A4A10; background:#FDEFE2; border-radius:999px; padding:2px 8px; }
+  .side { flex:1; min-width:320px; }
+  .side ul { padding-left:18px; line-height:1.55; color:var(--ink); }
+  .side li { margin-bottom:6px; }
+  .caption { font-size:12px; color:var(--muted); margin-top:8px; text-align:center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Mood tile faces: preview</h1>
+  <p class="lead">One small Ulap face per mood, shown above the mood name in place of "Stress N". The left frame is drawn at real phone size (360dp wide), so the tiles are as big as they would be on a phone. Below it, every face is shown large so you can judge it.</p>
+
+  <div class="layout">
+    <div>
+      <div class="phone"><div class="phone-inner" id="phone"></div></div>
+      <div class="caption">Ulap on · faces above the name</div>
+    </div>
+    <div>
+      <div class="phone"><div class="phone-inner" id="phone-off"></div></div>
+      <div class="caption">Ulap turned off in settings · name only (Red shown)</div>
+    </div>
+    <div class="side">
+      <h2 style="margin-top:0">How the faces are built</h2>
+      <ul>
+        <li>Same cloud body, cheeks and colors as Ulap (design-spec §8.2). No new character.</li>
+        <li>Faces are made only from Ulap's existing parts: eyes, brows and mouth, plus a small prop in the empty top corner for some moods (sweat drop, rising wisps, scribble, "z z", heart, sun, leaf).</li>
+        <li><b>Softened, following §8.5:</b> no tears, no shouting mouths, nothing that looks sick. Angry gets two grey wisps, not red anger marks. Sad gets a soft frown, not tears. The sweat drop is grey, because a blue drop next to a cloud reads as rain.</li>
+        <li>No grading symbols: no arrows or gold stars on the bright moods.</li>
+        <li><b>Hopeless uses Ulap's existing quiet face</b> exactly as it is: small eyes, a short flat line and no prop. It's the same face the Hopeless response screen shows.</li>
+        <li>At tile size the face lines are drawn a little thicker than on the big Ulap, so they stay readable at tile size (46dp wide, with the empty margin around the cloud cropped).</li>
+        <li>Tiles get about 20dp taller. The screen scrolls about 200dp further.</li>
+        <li>TalkBack still reads "Worried. Red Zone. Default stress 8." The face is decoration, so TalkBack skips it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Every face, large</h2>
+  <div id="big"></div>
+</main>
+
+<script>
+const C = {
+  ink:'#1B1F2A', body:'#FFFFFF', stroke:'#C3CAD6', cheek:'rgba(246,180,174,0.7)', heart:'#E7848A',
+  // Same tokens as the app (design-spec §8.7). muted is the placeholder token.
+  yellow:'#E9AE1F', leaf:'#3E9A6A', green:'#267A4C', muted:'#6B7282',
+};
+const BODY = 'M30 90 A22 22 0 0 1 24 47 A30 30 0 0 1 80 30 A26 26 0 0 1 112 60 A20 20 0 0 1 104 90 Z';
+
+// Shared face parts (viewBox 130 x 110, design-spec §8.3)
+const SMILE = 'M60 72 Q66 77 72 72';
+const CLOSED = ['M50 62 Q55 66 60 62', 'M72 62 Q77 66 82 62'];      // ∪ gentle / calm
+const ARCS_UP = ['M50 64 Q55 58 60 64', 'M72 64 Q77 58 82 64'];     // ∩ happy
+const CONCERN_BROWS = ['M47 55 L58 52', 'M74 52 L85 55'];
+const dots = (y = 62, r = 3.5, dx = 0) => [[55 + dx, y, r], [77 + dx, y, r]];
+
+// Props, all in the empty top corners, clear of the face
+const P = {
+  heart: { fill: C.heart, d: 'M113 29 C105 24 105 17.5 109.5 16.5 C111.5 16 112.8 17.3 113 18.8 C113.2 17.3 114.5 16 116.5 16.5 C121 17.5 121 24 113 29 Z' },
+  sparkleBig: { fill: C.yellow, d: 'M113 13 Q113 20 120 20 Q113 20 113 27 Q113 20 106 20 Q113 20 113 13 Z' },
+  sparkleSmall: { fill: C.yellow, d: 'M19 25 Q19 30 24 30 Q19 30 19 35 Q19 30 14 30 Q19 30 19 25 Z' },
+  leaf: { fill: C.leaf, d: 'M104 31 Q105 16 121 13 Q120 29 104 31 Z' },
+  leafVein: { stroke: C.green, w: 1.5, d: 'M105 30 Q112 22 120 14' },
+  drop: { fill: C.muted, d: 'M113 12 Q105 23 108.5 27.5 Q113 31.5 117.5 27.5 Q121 23 113 12 Z' },
+  wisps: { stroke: C.muted, w: 2.2, d: 'M108 30 Q104 25 108 21 Q112 17 108 12 M117 30 Q113 25 117 21 Q121 17 117 12' },
+  scribble: { stroke: C.muted, w: 2.2, d: 'M104 24 C107 13 121 13 118 21 C115 29 105 24 110 17 C114 12 123 17 119 25' },
+  zzz: { stroke: C.muted, w: 2.4, d: 'M104 19 L112 19 L104 27 L112 27 M115 8 L121 8 L115 14 L121 14' },
+  sunDisc: { fill: C.yellow, d: 'M108.5 20 A4.5 4.5 0 1 0 117.5 20 A4.5 4.5 0 1 0 108.5 20 Z' },
+  sunRays: { stroke: C.yellow, w: 2.2, d: 'M113 10 V12.5 M113 27.5 V30 M103 20 H105.5 M120.5 20 H123' },
+  breeze: { stroke: C.leaf, w: 2.2, d: 'M101 18 Q106 14 111 18 Q116 22 121 18 M105 27 Q109 24 113 27 Q117 30 121 27' },
+  battery: { stroke: C.muted, w: 2, d: 'M103 15 H117 Q119 15 119 17 V24 Q119 26 117 26 H103 Q101 26 101 24 V17 Q101 15 103 15 Z M121.5 18.5 V22.5' },
+  batteryBar: { fill: C.muted, d: 'M104 18 H108 V23 H104 Z' },
+  motion: { stroke: C.muted, w: 2.2, d: 'M18 30 Q13 36 18 42 M10 32 Q6 37 10 42' },
+  farCloud: { fill: C.body, stroke: '#A9B1BF', w: 1.8, d: 'M12 33 A4 4 0 0 1 11 25 A6.5 6.5 0 0 1 23 21.5 A5 5 0 0 1 29 28 A3.5 3.5 0 0 1 27 33 Z' },
+};
+
+// zone, name, default stress, face, note, flag
+const MOODS = [
+  ['RED', 'Panicked', 10, { dots: dots(61, 3.8), strokes: ['M48 54 L58 51', 'M74 51 L84 54', 'M63.5 75.5 A2.5 2.5 0 1 0 68.5 75.5 A2.5 2.5 0 1 0 63.5 75.5'] },
+    'Bigger eyes, brows up, small "o" mouth. Startled, not panicking.'],
+  ['RED', 'Overwhelmed', 9, { strokes: ['M51 59 L58 62 L51 65', 'M81 59 L74 62 L81 65', 'M60 75 Q66 73.5 72 75'] },
+    'Squeezed eyes and a soft flat mouth.'],
+  ['RED', 'Anxious', 9, { dots: dots(63, 3.5, 2), strokes: [...CONCERN_BROWS, 'M61 76 Q66 73 71 76'], props: ['drop'] },
+    'Worried brows, a sweat drop.'],
+  ['RED', 'Angry', 8, { dots: dots(62.5), strokes: ['M47 52 L58 56', 'M74 56 L85 52', 'M60 76 Q66 73 72 76'], props: ['wisps'] },
+    'Brows down, small frown, two rising wisps.'],
+  ['RED', 'Worried', 8, { dots: dots(63), strokes: [...CONCERN_BROWS, 'M60 75 Q66 73 72 75'] },
+    "Ulap's existing \"concerned\" face, unchanged."],
+  ['RED', 'Frustrated', 7, { fills: ['M50.5 61.5 L59.5 61.5 Q55 67.5 50.5 61.5 Z', 'M72.5 61.5 L81.5 61.5 Q77 67.5 72.5 61.5 Z'], strokes: ['M48 55 L58 57', 'M74 57 L84 55', 'M60 75.5 L72 74'], props: ['scribble'] },
+    'Half-closed eyes, brows a little down, a scribble.'],
+  ['RED', 'Nervous', 6, { dots: dots(62), strokes: ['M48 55 L58 53', 'M74 53 L84 55', 'M58 75 L61.2 73 L64.4 75 L67.6 73 L70.8 75 L74 73'] },
+    'Brows slightly up, a wobbly zigzag mouth.'],
+  ['RED', 'Irritated', 6, { dots: dots(62.5), strokes: ['M48 55.5 L59 55.5', 'M73 55.5 L84 55.5', 'M61 74.5 Q66 74.5 71 76.5'] },
+    'Flat low brows, mouth pulled to one side and down.'],
+  ['RED', 'Restless', 5, { dots: dots(60, 3.5, 2), strokes: ['M63 74.5 L71 73.5'], props: ['motion'] },
+    'Short slanted mouth, motion lines on the side.'],
+
+  ['BLUE', 'Hopeless', 8, { dots: dots(62, 3), strokes: ['M62 74 L70 74'] },
+    'Ulap\'s existing "quiet" face, exactly as on the Hopeless response screen. No prop.'],
+  ['BLUE', 'Burned out', 8, { fills: ['M50.5 62 L59.5 62 Q55 67.5 50.5 62 Z', 'M72.5 62 L81.5 62 Q77 67.5 72.5 62 Z'], strokes: ['M61 75 L71 75'], props: ['battery', 'batteryBar'] },
+    'Heavy eyelids, flat mouth, a low battery.'],
+  ['BLUE', 'Sad', 6, { dots: dots(63), strokes: ['M60 77 Q66 72 72 77'] },
+    'Soft frown. No tears.'],
+  ['BLUE', 'Lonely', 6, { dots: [[52.5, 60.5, 3.3], [74.5, 60.5, 3.3]], strokes: ['M62 76 Q66 73.5 70 76'], props: ['farCloud'] },
+    'A small cloud far away, a slight frown.'],
+  ['BLUE', 'Guilty', 6, { dots: dots(65, 3.2), strokes: [...CONCERN_BROWS, 'M61 76 Q66 74.5 71 76'] },
+    'Eyes looking down, brows up, a soft line.'],
+  ['BLUE', 'Disappointed', 5, { dots: [[55, 66.5, 2.8], [77, 66.5, 2.8]], strokes: ['M50 59.5 L60 57.5', 'M72 57.5 L82 59.5', 'M61 76.5 Q66 73.5 71 76.5'] },
+    'Lowered lids, eyes down, a small frown.'],
+  ['BLUE', 'Tired', 4, { strokes: CLOSED, fills: ['M63 75.5 A3 3.5 0 1 0 69 75.5 A3 3.5 0 1 0 63 75.5 Z'], props: ['zzz'] },
+    'Closed eyes, a small yawn, a "z z".'],
+  ['BLUE', 'Bored', 3, { strokes: ['M51 62 L59 62', 'M73 62 L81 62', 'M61 75 L70 75'] },
+    'Flat eyes, flat mouth.'],
+
+  ['YELLOW', 'Excited', 3, { strokes: ARCS_UP, fills: ['M58 70 Q66 82 74 70 Z'], props: ['sparkleBig', 'sparkleSmall'] },
+    'Ulap\'s existing "happy" face with sparkles.'],
+  ['YELLOW', 'Motivated', 2, { dots: dots(62.5), strokes: ['M48 55 Q53 52 58 54', 'M74 54 Q79 52 84 55', 'M58 72 Q66 79 74 72'], props: ['sunDisc', 'sunRays'] },
+    'Eyebrows up, wide smile, a small sun.'],
+  ['YELLOW', 'Proud', 2, { strokes: [...ARCS_UP, SMILE, 'M49 54 Q54 51.5 59 53.5', 'M73 53.5 Q78 51.5 83 54'] },
+    'Smiling eyes, lifted brows, closed smile.'],
+  ['YELLOW', 'Happy', 2, { dots: dots(62), fills: ['M58 70 Q66 82 74 70 Z'] },
+    'Open eyes, open smile.'],
+
+  ['GREEN', 'Content', 1, { strokes: [...ARCS_UP, 'M61 73 Q66 76 71 73'] },
+    'Smiling eyes, small smile. No prop.'],
+  ['GREEN', 'Grateful', 1, { strokes: [...CLOSED, 'M61 73 Q66 76 71 73'], props: ['heart'] },
+    'Closed eyes, small smile, a heart.'],
+  ['GREEN', 'Relaxed', 1, { strokes: [...CLOSED, 'M59 72 Q66 78 73 72'], props: ['breeze'] },
+    'Closed eyes, easy smile, a breeze.'],
+  ['GREEN', 'Calm', 1, { strokes: [...CLOSED, SMILE], props: ['leaf', 'leafVein'] },
+    'Ulap\'s existing "calm" face with the leaf.'],
+];
+
+const ZONES = {
+  RED:    { name: 'Red Zone', desc: 'tense · high energy', tint: 'var(--red-tint)', strong: 'var(--red)' },
+  BLUE:   { name: 'Blue Zone', desc: 'heavy · low energy', tint: 'var(--blue-tint)', strong: 'var(--blue)' },
+  YELLOW: { name: 'Yellow Zone', desc: 'bright · high energy', tint: 'var(--yellow-tint)', strong: 'var(--yellow)' },
+  GREEN:  { name: 'Green Zone', desc: 'easy · low energy', tint: 'var(--green-tint)', strong: 'var(--green)' },
+};
+
+function faceSvg(face, width, small) {
+  const faceW = small ? 4.4 : 3, bodyW = small ? 3.2 : 2.5, dotBoost = small ? 0.5 : 0;
+  // On tiles, crop the empty margin (no shadow there) so the face draws bigger.
+  const vb = small ? [2, 6, 126, 88] : [0, 0, 130, 110];
+  const h = width * vb[3] / vb[2];
+  let s = `<svg width="${width}" height="${h.toFixed(1)}" viewBox="${vb.join(' ')}" aria-hidden="true">`;
+  if (!small) s += `<ellipse cx="66" cy="100" rx="38" ry="5" fill="${C.ink}" fill-opacity="0.08"/>`;
+  s += `<path d="${BODY}" fill="${C.body}" stroke="${C.stroke}" stroke-width="${bodyW}" stroke-linejoin="round"/>`;
+  s += `<circle cx="47" cy="71" r="5" fill="${C.cheek}"/><circle cx="85" cy="71" r="5" fill="${C.cheek}"/>`;
+  (face.dots || []).forEach(([x, y, r]) => s += `<circle cx="${x}" cy="${y}" r="${r + dotBoost}" fill="${C.ink}"/>`);
+  (face.strokes || []).forEach(d => s += `<path d="${d}" fill="none" stroke="${C.ink}" stroke-width="${faceW}" stroke-linecap="round" stroke-linejoin="round"/>`);
+  (face.fills || []).forEach(d => s += `<path d="${d}" fill="${C.ink}" stroke="${C.ink}" stroke-width="${faceW}" stroke-linejoin="round"/>`);
+  (face.props || []).forEach(k => {
+    const p = P[k], w = (p.w || 0) * (small ? 1.35 : 1);
+    s += `<path d="${p.d}" fill="${p.fill || 'none'}" ${p.stroke ? `stroke="${p.stroke}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"` : ''}/>`;
+  });
+  return s + '</svg>';
+}
+
+function phone(el, withFaces, onlyZone) {
+  Object.entries(ZONES).forEach(([key, z]) => {
+    if (onlyZone && key !== onlyZone) return;
+    const moods = MOODS.filter(m => m[0] === key);
+    el.insertAdjacentHTML('beforeend', `
+      <section class="zone">
+        <div class="zone-head"><span class="dot" style="background:${z.strong}"></span>
+          <span class="zone-name">${z.name}</span><span class="zone-desc">${z.desc}</span></div>
+        <div class="grid">${moods.map(([, name, stress, face]) => withFaces
+          ? `<div class="tile" style="background:${z.tint}">${faceSvg(face, 46, true)}<span class="name">${name}</span></div>`
+          : `<div class="tile off" style="background:${z.tint}"><span class="name">${name}</span></div>`).join('')}
+        </div>
+      </section>`);
+  });
+}
+phone(document.getElementById('phone'), true);
+phone(document.getElementById('phone-off'), false, 'RED');
+
+const big = document.getElementById('big');
+Object.entries(ZONES).forEach(([key, z]) => {
+  const moods = MOODS.filter(m => m[0] === key);
+  big.insertAdjacentHTML('beforeend', `
+    <div class="big-zone"><h3><span class="dot" style="background:${z.strong}"></span>${z.name}</h3>
+    <div class="big-grid">${moods.map(([, name, stress, face, note, flag]) => `
+      <div class="card" style="background:${z.tint}">
+        ${faceSvg(face, 130, false)}
+        <span class="name">${name}</span>
+        <span class="note">${note}</span>
+        ${flag ? `<span class="flag">${flag}</span>` : ''}
+      </div>`).join('')}</div></div>`);
+});
+</script>
+</body>
+</html>

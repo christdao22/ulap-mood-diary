@@ -528,6 +528,10 @@ This is the source for app text. Tone rules: [Design spec §10](design-spec.md#1
 | `resp_green_body` | Notice what's helping you feel %1$s, so you can come back to it. |
 | `resp_hopeless_title` | I'm really glad you told me. |
 | `resp_hopeless_body` | You don't have to go through this alone. Talking to someone can help, even right now. |
+| `resp_action_breathe` | Breathe with me · 1 minute |
+| `resp_action_small_helps` | Something small that helps |
+| `resp_action_good_moment` | Save to good moments |
+| `resp_action_later` | Maybe later (the secondary button; it ends the check-in) |
 | `trigger_line_work` | Work can take a lot out of us. |
 | `trigger_line_family` | The people closest to us can affect us the most. |
 | `trigger_line_money` | Money worries are real, and tiring. |

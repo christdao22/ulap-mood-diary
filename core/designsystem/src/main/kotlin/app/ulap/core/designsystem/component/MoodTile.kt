@@ -15,34 +15,39 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.ulap.core.designsystem.mascot.MoodFace
+import app.ulap.core.designsystem.mascot.MoodFaceIcon
 import app.ulap.core.designsystem.motion.rememberReducedMotion
 import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.shared.model.Zone
 
 /**
- * One mood in the pick-mood grid (design-spec.md §6.1): the zone tint with the mood's name and
- * its default stress. Tapping opens Details; the grid has no selected state.
+ * One mood in the pick-mood grid (design-spec.md §6.1): the zone tint with the mood's face above
+ * its name, both centered. Tapping opens Details; the grid has no selected state.
  *
  * The tile grows taller instead of cutting off a long name or large text (§3). The caller sizes
  * its width (a third of the row) and passes the text, because the strings live in core:ui.
  *
- * @param stressText "Stress 8", in the user's language.
- * @param contentDescription What TalkBack reads instead of the two lines, e.g.
- *   "Worried. Red zone. Default stress 8." (§11).
+ * @param face The mood's face (§8.7), or null when the user turned Ulap off (§8.5). Without a
+ *   face the tile shows the name only, left-aligned.
+ * @param contentDescription What TalkBack reads instead of the tile, e.g.
+ *   "Worried. Red zone. Default stress 8." (§11). The face is decorative.
  */
 @Composable
 fun MoodTile(
     name: String,
-    stressText: String,
+    face: MoodFace?,
     zone: Zone,
     contentDescription: String,
     onClick: () -> Unit,
@@ -73,10 +78,15 @@ fun MoodTile(
             modifier = Modifier
                 .clearAndSetSemantics {}
                 .padding(horizontal = 10.dp, vertical = UlapSpacing.Xs),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(UlapSpacing.Xxs, Alignment.CenterVertically),
+            horizontalAlignment = if (face != null) Alignment.CenterHorizontally else Alignment.Start,
         ) {
-            Text(text = name, style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp))
-            Text(text = stressText, style = MaterialTheme.typography.labelSmall, color = colors.mutedOnTint)
+            if (face != null) MoodFaceIcon(face)
+            Text(
+                text = name,
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp),
+                textAlign = if (face != null) TextAlign.Center else TextAlign.Start,
+            )
         }
     }
 }
@@ -93,12 +103,16 @@ private fun MoodTilePreview() {
             modifier = Modifier.padding(UlapSpacing.M),
             horizontalArrangement = Arrangement.spacedBy(UlapSpacing.MoodGridGap),
         ) {
-            listOf(Zone.RED to "Worried", Zone.BLUE to "Disappointed", Zone.YELLOW to "Excited").forEach {
+            listOf(
+                Triple(Zone.RED, "Worried", MoodFace.WORRIED),
+                Triple(Zone.BLUE, "Disappointed", MoodFace.DISAPPOINTED),
+                Triple(Zone.YELLOW, "Excited", null),
+            ).forEach { (zone, name, face) ->
                 MoodTile(
-                    name = it.second,
-                    stressText = "Stress 8",
-                    zone = it.first,
-                    contentDescription = it.second,
+                    name = name,
+                    face = face,
+                    zone = zone,
+                    contentDescription = name,
                     onClick = {},
                     modifier = Modifier.weight(1f),
                 )
