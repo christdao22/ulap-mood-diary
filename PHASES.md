@@ -36,7 +36,7 @@ Update the **Done** column and **Status** (⬜ Not started · 🟡 In progress �
 ## Definition of Done
 
 A task is complete only when:
-- [ ] The code is merged into `main` through a reviewed pull request
+- [ ] The code is merged into `main` through a reviewed pull request. While Ulap has one maintainer, the owner's own read of the diff plus green CI counts as the review for tasks without 🔒. 🔒 tasks still need another person ([README §12](README.md#12-contributing-guidelines))
 - [ ] Tests are written and pass in CI (`./gradlew build`)
 - [ ] User-facing text exists in **English, Filipino and Bisaya** (`strings.xml`)
 - [ ] It follows the design spec (tokens, 48dp touch targets, TalkBack labels)
