@@ -368,34 +368,36 @@ Each of the 25 moods has its own small Ulap face, shown on its mood tile (§6.1)
 - **Construction:** Ulap's body and cheeks (§8.2) with face parts like §8.3's. No shadow and no float.
 - **Size:** 46dp wide. The viewBox is cropped to x 2–128, y 6–94 (126 × 88), so the cloud fills the width.
 - **Thicker lines at this size:** face strokes 4.4, body stroke 3.2, eye dots r + 0.5, extra lines × 1.35.
-- **Extras** sit in the empty top corners. Their colors are existing tokens: heart `heart`; sparkle, star and arrow Yellow strong; leaf and breeze `leaf`; drop Blue strong at 50%; steam puff `lineSoft` with a `ulapStroke` line; faraway cloud `ulapBody` with an `outlineButton` line; scribble, "z", battery and motion lines `placeholder`.
-- **Softened (§8.5):** no tears, no open shouting mouths, nothing that looks sick. Anger is a small steam puff, never red marks.
+- **Extras** sit in the empty top corners. Their colors are existing tokens: heart `heart`; sparkles and sun Yellow strong; leaf and breeze `leaf`; faraway cloud `ulapBody` with an `outlineButton` line; sweat drop, wisps, scribble, "z z", battery and motion lines `placeholder`.
+- **Softened (§8.5):** no tears, no open shouting mouths, nothing that looks sick, and nothing that could read as smirking or glaring at the user. Anger is two grey wisps, never red marks. The sweat drop is grey, because a blue drop next to a cloud reads as rain, a crying cloud.
+- **No grading symbols** (§1, §10.2): no arrows, stars or ticks on any face.
+- Eyes that glance a little sideways (Anxious, Restless, Lonely) only show at large sizes. On a tile, the extra carries the meaning.
 - **Hopeless** uses the `quiet` face unchanged, with no extra. Worried, Excited and Calm also reuse `concerned`, `happy` and `calm` unchanged.
 - The face is decorative. TalkBack reads only the tile's sentence (§11).
 - **Paths:** `MoodFace.kt` in `core/designsystem/.../mascot/` is the reference. [`design/mood-faces.html`](design/mood-faces.html) draws the same faces. Change both together.
 
 | Mood | Eyes | Brows | Mouth | Extra |
 |---|---|---|---|---|
-| Panicked | Wide dots | Raised high | Small "o" | none |
-| Overwhelmed | Squeezed (> <) | none | Wavy | none |
-| Anxious | Dots, glancing aside | Inner ends raised | Soft line | Sweat drop |
-| Angry | Dots | Inner ends lowered | Small frown | Steam puff |
+| Panicked | Dots, a little larger | Raised | Small "o" | none |
+| Overwhelmed | Squeezed (> <) | none | Soft flat line | none |
+| Anxious | Dots | Inner ends raised | Soft line | Sweat drop |
+| Angry | Dots | Inner ends lowered | Small frown | Two rising wisps |
 | Worried | `concerned` | `concerned` | `concerned` | none |
 | Frustrated | Half-closed | Slightly lowered | Slanted line | Scribble |
 | Nervous | Dots | Slightly raised | Zigzag | none |
-| Irritated | Dots | Flat, low | Pulled to one side | none |
-| Restless | Dots, glancing up | none | Short slanted line | Motion lines |
+| Irritated | Dots | Flat, low | Pulled to one side and down, never up | none |
+| Restless | Dots | none | Short slanted line | Motion lines |
 | Hopeless | `quiet` | none | `quiet` | none |
 | Burned out | Heavy lids | none | Flat | Low battery |
 | Sad | Dots | none | Soft frown | none |
-| Lonely | Dots, looking up at the extra | none | Slight frown | Small faraway cloud |
-| Guilty | Dots, looking down | Inner ends raised | Small wobble | none |
-| Disappointed | Lowered lids, looking down | none | Small frown | none |
+| Lonely | Dots | none | Slight frown | Small faraway cloud |
+| Guilty | Dots, looking down | Inner ends raised | Soft line | none |
+| Disappointed | Lowered lids with a clear gap above eyes looking down | none | Small frown | none |
 | Tired | Closed (as `gentle`) | none | Small yawn | "z z" |
 | Bored | Flat lines | none | Flat | none |
 | Excited | `happy` | none | `happy` | Sparkles |
-| Motivated | Dots | Arched | Wide smile | Up arrow |
-| Proud | Smiling arcs | none | Smile | Star |
+| Motivated | Dots | Arched | Wide smile | Small sun |
+| Proud | Smiling arcs | Slightly lifted | Smile | none |
 | Happy | Dots | none | Open smile | none |
 | Content | Smiling arcs | none | Small smile | none |
 | Grateful | Closed | none | Small smile | Heart |

@@ -41,18 +41,22 @@ enum class MoodFace(
     internal val extras: List<MoodFaceExtra> = emptyList(),
 ) {
     // Red
+
+    /** Startled, one step quieter than wide-eyed alarm: Ulap never panics (§8.5). */
     PANICKED(
         "panicked",
-        eyes = eyePair(y = 61f, r = 4.3f),
+        eyes = eyePair(y = 61f, r = 3.8f),
         lines = listOf(
-            "M47 53 L58 49",
-            "M74 49 L85 53",
-            "M62.5 75.5 A3.5 3.5 0 1 0 69.5 75.5 A3.5 3.5 0 1 0 62.5 75.5",
+            "M48 54 L58 51",
+            "M74 51 L84 54",
+            "M63.5 75.5 A2.5 2.5 0 1 0 68.5 75.5 A2.5 2.5 0 1 0 63.5 75.5",
         ),
     ),
+
+    /** A flat mouth keeps the squeezed eyes from reading as cute ">~<". */
     OVERWHELMED(
         "overwhelmed",
-        lines = listOf("M51 59 L58 62 L51 65", "M81 59 L74 62 L81 65", "M58 75 Q62 72 66 75 Q70 78 74 75"),
+        lines = listOf("M51 59 L58 62 L51 65", "M81 59 L74 62 L81 65", "M60 75 Q66 73.5 72 75"),
     ),
     ANXIOUS(
         "anxious",
@@ -64,7 +68,7 @@ enum class MoodFace(
         "angry",
         eyes = eyePair(y = 62.5f),
         lines = listOf("M47 52 L58 56", "M74 56 L85 52", "M60 76 Q66 73 72 76"),
-        extras = listOf(MoodFaceExtra.STEAM),
+        extras = listOf(MoodFaceExtra.WISPS),
     ),
 
     /** Ulap's `concerned` face, unchanged (§8.3). */
@@ -80,10 +84,12 @@ enum class MoodFace(
         eyes = eyePair(y = 62f),
         lines = listOf("M48 55 L58 53", "M74 53 L84 55", "M58 75 L61.2 73 L64.4 75 L67.6 73 L70.8 75 L74 73"),
     ),
+
+    /** The mouth goes sideways and down, an "ugh", never up into a smirk. */
     IRRITATED(
         "irritated",
         eyes = eyePair(y = 62.5f),
-        lines = listOf("M48 55.5 L59 55.5", "M73 55.5 L84 55.5", "M61 75.5 Q67 75.5 72 72.5"),
+        lines = listOf("M48 55.5 L59 55.5", "M73 55.5 L84 55.5", "M61 74.5 Q66 74.5 71 76.5"),
     ),
     RESTLESS(
         "restless",
@@ -104,22 +110,29 @@ enum class MoodFace(
     ),
     SAD("sad", eyes = eyePair(y = 63f), lines = listOf("M60 77 Q66 72 72 77")),
 
-    /** Looks up at a small faraway cloud, so it reads differently from Sad and Hopeless. */
+    /**
+     * A small faraway cloud sets it apart from Sad and Hopeless. The eyes glance toward it, but
+     * like every glance here that only shows at large sizes; on a tile the cloud does the work.
+     */
     LONELY(
         "lonely",
         eyes = eyePair(y = 60.5f, r = 3.3f, dx = -2.5f),
         lines = listOf("M62 76 Q66 73.5 70 76"),
         extras = listOf(MoodFaceExtra.FAR_CLOUD),
     ),
+
+    /** A soft line, not a wobble, so it doesn't read as "caught" or about to cry. */
     GUILTY(
         "guilty",
         eyes = eyePair(y = 65f, r = 3.2f),
-        lines = CONCERNED_BROWS + "M62 76 Q64 74 66 76 Q68 78 70 76",
+        lines = CONCERNED_BROWS + "M61 76 Q66 74.5 71 76",
     ),
+
+    /** A clear gap between lids and eyes, so at tile size it reads as downcast, never as a glare. */
     DISAPPOINTED(
         "disappointed",
-        eyes = eyePair(y = 65f, r = 2.8f),
-        lines = listOf("M50 62.5 L60 60.5", "M72 60.5 L82 62.5", "M61 76.5 Q66 73.5 71 76.5"),
+        eyes = eyePair(y = 66.5f, r = 2.8f),
+        lines = listOf("M50 59.5 L60 57.5", "M72 57.5 L82 59.5", "M61 76.5 Q66 73.5 71 76.5"),
     ),
     TIRED(
         "tired",
@@ -138,13 +151,18 @@ enum class MoodFace(
         fills = listOf(OPEN_SMILE),
         extras = listOf(MoodFaceExtra.SPARKLE_BIG, MoodFaceExtra.SPARKLE_SMALL),
     ),
+
+    // Motivated and Proud avoid grading symbols (arrows, stars): patterns, not grades (§1, §10.2).
     MOTIVATED(
         "motivated",
         eyes = eyePair(y = 62.5f),
         lines = listOf("M48 55 Q53 52 58 54", "M74 54 Q79 52 84 55", "M58 72 Q66 79 74 72"),
-        extras = listOf(MoodFaceExtra.ARROW),
+        extras = listOf(MoodFaceExtra.SUN_DISC, MoodFaceExtra.SUN_RAYS),
     ),
-    PROUD("proud", lines = SMILING_EYES + SMILE, extras = listOf(MoodFaceExtra.STAR)),
+    PROUD(
+        "proud",
+        lines = SMILING_EYES + SMILE + listOf("M49 54 Q54 51.5 59 53.5", "M73 53.5 Q78 51.5 83 54"),
+    ),
     HAPPY("happy", eyes = eyePair(y = 62f), fills = listOf(OPEN_SMILE)),
 
     // Green
@@ -186,7 +204,7 @@ private const val SMALL_SMILE = "M61 73 Q66 76 71 73"
 private const val OPEN_SMILE = "M58 70 Q66 82 74 70 Z"
 
 /** Where an extra's color comes from. Every one is an existing token (§8.7). */
-internal enum class ExtraInk { HEART, SUN, LEAF, LEAF_VEIN, DROP, PUFF, OUTLINE, BODY, FAR_OUTLINE, MUTED }
+internal enum class ExtraInk { HEART, SUN, LEAF, LEAF_VEIN, BODY, FAR_OUTLINE, MUTED }
 
 /**
  * The small drawings in a face's empty top corner. Each has a fill, a line, or both;
@@ -209,12 +227,14 @@ internal enum class MoodFaceExtra(
     LEAF("M104 31 Q105 16 121 13 Q120 29 104 31 Z", fill = ExtraInk.LEAF),
     LEAF_VEIN("M105 30 Q112 22 120 14", stroke = ExtraInk.LEAF_VEIN, strokeWidth = 1.5f),
 
-    DROP("M113 12 Q105 23 108.5 27.5 Q113 31.5 117.5 27.5 Q121 23 113 12 Z", fill = ExtraInk.DROP),
-    STEAM(
-        "M104 28 A4.5 4.5 0 0 1 107 20 A6 6 0 0 1 118 18 A4.5 4.5 0 0 1 121 28 Z",
-        fill = ExtraInk.PUFF,
-        stroke = ExtraInk.OUTLINE,
-        strokeWidth = 1.8f,
+    /** Grey, not blue: a blue drop by a cloud reads as rain, a crying cloud (§8.5). */
+    DROP("M113 12 Q105 23 108.5 27.5 Q113 31.5 117.5 27.5 Q121 23 113 12 Z", fill = ExtraInk.MUTED),
+
+    /** Two rising wisps. Vertical, so they differ from Relaxed's breeze and Restless's motion lines. */
+    WISPS(
+        "M108 30 Q104 25 108 21 Q112 17 108 12 M117 30 Q113 25 117 21 Q121 17 117 12",
+        stroke = ExtraInk.MUTED,
+        strokeWidth = 2.2f,
     ),
     SCRIBBLE(
         "M104 24 C107 13 121 13 118 21 C115 29 105 24 110 17 C114 12 123 17 119 25",
@@ -235,12 +255,8 @@ internal enum class MoodFaceExtra(
         strokeWidth = 1.8f,
     ),
     ZZZ("M104 19 L112 19 L104 27 L112 27 M115 8 L121 8 L115 14 L121 14", stroke = ExtraInk.MUTED, strokeWidth = 2.4f),
-    STAR(
-        "M113 12.5 L115.2 17.9 L121.1 18.4 L116.6 22.2 L118 27.9 L113 24.8 L108 27.9 L109.4 22.2 L104.9 18.4 " +
-            "L110.8 17.9 Z",
-        fill = ExtraInk.SUN,
-    ),
-    ARROW("M113 31 L113 13 M106.5 19.5 L113 13 L119.5 19.5", stroke = ExtraInk.SUN, strokeWidth = 3.2f),
+    SUN_DISC("M108.5 20 A4.5 4.5 0 1 0 117.5 20 A4.5 4.5 0 1 0 108.5 20 Z", fill = ExtraInk.SUN),
+    SUN_RAYS("M113 10 V12.5 M113 27.5 V30 M103 20 H105.5 M120.5 20 H123", stroke = ExtraInk.SUN, strokeWidth = 2.2f),
     BREEZE(
         "M101 18 Q106 14 111 18 Q116 22 121 18 M105 27 Q109 24 113 27 Q117 30 121 27",
         stroke = ExtraInk.LEAF,
@@ -297,9 +313,6 @@ private fun UlapColors.of(ink: ExtraInk): Color = when (ink) {
     ExtraInk.SUN -> yellow.strong
     ExtraInk.LEAF -> leaf
     ExtraInk.LEAF_VEIN -> green.strong
-    ExtraInk.DROP -> blue.strong.copy(alpha = 0.5f)
-    ExtraInk.PUFF -> lineSoft
-    ExtraInk.OUTLINE -> ulapStroke
     ExtraInk.BODY -> ulapBody
     ExtraInk.FAR_OUTLINE -> outlineButton
     ExtraInk.MUTED -> placeholder

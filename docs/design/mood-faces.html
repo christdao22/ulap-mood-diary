@@ -65,8 +65,9 @@
       <h2 style="margin-top:0">How the faces are built</h2>
       <ul>
         <li>Same cloud body, cheeks and colors as Ulap (design-spec §8.2). No new character.</li>
-        <li>Faces are made only from Ulap's existing parts: eyes, brows and mouth, plus a small prop in the empty top corner for some moods (sweat drop, steam puff, scribble, "z", heart, star, leaf).</li>
-        <li><b>Softened, following §8.5:</b> no tears, no shouting mouths, nothing that looks sick. Angry gets a small steam puff, not red anger marks. Sad gets a soft frown, not tears.</li>
+        <li>Faces are made only from Ulap's existing parts: eyes, brows and mouth, plus a small prop in the empty top corner for some moods (sweat drop, rising wisps, scribble, "z z", heart, sun, leaf).</li>
+        <li><b>Softened, following §8.5:</b> no tears, no shouting mouths, nothing that looks sick. Angry gets two grey wisps, not red anger marks. Sad gets a soft frown, not tears. The sweat drop is grey, because a blue drop next to a cloud reads as rain.</li>
+        <li>No grading symbols: no arrows or gold stars on the bright moods.</li>
         <li><b>Hopeless uses Ulap's existing quiet face</b> exactly as it is: small eyes, a short flat line and no prop. It's the same face the Hopeless response screen shows.</li>
         <li>At tile size the face lines are drawn a little thicker than on the big Ulap, so they stay readable at tile size (46dp wide, with the empty margin around the cloud cropped).</li>
         <li>Tiles get about 20dp taller. The screen scrolls about 200dp further.</li>
@@ -82,8 +83,8 @@
 <script>
 const C = {
   ink:'#1B1F2A', body:'#FFFFFF', stroke:'#C3CAD6', cheek:'rgba(246,180,174,0.7)', heart:'#E7848A',
-  // Same tokens as the app (design-spec §8.7): placeholder, Blue strong at 50%, lineSoft.
-  yellow:'#E9AE1F', leaf:'#3E9A6A', green:'#267A4C', muted:'#6B7282', drop:'rgba(47,98,201,0.5)', puff:'#EEF0F4',
+  // Same tokens as the app (design-spec §8.7). muted is the placeholder token.
+  yellow:'#E9AE1F', leaf:'#3E9A6A', green:'#267A4C', muted:'#6B7282',
 };
 const BODY = 'M30 90 A22 22 0 0 1 24 47 A30 30 0 0 1 80 30 A26 26 0 0 1 112 60 A20 20 0 0 1 104 90 Z';
 
@@ -94,15 +95,6 @@ const ARCS_UP = ['M50 64 Q55 58 60 64', 'M72 64 Q77 58 82 64'];     // ∩ happy
 const CONCERN_BROWS = ['M47 55 L58 52', 'M74 52 L85 55'];
 const dots = (y = 62, r = 3.5, dx = 0) => [[55 + dx, y, r], [77 + dx, y, r]];
 
-function star(cx, cy, R, r) {
-  let d = '';
-  for (let i = 0; i < 10; i++) {
-    const a = -Math.PI / 2 + i * Math.PI / 5, rad = i % 2 ? r : R;
-    d += (i ? 'L' : 'M') + (cx + rad * Math.cos(a)).toFixed(1) + ' ' + (cy + rad * Math.sin(a)).toFixed(1) + ' ';
-  }
-  return d + 'Z';
-}
-
 // Props, all in the empty top corners, clear of the face
 const P = {
   heart: { fill: C.heart, d: 'M113 29 C105 24 105 17.5 109.5 16.5 C111.5 16 112.8 17.3 113 18.8 C113.2 17.3 114.5 16 116.5 16.5 C121 17.5 121 24 113 29 Z' },
@@ -110,12 +102,12 @@ const P = {
   sparkleSmall: { fill: C.yellow, d: 'M19 25 Q19 30 24 30 Q19 30 19 35 Q19 30 14 30 Q19 30 19 25 Z' },
   leaf: { fill: C.leaf, d: 'M104 31 Q105 16 121 13 Q120 29 104 31 Z' },
   leafVein: { stroke: C.green, w: 1.5, d: 'M105 30 Q112 22 120 14' },
-  drop: { fill: C.drop, d: 'M113 12 Q105 23 108.5 27.5 Q113 31.5 117.5 27.5 Q121 23 113 12 Z' },
-  steam: { fill: C.puff, stroke: C.stroke, w: 1.8, d: 'M104 28 A4.5 4.5 0 0 1 107 20 A6 6 0 0 1 118 18 A4.5 4.5 0 0 1 121 28 Z' },
+  drop: { fill: C.muted, d: 'M113 12 Q105 23 108.5 27.5 Q113 31.5 117.5 27.5 Q121 23 113 12 Z' },
+  wisps: { stroke: C.muted, w: 2.2, d: 'M108 30 Q104 25 108 21 Q112 17 108 12 M117 30 Q113 25 117 21 Q121 17 117 12' },
   scribble: { stroke: C.muted, w: 2.2, d: 'M104 24 C107 13 121 13 118 21 C115 29 105 24 110 17 C114 12 123 17 119 25' },
   zzz: { stroke: C.muted, w: 2.4, d: 'M104 19 L112 19 L104 27 L112 27 M115 8 L121 8 L115 14 L121 14' },
-  star: { fill: C.yellow, d: star(113, 21, 8.5, 3.8) },
-  arrow: { stroke: C.yellow, w: 3.2, d: 'M113 31 L113 13 M106.5 19.5 L113 13 L119.5 19.5' },
+  sunDisc: { fill: C.yellow, d: 'M108.5 20 A4.5 4.5 0 1 0 117.5 20 A4.5 4.5 0 1 0 108.5 20 Z' },
+  sunRays: { stroke: C.yellow, w: 2.2, d: 'M113 10 V12.5 M113 27.5 V30 M103 20 H105.5 M120.5 20 H123' },
   breeze: { stroke: C.leaf, w: 2.2, d: 'M101 18 Q106 14 111 18 Q116 22 121 18 M105 27 Q109 24 113 27 Q117 30 121 27' },
   battery: { stroke: C.muted, w: 2, d: 'M103 15 H117 Q119 15 119 17 V24 Q119 26 117 26 H103 Q101 26 101 24 V17 Q101 15 103 15 Z M121.5 18.5 V22.5' },
   batteryBar: { fill: C.muted, d: 'M104 18 H108 V23 H104 Z' },
@@ -125,24 +117,24 @@ const P = {
 
 // zone, name, default stress, face, note, flag
 const MOODS = [
-  ['RED', 'Panicked', 10, { dots: dots(61, 4.3), strokes: ['M47 53 L58 49', 'M74 49 L85 53', 'M62.5 75.5 A3.5 3.5 0 1 0 69.5 75.5 A3.5 3.5 0 1 0 62.5 75.5'] },
-    'Wide eyes, brows up, small "o" mouth. Startled, not screaming.'],
-  ['RED', 'Overwhelmed', 9, { strokes: ['M51 59 L58 62 L51 65', 'M81 59 L74 62 L81 65', 'M58 75 Q62 72 66 75 Q70 78 74 75'] },
-    'Squeezed eyes and a wavy mouth.'],
+  ['RED', 'Panicked', 10, { dots: dots(61, 3.8), strokes: ['M48 54 L58 51', 'M74 51 L84 54', 'M63.5 75.5 A2.5 2.5 0 1 0 68.5 75.5 A2.5 2.5 0 1 0 63.5 75.5'] },
+    'Bigger eyes, brows up, small "o" mouth. Startled, not panicking.'],
+  ['RED', 'Overwhelmed', 9, { strokes: ['M51 59 L58 62 L51 65', 'M81 59 L74 62 L81 65', 'M60 75 Q66 73.5 72 75'] },
+    'Squeezed eyes and a soft flat mouth.'],
   ['RED', 'Anxious', 9, { dots: dots(63, 3.5, 2), strokes: [...CONCERN_BROWS, 'M61 76 Q66 73 71 76'], props: ['drop'] },
-    'Worried brows, eyes glancing aside, a sweat drop.'],
-  ['RED', 'Angry', 8, { dots: dots(62.5), strokes: ['M47 52 L58 56', 'M74 56 L85 52', 'M60 76 Q66 73 72 76'], props: ['steam'] },
-    'Brows down, small frown, a little steam puff.'],
+    'Worried brows, a sweat drop.'],
+  ['RED', 'Angry', 8, { dots: dots(62.5), strokes: ['M47 52 L58 56', 'M74 56 L85 52', 'M60 76 Q66 73 72 76'], props: ['wisps'] },
+    'Brows down, small frown, two rising wisps.'],
   ['RED', 'Worried', 8, { dots: dots(63), strokes: [...CONCERN_BROWS, 'M60 75 Q66 73 72 75'] },
     "Ulap's existing \"concerned\" face, unchanged."],
   ['RED', 'Frustrated', 7, { fills: ['M50.5 61.5 L59.5 61.5 Q55 67.5 50.5 61.5 Z', 'M72.5 61.5 L81.5 61.5 Q77 67.5 72.5 61.5 Z'], strokes: ['M48 55 L58 57', 'M74 57 L84 55', 'M60 75.5 L72 74'], props: ['scribble'] },
     'Half-closed eyes, brows a little down, a scribble.'],
   ['RED', 'Nervous', 6, { dots: dots(62), strokes: ['M48 55 L58 53', 'M74 53 L84 55', 'M58 75 L61.2 73 L64.4 75 L67.6 73 L70.8 75 L74 73'] },
     'Brows slightly up, a wobbly zigzag mouth.'],
-  ['RED', 'Irritated', 6, { dots: dots(62.5), strokes: ['M48 55.5 L59 55.5', 'M73 55.5 L84 55.5', 'M61 75.5 Q67 75.5 72 72.5'] },
-    'Flat low brows, mouth pulled to one side.'],
+  ['RED', 'Irritated', 6, { dots: dots(62.5), strokes: ['M48 55.5 L59 55.5', 'M73 55.5 L84 55.5', 'M61 74.5 Q66 74.5 71 76.5'] },
+    'Flat low brows, mouth pulled to one side and down.'],
   ['RED', 'Restless', 5, { dots: dots(60, 3.5, 2), strokes: ['M63 74.5 L71 73.5'], props: ['motion'] },
-    'Eyes glancing up, motion lines on the side.'],
+    'Short slanted mouth, motion lines on the side.'],
 
   ['BLUE', 'Hopeless', 8, { dots: dots(62, 3), strokes: ['M62 74 L70 74'] },
     'Ulap\'s existing "quiet" face, exactly as on the Hopeless response screen. No prop.'],
@@ -151,22 +143,22 @@ const MOODS = [
   ['BLUE', 'Sad', 6, { dots: dots(63), strokes: ['M60 77 Q66 72 72 77'] },
     'Soft frown. No tears.'],
   ['BLUE', 'Lonely', 6, { dots: [[52.5, 60.5, 3.3], [74.5, 60.5, 3.3]], strokes: ['M62 76 Q66 73.5 70 76'], props: ['farCloud'] },
-    'Looking up at a small cloud far away, a slight frown.'],
-  ['BLUE', 'Guilty', 6, { dots: dots(65, 3.2), strokes: [...CONCERN_BROWS, 'M62 76 Q64 74 66 76 Q68 78 70 76'] },
-    'Eyes looking down, brows up, a small wobble.'],
-  ['BLUE', 'Disappointed', 5, { dots: [[55, 65, 2.8], [77, 65, 2.8]], strokes: ['M50 62.5 L60 60.5', 'M72 60.5 L82 62.5','M61 76.5 Q66 73.5 71 76.5'] },
+    'A small cloud far away, a slight frown.'],
+  ['BLUE', 'Guilty', 6, { dots: dots(65, 3.2), strokes: [...CONCERN_BROWS, 'M61 76 Q66 74.5 71 76'] },
+    'Eyes looking down, brows up, a soft line.'],
+  ['BLUE', 'Disappointed', 5, { dots: [[55, 66.5, 2.8], [77, 66.5, 2.8]], strokes: ['M50 59.5 L60 57.5', 'M72 57.5 L82 59.5', 'M61 76.5 Q66 73.5 71 76.5'] },
     'Lowered lids, eyes down, a small frown.'],
   ['BLUE', 'Tired', 4, { strokes: CLOSED, fills: ['M63 75.5 A3 3.5 0 1 0 69 75.5 A3 3.5 0 1 0 63 75.5 Z'], props: ['zzz'] },
-    'Closed eyes, a small yawn, a "z".'],
+    'Closed eyes, a small yawn, a "z z".'],
   ['BLUE', 'Bored', 3, { strokes: ['M51 62 L59 62', 'M73 62 L81 62', 'M61 75 L70 75'] },
     'Flat eyes, flat mouth.'],
 
   ['YELLOW', 'Excited', 3, { strokes: ARCS_UP, fills: ['M58 70 Q66 82 74 70 Z'], props: ['sparkleBig', 'sparkleSmall'] },
     'Ulap\'s existing "happy" face with sparkles.'],
-  ['YELLOW', 'Motivated', 2, { dots: dots(62.5), strokes: ['M48 55 Q53 52 58 54', 'M74 54 Q79 52 84 55', 'M58 72 Q66 79 74 72'], props: ['arrow'] },
-    'Eyebrows up, wide smile, an up arrow.'],
-  ['YELLOW', 'Proud', 2, { strokes: [...ARCS_UP, SMILE], props: ['star'] },
-    'Smiling eyes, closed smile, a star.'],
+  ['YELLOW', 'Motivated', 2, { dots: dots(62.5), strokes: ['M48 55 Q53 52 58 54', 'M74 54 Q79 52 84 55', 'M58 72 Q66 79 74 72'], props: ['sunDisc', 'sunRays'] },
+    'Eyebrows up, wide smile, a small sun.'],
+  ['YELLOW', 'Proud', 2, { strokes: [...ARCS_UP, SMILE, 'M49 54 Q54 51.5 59 53.5', 'M73 53.5 Q78 51.5 83 54'] },
+    'Smiling eyes, lifted brows, closed smile.'],
   ['YELLOW', 'Happy', 2, { dots: dots(62), fills: ['M58 70 Q66 82 74 70 Z'] },
     'Open eyes, open smile.'],
 
