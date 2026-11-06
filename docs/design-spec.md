@@ -199,7 +199,7 @@ At most **one primary button per screen**. When stress ≥ 8, show only the prim
 
 ### 6.8 Hotline card
 - `surface`, 1dp `infoBorder`, radius 18, padding 18.
-- Label "NCMH Crisis Hotline · available 24/7" (13/600, info) → number **1553** (Bricolage 34/700) → primary button "Call 1553" (opens the dialer) → helper line.
+- Label "NCMH Crisis Hotline · available 24/7" (13/600, info) → number **1553** (Bricolage 34/700; TalkBack reads it digit by digit) → primary button "Call 1553" (opens the dialer with `ACTION_DIAL`, which never places the call) → helper line "This opens your phone app. You choose when to call." (`hotline_*` keys, [Technical plan, Appendix B](technical-plan.md#appendix-b-response-message-keys-english-source)). On a device with no phone app, the tap shows "This device can't make calls. You can dial 1553 from any phone." instead of doing nothing.
 - Never animated. Never decorated.
 
 ### 6.9 Breathing circle
@@ -283,11 +283,12 @@ Which actions appear is decided by `ResponseRules` ([Technical plan §5](technic
 - Actions: primary (zone action) + secondary (only when stress < 8).
 - After the primary tap: a support card replaces the buttons (breathing circle / small helps list / "Saved to your good moments"). The cards use the tinted-background card style (§6.7). The good-moment card has no check-in card after it, so a secondary **Done** under it ends the check-in. Text: `help_*` keys in [Technical plan, Appendix B](technical-plan.md#appendix-b-response-message-keys-english-source).
 - Red and Blue zones: a check-in card at the bottom: "When you're ready" / "How stressed do you feel now?" + slider (starts at the logged stress) + **Check in**.
-- Hopeless: hotline card instead of action buttons. The check-in card is still shown.
+- Hopeless: hotline card instead of action buttons. The check-in card is still shown, then a secondary **Done** at the bottom, so there is a way out that isn't Back and the check-in stays optional.
 
 ### 7.5 Check in · After
 - The same zone tint background as Response, so the check-in reads as one flow.
-- Ulap 150dp (calm when stress dropped, gentle otherwise).
+- Ulap 150dp (calm when stress dropped, gentle otherwise). Hopeless keeps the `quiet` face with no float, as on Response.
+- Hopeless: the hotline card (§6.8) under the sub, whichever way stress went, so help stays one tap away for the whole check-in. **Done** and **See my week** are both secondary there, so "Call 1553" is the one primary action.
 - "Before 8 → Now 5" pills: neutral (`surface`, 1dp `line`, pill radius), not the stress band colors, which are for Reports only (§2.3). The arrow is decorative for TalkBack.
 - Title + sub (see §10.4).
 - Primary **Done** · secondary **See my week**. Both end the check-in, so Back and the Check in tab return to Pick mood.
@@ -454,6 +455,13 @@ Warm, plain, short. Ulap talks like a kind friend, not a therapist or a cheerlea
 | Stress lower | Your stress went from 8 to 5. | That's 3 points lower. Remember what helped, so you can use it again. |
 | Same | Still at 8, and that's okay. | Feelings take time to shift. Be gentle with yourself today. |
 | Higher | It went up to 9. | Thank you for checking honestly. If it keeps rising, reach out to someone you trust or call NCMH at 1553. |
+
+Hopeless keeps the titles but has its own subs for lower and higher, because the hotline card sits right under them: "If it keeps rising" would mean "wait before reaching out", and "Remember what helped" sounds like it's solved. Same uses the sub above.
+
+| Result (Hopeless) | Sub |
+|---|---|
+| Stress lower | I'm glad something eased a little. Help is still here whenever you need it. |
+| Higher | Thank you for checking honestly. This sounds really heavy. Talking to someone can help, even right now. |
 
 These match the `after_*` keys in [Technical plan, Appendix B](technical-plan.md#appendix-b-response-message-keys-english-source), which is the source for all response strings.
 

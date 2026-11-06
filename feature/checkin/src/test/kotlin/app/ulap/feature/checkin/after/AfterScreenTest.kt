@@ -4,7 +4,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import app.ulap.core.designsystem.theme.UlapTheme
-import app.ulap.shared.model.Zone
+import app.ulap.shared.catalog.MoodCatalog
 import app.ulap.shared.rules.ResponseRules
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,15 +21,16 @@ class AfterScreenTest {
 
     private val events = mutableListOf<String>()
 
-    private fun show(before: Int, now: Int) {
+    private fun show(before: Int, now: Int, moodCode: String = "worried") {
+        val mood = checkNotNull(MoodCatalog.byCode(moodCode))
         compose.setContent {
             UlapTheme {
                 AfterContent(
                     state = AfterUiState.Ready(
-                        zone = Zone.RED,
+                        zone = mood.zone,
                         before = before,
                         now = now,
-                        result = ResponseRules.afterCheck(before, now),
+                        result = ResponseRules.afterCheck(mood, before, now),
                     ),
                     showUlap = true,
                     onDone = { events += "done" },
@@ -76,5 +77,38 @@ class AfterScreenTest {
         compose.onNodeWithText("Done").performClick()
         compose.onNodeWithText("See my week").performClick()
         assertEquals(listOf("done", "week"), events)
+    }
+
+    @Test
+    fun `other moods have no hotline card after the check`() {
+        show(before = 8, now = 9)
+        compose.onNodeWithText("NCMH Crisis Hotline · available 24/7").assertDoesNotExist()
+        compose.onNodeWithText("Call 1553").assertDoesNotExist()
+    }
+
+    @Test
+    fun `Hopeless shows the hotline card again, whichever way stress went`() {
+        // Safety (🔒): lower is the case most likely to drop it by mistake.
+        show(before = 8, now = 5, moodCode = MoodCatalog.HOPELESS)
+        compose.onNodeWithText("NCMH Crisis Hotline · available 24/7").assertExists()
+        compose.onNodeWithText("Call 1553").assertExists()
+        compose.onNodeWithText("Done").assertExists()
+    }
+
+    @Test
+    fun `Hopeless with lower stress doesn't sound solved`() {
+        show(before = 8, now = 5, moodCode = MoodCatalog.HOPELESS)
+        compose.onNodeWithText("I'm glad something eased a little. Help is still here whenever you need it.")
+            .assertExists()
+        compose.onNodeWithText("That's 3 points lower", substring = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun `Hopeless with higher stress doesn't say to wait`() {
+        show(before = 8, now = 9, moodCode = MoodCatalog.HOPELESS)
+        compose.onNodeWithText(
+            "Thank you for checking honestly. This sounds really heavy. Talking to someone can help, even right now.",
+        ).assertExists()
+        compose.onNodeWithText("If it keeps rising", substring = true).assertDoesNotExist()
     }
 }

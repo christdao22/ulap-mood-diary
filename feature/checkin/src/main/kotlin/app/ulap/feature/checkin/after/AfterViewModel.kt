@@ -37,7 +37,7 @@ sealed interface AfterUiState {
         val before: Int,
         /** Their answer to "How stressed do you feel now?" (stress_after). */
         val now: Int,
-        /** What ResponseRules decided: lower, same or higher, and Ulap's face. */
+        /** What ResponseRules decided: lower, same or higher, Ulap's face, and the hotline card. */
         val result: AfterCheck,
     ) : AfterUiState
 }
@@ -63,16 +63,16 @@ class AfterViewModel @Inject constructor(
             // Screens read only from Room (CLAUDE.md): the stress_after Response just saved. Only
             // the numbers and the zone go into the UI state; the note stays out of it.
             val saved = checkInRepository.get(checkInId)
-            val zone = saved?.let { MoodCatalog.byCode(it.moodCode) }?.zone
+            val mood = saved?.let { MoodCatalog.byCode(it.moodCode) }
             val now = saved?.stressAfter
-            _uiState.value = if (saved == null || zone == null || now == null) {
+            _uiState.value = if (saved == null || mood == null || now == null) {
                 AfterUiState.Missing
             } else {
                 AfterUiState.Ready(
-                    zone = zone,
+                    zone = mood.zone,
                     before = saved.stress,
                     now = now,
-                    result = ResponseRules.afterCheck(before = saved.stress, now = now),
+                    result = ResponseRules.afterCheck(mood, before = saved.stress, now = now),
                 )
             }
         }

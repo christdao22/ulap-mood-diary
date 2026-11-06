@@ -1,5 +1,6 @@
 package app.ulap.feature.checkin.response
 
+import android.content.Intent
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -19,7 +20,10 @@ import kotlin.test.assertEquals
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowToast
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w360dp-h2000dp")
@@ -135,6 +139,53 @@ class ResponseScreenTest {
         compose.onNodeWithText("I'm really glad you told me.").assertExists()
         compose.onNodeWithText("Something small that helps").assertDoesNotExist()
         compose.onNodeWithText("Maybe later").assertDoesNotExist()
+    }
+
+    @Test
+    fun `Hopeless shows the NCMH 1553 card`() {
+        show("hopeless", stress = 9)
+        compose.onNodeWithText("NCMH Crisis Hotline · available 24/7").assertExists()
+        // TalkBack reads the number digit by digit, the way it's dialed.
+        compose.onNodeWithContentDescription("1 5 5 3").assertExists()
+        compose.onNodeWithText("Call 1553").assertExists()
+        compose.onNodeWithText("This opens your phone app. You choose when to call.").assertExists()
+    }
+
+    @Test
+    fun `Call 1553 opens the dialer with the number and doesn't place the call`() {
+        show("hopeless", stress = 9)
+        compose.onNodeWithText("Call 1553").performClick()
+
+        val intent = checkNotNull(shadowOf(RuntimeEnvironment.getApplication()).nextStartedActivity)
+        assertEquals(Intent.ACTION_DIAL, intent.action)
+        assertEquals("tel:1553", intent.dataString)
+    }
+
+    @Test
+    fun `with no phone app, Call 1553 says so instead of doing nothing`() {
+        // checkActivities makes startActivity fail when no app can open the intent, like a tablet.
+        shadowOf(RuntimeEnvironment.getApplication()).checkActivities(true)
+        show("hopeless", stress = 9)
+        compose.onNodeWithText("Call 1553").performClick()
+
+        assertEquals(
+            "This device can't make calls. You can dial 1553 from any phone.",
+            ShadowToast.getTextOfLatestToast(),
+        )
+    }
+
+    @Test
+    fun `Hopeless has a quiet Done that ends the check-in`() {
+        show("hopeless", stress = 9)
+        compose.onNodeWithText("Done").performClick()
+        assertEquals(listOf("finish"), events)
+    }
+
+    @Test
+    fun `Burned out, Blue at stress 8 like Hopeless, has no hotline card`() {
+        // The closest look-alike. ResponseRulesTest checks every other mood.
+        show("burned_out", stress = 8)
+        compose.onNodeWithText("Call 1553").assertDoesNotExist()
     }
 
     @Test

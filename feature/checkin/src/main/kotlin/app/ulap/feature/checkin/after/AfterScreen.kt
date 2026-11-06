@@ -37,8 +37,10 @@ import app.ulap.core.designsystem.mascot.UlapSize
 import app.ulap.core.designsystem.theme.UlapShape
 import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
+import app.ulap.core.ui.HotlineCard
 import app.ulap.core.ui.R
 import app.ulap.core.ui.toMascot
+import app.ulap.shared.catalog.MoodCatalog
 import app.ulap.shared.model.Zone
 import app.ulap.shared.rules.ResponseRules
 import app.ulap.shared.rules.StressChange
@@ -97,6 +99,7 @@ internal fun AfterContent(
                 expression = state.result.expression.toMascot(),
                 contentDescription = null,
                 size = UlapSize.After,
+                float = state.result.floats,
             )
         }
         BeforeNowPills(before = state.before, now = state.now)
@@ -113,12 +116,30 @@ internal fun AfterContent(
             color = colors.ink,
             textAlign = TextAlign.Center,
         )
+        // Hopeless (🔒): the 1553 card again, whichever way stress went, so help stays one tap away
+        // for the whole check-in (design-spec.md §7.5).
+        if (state.result.showHotline) {
+            Spacer(Modifier.height(UlapSpacing.S))
+            HotlineCard()
+        }
         Spacer(Modifier.height(UlapSpacing.S))
-        UlapPrimaryButton(
-            text = stringResource(R.string.resp_action_done),
-            onClick = onDone,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        AfterButtons(callIsPrimary = state.result.showHotline, onDone = onDone, onSeeMyWeek = onSeeMyWeek)
+    }
+}
+
+/**
+ * Done and See my week. With the hotline card above them, both are secondary, so "Call 1553" is
+ * the one primary action on the screen (design-spec.md §6.6, §7.5).
+ */
+@Composable
+private fun AfterButtons(callIsPrimary: Boolean, onDone: () -> Unit, onSeeMyWeek: () -> Unit) {
+    val done = stringResource(R.string.resp_action_done)
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(UlapSpacing.S)) {
+        if (callIsPrimary) {
+            UlapSecondaryButton(text = done, onClick = onDone, modifier = Modifier.fillMaxWidth())
+        } else {
+            UlapPrimaryButton(text = done, onClick = onDone, modifier = Modifier.fillMaxWidth())
+        }
         UlapSecondaryButton(
             text = stringResource(R.string.after_action_week),
             onClick = onSeeMyWeek,
@@ -164,17 +185,28 @@ private fun afterTitle(state: AfterUiState.Ready): String = when (state.result.c
     StressChange.HIGHER -> stringResource(R.string.after_higher, state.now)
 }
 
-/** The §10.4 sub. "That's 3 points lower" needs a plural for 1 point. */
+/**
+ * The §10.4 sub. "That's 3 points lower" needs a plural for 1 point. Hopeless (🔒) has its own
+ * lower and higher subs, which lean on the hotline card right below them instead of "if it keeps
+ * rising" or "remember what helped".
+ */
 @Composable
-private fun afterSub(state: AfterUiState.Ready): String = when (state.result.change) {
-    StressChange.LOWER -> {
-        val points = state.before - state.now
-        pluralStringResource(R.plurals.after_lower_sub, points, points)
+private fun afterSub(state: AfterUiState.Ready): String {
+    val hopeless = state.result.showHotline
+    return when (state.result.change) {
+        StressChange.LOWER if hopeless -> stringResource(R.string.after_lower_sub_hopeless)
+
+        StressChange.LOWER -> {
+            val points = state.before - state.now
+            pluralStringResource(R.plurals.after_lower_sub, points, points)
+        }
+
+        StressChange.SAME -> stringResource(R.string.after_same_sub)
+
+        StressChange.HIGHER if hopeless -> stringResource(R.string.after_higher_sub_hopeless)
+
+        StressChange.HIGHER -> stringResource(R.string.after_higher_sub)
     }
-
-    StressChange.SAME -> stringResource(R.string.after_same_sub)
-
-    StressChange.HIGHER -> stringResource(R.string.after_higher_sub)
 }
 
 @Preview(widthDp = 360, heightDp = 760)
@@ -186,7 +218,7 @@ private fun AfterContentPreview() {
                 zone = Zone.RED,
                 before = 8,
                 now = 5,
-                result = ResponseRules.afterCheck(before = 8, now = 5),
+                result = ResponseRules.afterCheck(checkNotNull(MoodCatalog.byCode("worried")), before = 8, now = 5),
             ),
             showUlap = true,
             onDone = {},

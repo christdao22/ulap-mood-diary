@@ -32,6 +32,7 @@ import app.ulap.core.designsystem.mascot.Ulap
 import app.ulap.core.designsystem.mascot.UlapSize
 import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
+import app.ulap.core.ui.HotlineCard
 import app.ulap.core.ui.R
 import app.ulap.core.ui.bodyRes
 import app.ulap.core.ui.nameRes
@@ -146,8 +147,9 @@ internal fun ResponseContent(
 @Composable
 private fun ResponseActionsArea(state: ResponseUiState.Ready, actions: ResponseScreenActions) {
     when (val offered = state.response.actions) {
-        // The NCMH 1553 hotline card goes here (PHASES.md Phase 2, Hopeless 🔒).
-        ResponseActions.Hotline -> Unit
+        // Hopeless (🔒): the NCMH 1553 card in place of activity buttons. It only opens the dialer,
+        // so it works offline (technical-plan.md §13).
+        ResponseActions.Hotline -> HotlineCard()
 
         // After the tap, the support card takes the buttons' place (design-spec.md §7.4).
         is ResponseActions.Offer -> when (val support = state.startedSupport) {
@@ -167,6 +169,15 @@ private fun ResponseActionsArea(state: ResponseUiState.Ready, actions: ResponseS
             stress = state.stressNow,
             onStressChange = actions.onStressNowChange,
             onCheckIn = actions.onStressCheckSave,
+        )
+    }
+    // Hopeless has no "Maybe later", so a quiet Done gives a way out that isn't Back: nobody should
+    // feel stuck on this screen, and the stress check stays optional (design-spec.md §7.4).
+    if (state.response.actions == ResponseActions.Hotline) {
+        UlapSecondaryButton(
+            text = stringResource(R.string.resp_action_done),
+            onClick = actions.onFinish,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
@@ -210,6 +221,24 @@ private fun ResponseContentPreview() {
                 mood = worried,
                 response = ResponseRules.respond(worried, stress = 6, trigger = Trigger.WORK),
                 stressNow = 6,
+            ),
+            showUlap = true,
+            actions = ResponseScreenActions(onStartSupport = {
+            }, onFinish = {}, onStressNowChange = {}, onStressCheckSave = {}),
+        )
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 1000)
+@Composable
+private fun ResponseContentHopelessPreview() {
+    val hopeless = checkNotNull(MoodCatalog.byCode(MoodCatalog.HOPELESS))
+    UlapTheme {
+        ResponseContent(
+            state = ResponseUiState.Ready(
+                mood = hopeless,
+                response = ResponseRules.respond(hopeless, stress = 8, trigger = null),
+                stressNow = 8,
             ),
             showUlap = true,
             actions = ResponseScreenActions(onStartSupport = {

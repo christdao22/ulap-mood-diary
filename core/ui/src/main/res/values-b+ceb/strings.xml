@@ -104,7 +104,15 @@
     <string name="after_same_sub">Nagkinahanglan og panahon ang pagbag-o sa gibati. Pagmalumo sa imong kaugalingon karong adlawa.</string>
     <string name="after_higher">Misaka kini ngadto %1$d.</string>
     <string name="after_higher_sub">Salamat sa imong tinuod nga tubag. Kung magpadayon kini sa pagsaka, pakigsulti sa tawo nga imong gisaligan o tawag sa NCMH sa 1553.</string>
+    <string name="after_lower_sub_hopeless">Maayo nga migaan og gamay. Ania gihapon ang tabang bisan kanus-a nimo kinahanglan.</string>
+    <string name="after_higher_sub_hopeless">Salamat sa imong tinuod nga tubag. Morag bug-at kaayo kini. Makatabang ang pakigsulti sa usa ka tawo, bisan karon.</string>
     <string name="after_action_week">Akong semana</string>
+
+    <!-- The NCMH crisis hotline card (design-spec.md §6.8, hotline_*). Safety 🔒 -->
+    <string name="hotline_title">NCMH Crisis Hotline · abli 24/7</string>
+    <string name="hotline_call">Tawagi ang %1$s</string>
+    <string name="hotline_helper">Moabli kini sa imong phone app. Ikaw ra ang magbuot kanus-a ka motawag.</string>
+    <string name="hotline_no_phone">Dili makatawag kining device. Pwede nimo i-dial ang %1$s bisan asang phone.</string>
 
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Enerhiya</string>

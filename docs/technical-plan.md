@@ -141,7 +141,7 @@ The catalog lives in `shared` so the app and the server validate against the sam
 | Red zone | Concerned-but-calm Ulap, breathing exercise offered, check-in slider shown |
 | Blue zone | Gentle Ulap, "something small that helps" list, check-in slider shown |
 | Yellow / Green | Happy or calm Ulap, "Save to good moments" offered, no check-in slider |
-| `hopeless` | Quiet Ulap (no animation), NCMH 1553 card instead of activity buttons. The check-in slider is still shown (Blue zone). |
+| `hopeless` | Quiet Ulap (no animation), NCMH 1553 card instead of activity buttons, and a secondary **Done** at the bottom. The check-in slider is still shown (Blue zone). The After screen keeps the quiet, still Ulap and shows the 1553 card again, whichever way stress went. |
 | Stress ≥ 8 | Only one action button (no choices) |
 | Unpleasant zone and a trigger is set | Add the trigger line (e.g. "Work can take a lot out of us.") |
 
@@ -556,9 +556,11 @@ This is the source for app text. Tone rules: [Design spec §10](design-spec.md#1
 | `after_lower` | Your stress went from %1$d to %2$d. |
 | `after_lower_sub` | That's %1$d points lower. Remember what helped, so you can use it again. (Use a plurals resource for point/points.) |
 | `after_same` | Still at %1$d, and that's okay. |
+| `after_lower_sub_hopeless` | I'm glad something eased a little. Help is still here whenever you need it. (Hopeless only, in place of `after_lower_sub`) |
 | `after_same_sub` | Feelings take time to shift. Be gentle with yourself today. |
 | `after_higher` | It went up to %1$d. |
 | `after_higher_sub` | Thank you for checking honestly. If it keeps rising, reach out to someone you trust or call NCMH at 1553. |
+| `after_higher_sub_hopeless` | Thank you for checking honestly. This sounds really heavy. Talking to someone can help, even right now. (Hopeless only, in place of `after_higher_sub`: the hotline card is right below it) |
 | `after_before` / `after_now` | Before %1$d / Now %1$d (the two pills at the top of the After screen) |
 | `after_action_week` | See my week (the After screen's secondary button; it opens Reports. Its primary button reuses `resp_action_done`) |
 | `prompt_red` | What's the worry? What part is in your control? |
@@ -566,5 +568,8 @@ This is the source for app text. Tone rules: [Design spec §10](design-spec.md#1
 | `prompt_yellow` | What made this moment good? |
 | `prompt_green` | What's helping you feel this way? |
 | `hotline_title` | NCMH Crisis Hotline · available 24/7 |
-| `hotline_number` | 1553 |
+| `hotline_number` | 1553 (not translated, so it's only in `values/strings.xml`) |
+| `hotline_call` | Call %1$s (`%1$s` is `hotline_number`) |
+| `hotline_helper` | This opens your phone app. You choose when to call. |
+| `hotline_no_phone` | This device can't make calls. You can dial %1$s from any phone. (`%1$s` is `hotline_number`; shown when no phone app can open the number) |
 | `disclaimer` | Ulap is a self-care diary, not a medical or emergency service. |

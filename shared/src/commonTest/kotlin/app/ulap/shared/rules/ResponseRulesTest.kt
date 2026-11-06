@@ -138,17 +138,44 @@ class ResponseRulesTest {
         assertFailsWith<IllegalArgumentException> { respond("calm", stress = 11) }
     }
 
+    private fun afterCheck(code: String, before: Int, now: Int) = ResponseRules.afterCheck(mood(code), before, now)
+
     @Test
     fun afterCheckComparesBeforeAndNow() {
-        assertEquals(AfterCheck(StressChange.LOWER, UlapExpression.CALM), ResponseRules.afterCheck(before = 8, now = 5))
+        val worried = "worried"
         assertEquals(
-            AfterCheck(StressChange.SAME, UlapExpression.GENTLE),
-            ResponseRules.afterCheck(before = 8, now = 8),
+            AfterCheck(StressChange.LOWER, UlapExpression.CALM, floats = true, showHotline = false),
+            afterCheck(worried, before = 8, now = 5),
         )
         assertEquals(
-            AfterCheck(StressChange.HIGHER, UlapExpression.GENTLE),
-            ResponseRules.afterCheck(before = 8, now = 9),
+            AfterCheck(StressChange.SAME, UlapExpression.GENTLE, floats = true, showHotline = false),
+            afterCheck(worried, before = 8, now = 8),
         )
-        assertFailsWith<IllegalArgumentException> { ResponseRules.afterCheck(before = 8, now = 0) }
+        assertEquals(
+            AfterCheck(StressChange.HIGHER, UlapExpression.GENTLE, floats = true, showHotline = false),
+            afterCheck(worried, before = 8, now = 9),
+        )
+        assertFailsWith<IllegalArgumentException> { afterCheck(worried, before = 8, now = 0) }
+        assertFailsWith<IllegalArgumentException> { afterCheck(worried, before = 11, now = 5) }
+    }
+
+    @Test
+    fun hopelessAfterCheckStaysQuietAndKeepsTheHotlineWhicheverWayStressWent() {
+        // Safety rule (🔒): the same still Ulap and the 1553 card as on Response, even when lower.
+        listOf(5, 8, 9).forEach { now ->
+            val after = afterCheck(MoodCatalog.HOPELESS, before = 8, now = now)
+            assertEquals(UlapExpression.QUIET, after.expression, "now=$now")
+            assertFalse(after.floats, "now=$now")
+            assertTrue(after.showHotline, "now=$now")
+        }
+    }
+
+    @Test
+    fun onlyHopelessShowsTheHotlineAfterTheCheck() {
+        MoodCatalog.all.filter { it.code != MoodCatalog.HOPELESS }.forEach { mood ->
+            val after = ResponseRules.afterCheck(mood, before = 8, now = 9)
+            assertFalse(after.showHotline, mood.code)
+            assertTrue(after.floats, mood.code)
+        }
     }
 }

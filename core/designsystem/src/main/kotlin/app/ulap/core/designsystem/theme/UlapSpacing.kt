@@ -31,6 +31,9 @@ object UlapSpacing {
     /** Inside a card on a zone tint, e.g. the response screen's support cards (16–20, §6.7). */
     val TintCardPadding = L
 
+    /** Inside the NCMH hotline card (design-spec.md §6.8). Off the 4dp scale on purpose: the spec says 18. */
+    val HotlineCardPadding = 18.dp
+
     /** Between tiles in the mood grid. */
     val MoodGridGap = Xs
 
