@@ -31,6 +31,10 @@
     <string name="logs_filter_all">Tanan</string>
     <!-- When search or a zone chip leaves nothing to show (design-spec.md §7.6) -->
     <string name="logs_no_match">Walay check-in nga mohaum. Sulayi ang laing pulong o zone.</string>
+    <!-- Logs before the first check-in, under a neutral Ulap (design-spec.md §7.6) -->
+    <string name="logs_empty">Diri mogawas ang imong mga check-in.</string>
+    <!-- The empty Logs screen's primary button: opens the Check in tab (design-spec.md §7.6) -->
+    <string name="logs_check_in_now">Mag-check in</string>
     <!-- TalkBack name of the three-dot button on a log row (design-spec.md §5, §6.13) -->
     <string name="logs_row_menu">I-edit o papasa kining check-in</string>
     <!-- Log row menu items (design-spec.md §7.6). logs_delete is also the dialog's confirm button. -->

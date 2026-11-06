@@ -150,6 +150,43 @@ class LogsScreenTest {
     }
 
     @Test
+    fun `an empty diary says where check-ins will show up and offers a check-in`() {
+        var checkInNowClicks = 0
+        compose.setContent {
+            UlapTheme {
+                LogsContent(uiState = LogsUiState.Loaded(days = emptyList()), onCheckInNow = { checkInNowClicks++ })
+            }
+        }
+
+        compose.onNodeWithText("Your check-ins will show up here.").assertIsDisplayed()
+        compose.onNodeWithText("Check in now").performClick()
+
+        assertEquals(1, checkInNowClicks)
+    }
+
+    @Test
+    fun `the empty diary keeps its message and button with Ulap off`() {
+        compose.setContent {
+            UlapTheme { LogsContent(uiState = LogsUiState.Loaded(days = emptyList()), showUlap = false) }
+        }
+
+        compose.onNodeWithText("Your check-ins will show up here.").assertIsDisplayed()
+        compose.onNodeWithText("Check in now").assertIsDisplayed()
+    }
+
+    @Test
+    fun `the empty state shows only for an empty diary`() {
+        compose.setContent {
+            UlapTheme {
+                LogsContent(uiState = LogsUiState.Loaded(days = emptyList(), isDiaryEmpty = false), zone = Zone.BLUE)
+            }
+        }
+
+        compose.onNodeWithText("Your check-ins will show up here.").assertDoesNotExist()
+        compose.onNodeWithText("Check in now").assertDoesNotExist()
+    }
+
+    @Test
     fun `no match says so and offers another try`() {
         compose.setContent {
             UlapTheme {

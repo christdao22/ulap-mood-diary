@@ -7,6 +7,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.ulap.core.domain.checkin.CheckInRepository
+import app.ulap.core.domain.settings.SettingsRepository
+import app.ulap.core.model.UserSettings
 import app.ulap.shared.catalog.MoodCatalog
 import app.ulap.shared.model.Zone
 import app.ulap.shared.rules.CheckInDay
@@ -29,6 +31,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -74,8 +77,11 @@ sealed interface DayLabel {
 }
 
 @HiltViewModel
-class LogsViewModel @Inject constructor(private val checkInRepository: CheckInRepository, private val clock: Clock) :
-    ViewModel() {
+class LogsViewModel @Inject constructor(
+    private val checkInRepository: CheckInRepository,
+    settingsRepository: SettingsRepository,
+    private val clock: Clock,
+) : ViewModel() {
     // Compose state rather than a StateFlow, so the search field updates in the same frame as the
     // keystroke and the cursor never jumps (Android's guidance for text field state).
 
@@ -88,6 +94,11 @@ class LogsViewModel @Inject constructor(private val checkInRepository: CheckInRe
         private set
 
     private var searchNames by mutableStateOf(SearchNames.None)
+
+    /** The user can turn Ulap off; the empty diary's message still shows (design-spec.md §8.5). */
+    val showUlap: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.mascotEnabled }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), UserSettings().mascotEnabled)
 
     /**
      * The check-in whose Delete was tapped, while "Delete this check-in?" waits for an answer
