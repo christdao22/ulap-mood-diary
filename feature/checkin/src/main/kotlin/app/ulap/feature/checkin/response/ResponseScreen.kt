@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.ulap.core.designsystem.component.UlapPrimaryButton
+import app.ulap.core.designsystem.component.UlapQuietButton
 import app.ulap.core.designsystem.component.UlapSecondaryButton
 import app.ulap.core.designsystem.mascot.Ulap
 import app.ulap.core.designsystem.mascot.UlapSize
@@ -41,6 +42,7 @@ import app.ulap.core.ui.responseLineRes
 import app.ulap.core.ui.titleRes
 import app.ulap.core.ui.toMascot
 import app.ulap.shared.catalog.MoodCatalog
+import app.ulap.shared.model.SupportType
 import app.ulap.shared.model.Trigger
 import app.ulap.shared.rules.ResponseActions
 import app.ulap.shared.rules.ResponseRules
@@ -190,7 +192,7 @@ private fun ResponseActionsArea(state: ResponseUiState.Ready, actions: ResponseS
 private fun rememberMoodWord(state: ResponseUiState.Ready): String =
     stringResource(state.mood.nameRes).lowercase(LocalConfiguration.current.locales[0])
 
-/** The zone's support, plus "Maybe later" only when stress is under 8 (design-spec.md §6.6). */
+/** The zone's support, then a quiet "Maybe later" under Breathe at any stress, or an outlined one under stress 8 (§6.6, §7.4). */
 @Composable
 private fun OfferButtons(offer: ResponseActions.Offer, onStartSupport: () -> Unit, onLater: () -> Unit) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(UlapSpacing.S)) {
@@ -201,7 +203,15 @@ private fun OfferButtons(offer: ResponseActions.Offer, onStartSupport: () -> Uni
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-        if (offer.showSecondary) {
+        if (offer.primary == SupportType.BREATHE) {
+            // A quiet, borderless way out for anyone who doesn't want the breathing right now.
+            // It shows at any stress, borderless instead of outlined (design-spec.md §7.4).
+            UlapQuietButton(
+                text = stringResource(R.string.resp_action_later),
+                onClick = onLater,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        } else if (offer.showSecondary) {
             UlapSecondaryButton(
                 text = stringResource(R.string.resp_action_later),
                 onClick = onLater,

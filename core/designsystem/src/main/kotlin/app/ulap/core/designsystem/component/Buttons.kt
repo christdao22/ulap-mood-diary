@@ -91,6 +91,22 @@ fun UlapTertiaryButton(text: String, onClick: () -> Unit, modifier: Modifier = M
 }
 
 /**
+ * No border and no fill, ink2 text, 48dp high (design-spec.md §6.6). A quiet way out that sits
+ * under a primary without competing with it, e.g. "Maybe later" under "Breathe with me".
+ */
+@Composable
+fun UlapQuietButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier.heightIn(min = SecondaryHeight),
+        shape = UlapShape.Button,
+        colors = ButtonDefaults.textButtonColors(contentColor = UlapTheme.colors.ink2),
+    ) {
+        ButtonLabel(text, MaterialTheme.typography.labelLarge)
+    }
+}
+
+/**
  * An underlined link in `info`, used for "Reset to default". The spec asks for at least 44dp of
  * touch area; this uses Android's 48dp minimum (§11).
  */

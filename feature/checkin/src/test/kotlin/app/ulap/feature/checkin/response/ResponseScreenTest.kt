@@ -69,6 +69,21 @@ class ResponseScreenTest {
 
     @Test
     fun `under stress 8 both buttons show, and each reports its tap`() {
+        show("sad", stress = 6)
+        compose.onNodeWithText("Something small that helps").performClick()
+        compose.onNodeWithText("Maybe later").performClick()
+        assertEquals(listOf("support", "finish"), events)
+    }
+
+    @Test
+    fun `at stress 8 or more only the primary button shows`() {
+        show("sad", stress = 8)
+        compose.onNodeWithText("Something small that helps").assertExists()
+        compose.onNodeWithText("Maybe later").assertDoesNotExist()
+    }
+
+    @Test
+    fun `Red has a quiet Maybe later under Breathe with me`() {
         show("worried", stress = 6)
         compose.onNodeWithText("Breathe with me · 1 minute").performClick()
         compose.onNodeWithText("Maybe later").performClick()
@@ -76,9 +91,14 @@ class ResponseScreenTest {
     }
 
     @Test
-    fun `at stress 8 or more only the primary button shows`() {
-        show("worried", stress = 8)
-        compose.onNodeWithText("Breathe with me · 1 minute").assertExists()
+    fun `Red keeps Maybe later at stress 8 or more, so nobody is pushed into the breathing`() {
+        show("worried", stress = 9)
+        compose.onNodeWithText("Maybe later").assertExists()
+    }
+
+    @Test
+    fun `once the breathing has started, Maybe later is gone`() {
+        show("worried", stress = 6, startedSupport = SupportType.BREATHE)
         compose.onNodeWithText("Maybe later").assertDoesNotExist()
     }
 
@@ -198,7 +218,7 @@ class ResponseScreenTest {
 
     @Test
     fun `Red asks how stressed the person feels now, starting at the logged stress`() {
-        show("worried", stress = 7)
+        show("worried", stress = 7, startedSupport = SupportType.BREATHE)
         compose.onNodeWithText("When you're ready").assertExists()
         compose.onNodeWithText("How stressed do you feel now?")
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
@@ -208,7 +228,7 @@ class ResponseScreenTest {
 
     @Test
     fun `the stress check reports the slider and Check in`() {
-        show("sad", stress = 6)
+        show("sad", stress = 6, startedSupport = SupportType.SMALL_HELPS)
         compose.onNodeWithContentDescription("Stress")
             .performSemanticsAction(SemanticsActions.SetProgress) { setProgress -> setProgress(4f) }
         compose.onNodeWithText("Check in").performClick()
@@ -216,11 +236,17 @@ class ResponseScreenTest {
     }
 
     @Test
-    fun `at stress 8 or more the screen opens with the support button alone`() {
+    fun `at stress 8 or more the screen opens with no stress check`() {
         show("worried", stress = 8)
         compose.onNodeWithText("Breathe with me · 1 minute").assertExists()
         compose.onNodeWithText("How stressed do you feel now?").assertDoesNotExist()
         compose.onNodeWithText("Check in").assertDoesNotExist()
+    }
+
+    @Test
+    fun `under stress 8 the stress check also waits for the support to start`() {
+        show("worried", stress = 3)
+        compose.onNodeWithText("How stressed do you feel now?").assertDoesNotExist()
     }
 
     @Test

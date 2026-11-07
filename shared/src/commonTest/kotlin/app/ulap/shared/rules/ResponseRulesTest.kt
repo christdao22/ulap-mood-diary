@@ -33,7 +33,7 @@ class ResponseRulesTest {
         assertEquals(UlapExpression.CONCERNED, response.expression)
         assertEquals(ResponseMessage.RED, response.message)
         assertEquals(ResponseActions.Offer(SupportType.BREATHE, showSecondary = true), response.actions)
-        assertEquals(StressCheck.NOW, response.stressCheck)
+        assertEquals(StressCheck.AFTER_SUPPORT, response.stressCheck)
         assertTrue(response.floats)
     }
 
@@ -43,7 +43,7 @@ class ResponseRulesTest {
         assertEquals(UlapExpression.GENTLE, response.expression)
         assertEquals(ResponseMessage.BLUE, response.message)
         assertEquals(ResponseActions.Offer(SupportType.SMALL_HELPS, showSecondary = true), response.actions)
-        assertEquals(StressCheck.NOW, response.stressCheck)
+        assertEquals(StressCheck.AFTER_SUPPORT, response.stressCheck)
     }
 
     @Test
@@ -100,9 +100,10 @@ class ResponseRulesTest {
     }
 
     @Test
-    fun stressOfEightOrMoreHoldsTheStressCheckUntilTheSupportStarts() {
-        // Red and Blue open with the support button alone (technical-plan.md §5).
-        assertEquals(StressCheck.NOW, respond("worried", stress = 7).stressCheck)
+    fun redAndBlueHoldTheStressCheckUntilTheSupportStarts() {
+        // At any stress, the card follows the support it asks about (technical-plan.md §5).
+        assertEquals(StressCheck.AFTER_SUPPORT, respond("worried", stress = 2).stressCheck)
+        assertEquals(StressCheck.AFTER_SUPPORT, respond("worried", stress = 7).stressCheck)
         assertEquals(StressCheck.AFTER_SUPPORT, respond("worried", stress = 8).stressCheck)
         assertEquals(StressCheck.AFTER_SUPPORT, respond("sad", stress = 10).stressCheck)
         // Pleasant zones have no card, at any stress.

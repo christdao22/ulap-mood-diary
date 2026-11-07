@@ -138,11 +138,11 @@ The catalog lives in `shared` so the app and the server validate against the sam
 
 | Rule | Behavior |
 |---|---|
-| Red zone | Concerned-but-calm Ulap, breathing exercise offered, check-in slider shown |
-| Blue zone | Gentle Ulap, "something small that helps" list, check-in slider shown |
+| Red zone | Concerned-but-calm Ulap, breathing exercise offered with a quiet "Maybe later" under it at any stress, check-in slider shown under the breathing circle once it has started |
+| Blue zone | Gentle Ulap, "something small that helps" list, check-in slider shown under the list once it has started |
 | Yellow / Green | Happy or calm Ulap, "Save to good moments" offered, no check-in slider |
 | `hopeless` | Quiet Ulap (no animation), NCMH 1553 card instead of activity buttons, and a secondary **Done** at the bottom. The check-in slider is still shown (Blue zone). The After screen keeps the quiet, still Ulap and shows the 1553 card again, whichever way stress went. |
-| Stress ≥ 8 | Only one action button (no choices): no "Maybe later", and in Red and Blue the check-in slider waits until the support has started. Hopeless keeps its slider from the start, since it has no support button to wait for. |
+| Stress ≥ 8 | No "Maybe later", except in Red, where the quiet one stays so nobody is pushed into the breathing. At every stress, Red and Blue hold the check-in slider until the support has started. Hopeless keeps its slider from the start, since it has no support button to wait for. |
 | Unpleasant zone and a trigger is set | Add the trigger line (e.g. "Work can take a lot out of us.") |
 
 Put these rules in `shared/rules/ResponseRules.kt` and unit-test them. How each case looks on screen: [Design spec §7.4](design-spec.md#74-check-in--response-sympathetic).
@@ -531,7 +531,7 @@ This is the source for app text. Tone rules: [Design spec §10](design-spec.md#1
 | `resp_action_breathe` | Breathe with me · 1 minute |
 | `resp_action_small_helps` | Something small that helps |
 | `resp_action_good_moment` | Save to good moments |
-| `resp_action_later` | Maybe later (the secondary button; it ends the check-in) |
+| `resp_action_later` | Maybe later (the secondary button, or the quiet one under "Breathe with me"; it ends the check-in) |
 | `resp_action_done` | Done (under the good-moment card; it ends the check-in) |
 | `help_breathe_steps` | In for 4 · hold for 2 · out for 6 |
 | `help_breathe_sub` | Follow the circle. Five slow breaths is enough. |

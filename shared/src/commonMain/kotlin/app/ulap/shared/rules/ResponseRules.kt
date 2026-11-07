@@ -35,12 +35,12 @@ enum class StressCheck {
     /** Yellow and Green: no card. */
     NONE,
 
-    /** From the start: Red and Blue under stress 8, and Hopeless at every stress. */
+    /** From the start: Hopeless only, which has no support button to wait for. */
     NOW,
 
     /**
-     * Red and Blue at stress 8 or more: only once the support has started, so the screen opens
-     * with one button and no choice to make (technical-plan.md §5).
+     * Red and Blue at every stress: only once the support has started, so the card sits under the
+     * breathing circle or the small helps it asks about (technical-plan.md §5).
      */
     AFTER_SUPPORT,
     ;
@@ -120,17 +120,18 @@ object ResponseRules {
             } else {
                 ResponseActions.Offer(primary = zone.support(), showSecondary = stress < ONE_BUTTON_STRESS)
             },
-            stressCheck = stressCheck(zone, stress, isHopeless),
+            stressCheck = stressCheck(zone, isHopeless),
         )
     }
 
     /**
      * Hopeless has no support button to wait for, so its card shows from the start at any stress
-     * (🔒 safety rule, technical-plan.md §5).
+     * (🔒 safety rule, technical-plan.md §5). Red and Blue ask only after the support, at any
+     * stress, so the question follows the breathing or small helps it's asking about.
      */
-    private fun stressCheck(zone: Zone, stress: Int, isHopeless: Boolean): StressCheck = when {
+    private fun stressCheck(zone: Zone, isHopeless: Boolean): StressCheck = when {
         !zone.isUnpleasant -> StressCheck.NONE
-        isHopeless || stress < ONE_BUTTON_STRESS -> StressCheck.NOW
+        isHopeless -> StressCheck.NOW
         else -> StressCheck.AFTER_SUPPORT
     }
 

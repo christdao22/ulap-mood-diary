@@ -118,6 +118,7 @@ class ResponseViewModelTest {
     @Test
     fun `the stress check starts at the logged stress and follows the slider`() = runTest {
         val viewModel = viewModel(save("worried", stress = 7))
+        viewModel.startSupport()
         assertTrue(viewModel.ready().showsStressCheck)
         assertEquals(7, viewModel.ready().stressNow)
 
@@ -126,7 +127,8 @@ class ResponseViewModelTest {
     }
 
     @Test
-    fun `at stress 8 or more the stress check waits for the support to start`() = runTest {
+    fun `the stress check waits for the support to start, at any stress`() = runTest {
+        assertFalse(viewModel(save("worried", stress = 3)).ready().showsStressCheck)
         val id = save("worried", stress = 8)
         val viewModel = viewModel(id)
         assertFalse(viewModel.ready().showsStressCheck)
@@ -162,6 +164,7 @@ class ResponseViewModelTest {
     fun `once Check in is tapped, the slider and a second tap change nothing`() = runTest {
         val id = save("sad", stress = 6)
         val viewModel = viewModel(id)
+        viewModel.startSupport()
         viewModel.setStressNow(4)
         viewModel.saveStressCheck()
         viewModel.setStressNow(9)
@@ -198,6 +201,7 @@ class ResponseViewModelTest {
     fun `a check-in deleted before Check in sends the screen away`() = runTest {
         val id = save("worried", stress = 7)
         val viewModel = viewModel(id)
+        viewModel.startSupport()
         checkIns.delete(id)
         viewModel.saveStressCheck()
 

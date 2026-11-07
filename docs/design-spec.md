@@ -188,6 +188,7 @@ Flat. Separate surfaces with a **1dp `line` border**, not shadows. The only "sha
 | Primary | 52 | `ink` fill, white text 16/600, radius 14 |
 | Secondary | 48 | Transparent, 1dp `outlineButton` border, ink text 15/500 |
 | Tertiary (outline strong) | 48 | `surface` fill, 1.5dp `ink` border. Used for "Check in." |
+| Quiet | 48 | No border, no fill, `ink2` text 15/500. A way out under a primary, e.g. "Maybe later" under "Breathe with me." |
 | Text link | ≥44 touch | `info` color, underline. Used for "Reset to default." |
 | Icon button | 44×44 | `surface` fill, radius 12 |
 
@@ -281,9 +282,9 @@ Which actions appear is decided by `ResponseRules` ([Technical plan §5](technic
 - Full-screen zone tint background.
 - Ulap 168dp, centered, floating (still for Hopeless).
 - Title (displayM, centered) → body (bodyL) → trigger line (body, ink3) when relevant.
-- Actions: primary (zone action) + secondary (only when stress < 8).
+- Actions: primary (zone action) + secondary (only when stress < 8). Red is the exception: under **Breathe with me**, "Maybe later" is a quiet button (§6.6) and shows at any stress, so nobody is pushed into the breathing.
 - After the primary tap: a support card replaces the buttons (breathing circle / small helps list / "Saved to your good moments"). The cards use the tinted-background card style (§6.7). The good-moment card has no check-in card after it, so a secondary **Done** under it ends the check-in. Text: `help_*` keys in [Technical plan, Appendix B](technical-plan.md#appendix-b-response-message-keys-english-source).
-- Red and Blue zones: a check-in card at the bottom: "When you're ready" / "How stressed do you feel now?" + slider (starts at the logged stress) + **Check in**. At stress ≥ 8 the card appears only after the primary tap, so the screen opens with one button and no choice to make.
+- Red and Blue zones: after the primary tap, a check-in card under the support card: "When you're ready" / "How stressed do you feel now?" + slider (starts at the logged stress) + **Check in**. It never shows before the tap, at any stress, so the question follows the breathing or small helps it asks about. "Maybe later" skips it.
 - Hopeless: hotline card instead of action buttons. The check-in card is still shown, then a secondary **Done** at the bottom, so there is a way out that isn't Back and the check-in stays optional.
 
 ### 7.5 Check in · After
