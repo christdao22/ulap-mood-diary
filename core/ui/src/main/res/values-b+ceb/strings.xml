@@ -118,10 +118,10 @@
     <!-- The support card that replaces the buttons after the primary tap (design-spec.md §6.9, §7.4, technical-plan.md Appendix B, help_*) -->
     <string name="help_breathe_steps">Sulod 4 · pugngi 2 · gawas 6</string>
     <string name="help_breathe_sub">Sunda ang lingin. Igo na ang lima ka hinay nga ginhawa.</string>
-    <!-- The counter under a still circle when animations are off. %1$d is the seconds left in this part -->
-    <string name="help_breathe_in">Ginhawa pasulod · %1$d</string>
-    <string name="help_breathe_hold">Pugngi · %1$d</string>
-    <string name="help_breathe_out">Ginhawa pagawas · %1$d</string>
+    <!-- The word inside the breathing circle for this part of the breath -->
+    <string name="help_breathe_in">Ginhawa pasulod</string>
+    <string name="help_breathe_hold">Pugngi</string>
+    <string name="help_breathe_out">Ginhawa pagawas</string>
     <string name="help_small_title">Gusto ka mosulay og usa?</string>
     <string name="help_small_water">Inom og usa ka basong tubig</string>
     <string name="help_small_song">Pamati og kanta nga ganahan nimo</string>

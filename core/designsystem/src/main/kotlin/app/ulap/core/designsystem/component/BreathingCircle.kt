@@ -1,32 +1,41 @@
 package app.ulap.core.designsystem.component
 
-import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import app.ulap.core.designsystem.motion.rememberReducedMotion
-import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
 import kotlinx.coroutines.delay
 
@@ -56,97 +65,140 @@ fun breathStepAt(elapsedSeconds: Int): BreathStep {
 }
 
 /**
- * The breathing circle (design-spec.md §6.9): a 140dp circle in the Red tint with a 3dp Red
- * border that grows for 4s, holds for 2s and shrinks for 6s, on a loop (§9).
+ * How far round the ring is, [millis] into a breath: it fills during "Inhale", stays still
+ * during "Hold", then finishes the turn during "Exhale". One full turn is one breath
+ * (design-spec.md §6.9).
+ */
+fun breathProgressAt(millis: Float): Float {
+    val t = millis.mod(BREATH_CYCLE_SECONDS * ONE_SECOND_MILLIS)
+    val inEnd = BreathPhase.IN.seconds * ONE_SECOND_MILLIS
+    val holdEnd = inEnd + BreathPhase.HOLD.seconds * ONE_SECOND_MILLIS
+    val moving = (BreathPhase.IN.seconds + BreathPhase.OUT.seconds) * ONE_SECOND_MILLIS
+    val movedMillis = when {
+        t < inEnd -> t
+        t < holdEnd -> inEnd
+        else -> inEnd + (t - holdEnd)
+    }
+    return movedMillis / moving
+}
+
+/**
+ * The breathing circle (design-spec.md §6.9): a 140dp circle in the Red tint. A Red ring
+ * sweeps clockwise from the top around it, one full turn per 12s breath: it moves for the 4s
+ * inhale, pauses for the 2s hold, and finishes over the 6s exhale, then starts again (§9).
  *
- * With "Remove animations" on, the circle stays still and a counter under it does the pacing
- * instead, e.g. "Breathe in · 3". The words live in core:ui, so the caller turns each
- * [BreathStep] into text with [counterText].
+ * Inside it, the part of the breath ("Inhale", "Hold", "Exhale") changes in step with the ring. The words live in core:ui, so the caller turns each
+ * [BreathPhase] into text with [phaseLabel].
  *
- * The circle itself is decorative. The caller's text under it says what to do.
+ * With "Remove animations" on, the ring moves in one-second steps instead of gliding.
  */
 @Composable
-fun BreathingCircle(counterText: (BreathStep) -> String, modifier: Modifier = Modifier) {
-    val reducedMotion = rememberReducedMotion()
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(UlapSpacing.S),
-    ) {
-        if (reducedMotion) {
-            Circle(scale = { FULL_SCALE })
-            BreathCounter(counterText)
-        } else {
-            val scale = rememberBreathScale()
-            Circle(scale = { scale.value })
+fun BreathingCircle(phaseLabel: (BreathPhase) -> String, modifier: Modifier = Modifier) {
+    if (rememberReducedMotion()) {
+        var elapsedSeconds by remember { mutableIntStateOf(0) }
+        LaunchedEffect(Unit) {
+            while (true) {
+                delay(ONE_SECOND_MILLIS.toLong())
+                elapsedSeconds++
+            }
         }
+        val step = breathStepAt(elapsedSeconds)
+        CircleWithStep(
+            progress = { breathProgressAt((elapsedSeconds.mod(BREATH_CYCLE_SECONDS) + 1) * ONE_SECOND_MILLIS) },
+            step = step,
+            phaseLabel = phaseLabel,
+            fadeWords = false,
+            modifier = modifier,
+        )
+    } else {
+        // One clock drives both the ring and the countdown, so they never drift apart.
+        val millis = rememberInfiniteTransition(label = "breathingCircle").animateFloat(
+            initialValue = 0f,
+            targetValue = BREATH_CYCLE_SECONDS * ONE_SECOND_MILLIS,
+            animationSpec = infiniteRepeatable(
+                animation = tween(BREATH_CYCLE_SECONDS * ONE_SECOND_MILLIS.toInt(), easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
+            label = "breathMillis",
+        )
+        // Recompose the word once a second at most, not every frame.
+        val second by remember { derivedStateOf { (millis.value / ONE_SECOND_MILLIS).toInt() } }
+        CircleWithStep(
+            progress = { breathProgressAt(millis.value) },
+            step = breathStepAt(second),
+            phaseLabel = phaseLabel,
+            fadeWords = true,
+            modifier = modifier,
+        )
     }
 }
 
 /**
- * Draws at [scale] of the full size. Reading the scale only while drawing means the animation
- * redraws the circle each frame without recomposing anything. The border keeps its 3dp width.
+ * Draws the filled circle and the ring at [progress] of a full turn, with the step's word in the
+ * middle. Reading the progress only while drawing means the ring redraws each
+ * frame without recomposing.
  */
 @Composable
-private fun Circle(scale: () -> Float) {
+private fun CircleWithStep(
+    progress: () -> Float,
+    step: BreathStep,
+    phaseLabel: (BreathPhase) -> String,
+    fadeWords: Boolean,
+    modifier: Modifier = Modifier,
+) {
     val red = UlapTheme.colors.red
-    Canvas(Modifier.size(CIRCLE_SIZE)) {
-        val border = BORDER_WIDTH.toPx()
-        val radius = size.minDimension / 2 * scale() - border / 2
-        drawCircle(color = red.tint, radius = radius)
-        drawCircle(color = red.strong, radius = radius, style = Stroke(width = border))
-    }
-}
-
-/** Counts each phase down once a second, e.g. "Breathe in · 4", "· 3" … then "Hold · 2". */
-@Composable
-private fun BreathCounter(counterText: (BreathStep) -> String) {
-    var elapsedSeconds by remember { mutableIntStateOf(0) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(ONE_SECOND_MILLIS)
-            elapsedSeconds++
+    Box(modifier.size(CIRCLE_SIZE), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.size(CIRCLE_SIZE)) {
+            val ring = RING_WIDTH.toPx()
+            val inset = ring / 2
+            drawCircle(color = red.tint, radius = size.minDimension / 2 - ring)
+            drawArc(
+                color = red.strong,
+                startAngle = -90f,
+                sweepAngle = 360f * progress(),
+                useCenter = false,
+                topLeft = Offset(inset, inset),
+                size = Size(size.width - ring, size.height - ring),
+                style = Stroke(width = ring, cap = StrokeCap.Round),
+            )
+        }
+        // The old word drifts up and fades out while the new one rises in from below,
+        // instead of snapping. With "Remove animations" on it changes straight away.
+        AnimatedContent(
+            targetState = step.phase,
+            transitionSpec = {
+                if (fadeWords) {
+                    (slideInVertically(tween(WORD_FADE_MILLIS)) { it / 2 } + fadeIn(tween(WORD_FADE_MILLIS)))
+                        .togetherWith(
+                            slideOutVertically(tween(WORD_FADE_MILLIS)) { -it / 2 } +
+                                fadeOut(tween(WORD_FADE_MILLIS)),
+                        )
+                } else {
+                    EnterTransition.None togetherWith ExitTransition.None
+                }
+            },
+            contentAlignment = Alignment.Center,
+            label = "breathWord",
+        ) { phase ->
+            Text(
+                text = phaseLabel(phase),
+                style = MaterialTheme.typography.titleMedium,
+                color = red.text,
+                textAlign = TextAlign.Center,
+            )
         }
     }
-    Text(
-        text = counterText(breathStepAt(elapsedSeconds)),
-        style = MaterialTheme.typography.titleMedium,
-        color = UlapTheme.colors.red.text,
-        textAlign = TextAlign.Center,
-    )
-}
-
-/** 0.6 → 1.0 over the in-breath, held, then back to 0.6 over the out-breath (§9). */
-@Composable
-private fun rememberBreathScale(): State<Float> {
-    val inEnd = BreathPhase.IN.seconds * ONE_SECOND_MILLIS.toInt()
-    val holdEnd = inEnd + BreathPhase.HOLD.seconds * ONE_SECOND_MILLIS.toInt()
-    return rememberInfiniteTransition(label = "breathingCircle").animateFloat(
-        initialValue = SMALL_SCALE,
-        targetValue = SMALL_SCALE,
-        animationSpec = infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = BREATH_CYCLE_SECONDS * ONE_SECOND_MILLIS.toInt()
-                SMALL_SCALE at 0 using EaseInOut
-                FULL_SCALE at inEnd
-                FULL_SCALE at holdEnd using EaseInOut
-            },
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "breathScale",
-    )
 }
 
 private val CIRCLE_SIZE = 140.dp
-private val BORDER_WIDTH = 3.dp
-private const val SMALL_SCALE = 0.6f
-private const val FULL_SCALE = 1f
-private const val ONE_SECOND_MILLIS = 1_000L
+private val RING_WIDTH = 8.dp
+private const val WORD_FADE_MILLIS = 700
+private const val ONE_SECOND_MILLIS = 1_000f
 
 @Preview
 @Composable
 private fun BreathingCirclePreview() {
     UlapTheme {
-        BreathingCircle(counterText = { "${it.phase} · ${it.secondsLeft}" })
+        BreathingCircle(phaseLabel = { it.name })
     }
 }

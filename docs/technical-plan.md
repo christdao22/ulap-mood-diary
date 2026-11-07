@@ -535,7 +535,7 @@ This is the source for app text. Tone rules: [Design spec §10](design-spec.md#1
 | `resp_action_done` | Done (under the good-moment card; it ends the check-in) |
 | `help_breathe_steps` | In for 4 · hold for 2 · out for 6 |
 | `help_breathe_sub` | Follow the circle. Five slow breaths is enough. |
-| `help_breathe_in` / `_hold` / `_out` | Breathe in · %1$d / Hold · %1$d / Breathe out · %1$d (the counter when animations are off; seconds left) |
+| `help_breathe_in` / `_hold` / `_out` | Inhale / Hold / Exhale (the word inside the breathing circle, above the seconds left) |
 | `help_small_title` | Want to try one? |
 | `help_small_water` | Drink a glass of water (the list runs easiest first, in this order) |
 | `help_small_song` | Play a song you like |

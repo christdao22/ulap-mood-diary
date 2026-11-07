@@ -27,7 +27,7 @@ import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.ui.R
 import app.ulap.core.ui.SmallHelpsRes
-import app.ulap.core.ui.counterRes
+import app.ulap.core.ui.labelRes
 import app.ulap.shared.model.SupportType
 
 /**
@@ -51,9 +51,9 @@ internal fun SupportCard(support: SupportType, onFinish: () -> Unit, modifier: M
 private fun BreatheCard(modifier: Modifier = Modifier) {
     val colors = UlapTheme.colors
     UlapTintCard(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        // counterText isn't a composable, so it can't call stringResource; it reads the words here.
+        // phaseLabel isn't a composable, so it can't call stringResource; it reads the words here.
         val resources = LocalResources.current
-        BreathingCircle(counterText = { step -> resources.getString(step.phase.counterRes, step.secondsLeft) })
+        BreathingCircle(phaseLabel = { phase -> resources.getString(phase.labelRes) })
         Text(
             text = stringResource(R.string.help_breathe_steps),
             style = MaterialTheme.typography.titleMedium,

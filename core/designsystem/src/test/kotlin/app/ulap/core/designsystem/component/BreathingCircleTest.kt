@@ -39,22 +39,41 @@ class BreathingCircleTest {
     }
 
     @Test
-    fun `with animations on there is no counter, only the moving circle`() {
-        show()
-        compose.onNodeWithText("IN · 4").assertDoesNotExist()
+    fun `the ring makes one turn per breath and pauses on the hold`() {
+        assertEquals(0f, breathProgressAt(0f), 0.001f)
+        assertEquals(0.4f, breathProgressAt(4_000f), 0.001f)
+        assertEquals(0.4f, breathProgressAt(5_000f), 0.001f)
+        assertEquals(0.4f, breathProgressAt(6_000f), 0.001f)
+        assertEquals(0.7f, breathProgressAt(9_000f), 0.001f)
+        assertEquals(0f, breathProgressAt(12_000f), 0.001f)
     }
 
     @Test
-    fun `with animations off a counter paces the breath, a second at a time`() {
+    fun `with animations on the word inside the circle follows the breath`() {
+        compose.mainClock.autoAdvance = false
+        show()
+        assertWord("IN")
+        advanceSeconds(1)
+        assertWord("IN")
+        advanceSeconds(3)
+        assertWord("HOLD")
+    }
+
+    @Test
+    fun `with animations off the word still follows the breath`() {
         val resolver = ApplicationProvider.getApplicationContext<android.content.Context>().contentResolver
         Settings.Global.putFloat(resolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
         compose.mainClock.autoAdvance = false
         show()
-        compose.onNodeWithText("IN · 4").assertExists()
+        assertWord("IN")
         advanceSeconds(1)
-        compose.onNodeWithText("IN · 3").assertExists()
+        assertWord("IN")
         advanceSeconds(3)
-        compose.onNodeWithText("HOLD · 2").assertExists()
+        assertWord("HOLD")
+    }
+
+    private fun assertWord(word: String) {
+        compose.onNodeWithText(word).assertExists()
     }
 
     /** The counter ticks after its delay; one more frame then draws the new number. */
@@ -65,7 +84,7 @@ class BreathingCircleTest {
 
     private fun show() {
         compose.setContent {
-            UlapTheme { BreathingCircle(counterText = { "${it.phase} · ${it.secondsLeft}" }) }
+            UlapTheme { BreathingCircle(phaseLabel = { it.name }) }
         }
     }
 

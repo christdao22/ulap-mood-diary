@@ -60,9 +60,9 @@ val SupportType.offerRes: Int?
         SupportType.NONE -> null
     }
 
-/** The still-circle counter's words for each part of a breath, e.g. "Breathe in · %1$d" (§6.9). */
+/** The word inside the breathing circle for each part of a breath, e.g. "Inhale" (design-spec.md §6.9). */
 @get:StringRes
-val BreathPhase.counterRes: Int
+val BreathPhase.labelRes: Int
     get() = when (this) {
         BreathPhase.IN -> R.string.help_breathe_in
         BreathPhase.HOLD -> R.string.help_breathe_hold

@@ -36,7 +36,7 @@ class ResponseTextTest {
     }
 
     @Test
-    fun `every part of a breath has its own counter words`() {
-        assertEquals(BreathPhase.entries.size, BreathPhase.entries.map { it.counterRes }.toSet().size)
+    fun `every part of a breath has its own word`() {
+        assertEquals(BreathPhase.entries.size, BreathPhase.entries.map { it.labelRes }.toSet().size)
     }
 }
