@@ -62,7 +62,7 @@ fun SpeechBubble(
 /**
  * Ulap with a [SpeechBubble] to its right, bottom-aligned with Ulap's base (design-spec.md
  * §6.3). Ulap is decorative here: the bubble already says it, so TalkBack reads only the bubble
- * (§11).
+ * (§11). [messageStyle] as on [SpeechBubble].
  */
 @Composable
 fun UlapSays(
@@ -73,6 +73,7 @@ fun UlapSays(
     supporting: String? = null,
     ulapSize: Dp = UlapSize.Greeting,
     showUlap: Boolean = true,
+    messageStyle: TextStyle = MaterialTheme.typography.titleMedium,
 ) {
     Row(
         modifier = modifier,
@@ -85,6 +86,7 @@ fun UlapSays(
             message = message,
             context = context,
             supporting = supporting,
+            messageStyle = messageStyle,
             // Ulap's base sits 20 of its 110 viewBox units above the bottom edge (§8.2).
             modifier = Modifier
                 .weight(1f)

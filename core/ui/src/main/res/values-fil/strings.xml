@@ -247,4 +247,51 @@
     <string name="insight_time_afternoon">Kadalasang mas mabigat ang pakiramdam mo sa hapon.</string>
     <string name="insight_time_evening">Kadalasang mas mabigat ang pakiramdam mo sa gabi.</string>
     <string name="insight_time_night">Kadalasang mas mabigat ang pakiramdam mo kapag gabing-gabi na.</string>
+
+    <!-- Reports screen (design-spec.md §7.7). Drafts for native review (Phase 5). -->
+    <string name="reports_daily">Araw-araw</string>
+    <string name="reports_weekly">Lingguhan</string>
+    <string name="reports_monthly">Buwanan</string>
+    <string name="reports_previous">Nakaraang panahon</string>
+    <string name="reports_next">Susunod na panahon</string>
+    <string name="reports_today">Ngayon</string>
+    <string name="reports_noticed">Napansin ni Ulap:</string>
+    <string name="reports_noticed_none">Walang kakaibang lumitaw ngayon. Patuloy akong magmamasid kasama mo.</string>
+    <string name="reports_not_enough">Ilan pang check-in at magsisimula na tayong makakita ng mga pattern nang magkasama.</string>
+    <string name="reports_tile_check_ins">Mga check-in</string>
+    <string name="reports_tile_stress">Karaniwang stress</string>
+    <string name="reports_tile_mood">Pinakamadalas na mood</string>
+    <string name="reports_tile_trigger">Pangunahing trigger</string>
+    <string name="reports_none">—</string>
+    <string name="reports_same">Kapareho ng dati</string>
+    <string name="reports_stress_lower">%1$s mas mababa kaysa dati</string>
+    <string name="reports_stress_higher">%1$s mas mataas kaysa dati</string>
+    <plurals name="reports_trigger_count">
+        <item quantity="one">Sa %1$d check-in</item>
+        <item quantity="other">Sa %1$d check-in</item>
+    </plurals>
+    <string name="reports_trend_title">Takbo ng stress</string>
+    <string name="reports_trend_sub_daily">Bawat check-in, stress mula 0 hanggang 10</string>
+    <string name="reports_trend_sub_days">Karaniwang stress bawat araw, mula 0 hanggang 10</string>
+    <string name="reports_band_high">Mataas 7–10</string>
+    <string name="reports_band_moderate">Katamtaman 4–6.9</string>
+    <string name="reports_band_low">Mababa 0–3.9</string>
+    <string name="reports_trend_summary_daily">Stress sa bawat check-in. Pinakamataas %1$s, %2$s. Pinakamababa %3$s, %4$s.</string>
+    <string name="reports_trend_summary_days">Karaniwang stress bawat araw. Pinakamataas %1$s, %2$s. Pinakamababa %3$s, %4$s.</string>
+    <string name="reports_moods_title">Mga mood</string>
+    <string name="reports_moods_sub">Ang pinakamadalas mong mood, ayon sa check-in</string>
+    <string name="reports_helped_title">Ano ang pinakanakatulong</string>
+    <string name="reports_helped_sub">Gaano bumaba ang stress pagkatapos, sa karaniwan</string>
+    <string name="reports_helped_empty">Kapag tiningnan mo ulit ang stress mo pagkatapos sumubok ng isang bagay, lalabas ito rito.</string>
+    <string name="reports_triggers_title">Mga pangunahing trigger</string>
+    <string name="reports_triggers_sub">Mga check-in bawat trigger</string>
+    <string name="reports_helped_value">−%1$s</string>
+    <string name="reports_support_breathe">Paghinga</string>
+    <string name="reports_support_small_helps">Maliliit na tulong</string>
+    <string name="reports_support_good_moment">Pag-save ng magandang sandali</string>
+    <plurals name="reports_bar_count_description">
+        <item quantity="one">%1$s, %2$d check-in</item>
+        <item quantity="other">%1$s, %2$d check-in</item>
+    </plurals>
+    <string name="reports_helped_description">%1$s, bumaba ang stress nang %2$s sa karaniwan</string>
 </resources>

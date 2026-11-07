@@ -2,6 +2,7 @@ package app.ulap.core.ui
 
 import android.content.res.Resources
 import androidx.annotation.StringRes
+import app.ulap.shared.model.SupportType
 import app.ulap.shared.rules.ReportInsight
 import app.ulap.shared.rules.TimeOfDay
 import kotlinx.datetime.DayOfWeek
@@ -44,4 +45,14 @@ private val TimeOfDay.insightRes: Int
         TimeOfDay.AFTERNOON -> R.string.insight_time_afternoon
         TimeOfDay.EVENING -> R.string.insight_time_evening
         TimeOfDay.NIGHT -> R.string.insight_time_night
+    }
+
+/** The support's name in "What helped most", e.g. "Breathing". Null for NONE, which isn't listed. */
+@get:StringRes
+val SupportType.reportNameRes: Int?
+    get() = when (this) {
+        SupportType.BREATHE -> R.string.reports_support_breathe
+        SupportType.SMALL_HELPS -> R.string.reports_support_small_helps
+        SupportType.GOOD_MOMENT -> R.string.reports_support_good_moment
+        SupportType.NONE -> null
     }

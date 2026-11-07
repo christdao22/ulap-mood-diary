@@ -120,3 +120,22 @@ internal fun <K : Any> List<CheckIn>.rankBy(key: (CheckIn) -> K?): List<Pair<K, 
             compareByDescending<Pair<K, List<CheckIn>>> { it.second.size }
                 .thenByDescending { group -> group.second.maxOf { it.loggedAt } },
         )
+
+/** The Reports color bands for a stress value (design-spec.md §2.3): Low 0–3.9, Moderate 4–6.9, High 7–10. */
+enum class StressBand {
+    LOW,
+    MODERATE,
+    HIGH,
+    ;
+
+    companion object {
+        private const val MODERATE_FROM = 4.0
+        private const val HIGH_FROM = 7.0
+
+        fun of(stress: Double): StressBand = when {
+            stress >= HIGH_FROM -> HIGH
+            stress >= MODERATE_FROM -> MODERATE
+            else -> LOW
+        }
+    }
+}

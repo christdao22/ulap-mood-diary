@@ -253,4 +253,68 @@
     <string name="insight_time_afternoon">Afternoons tend to be harder for you.</string>
     <string name="insight_time_evening">Evenings tend to be harder for you.</string>
     <string name="insight_time_night">Late nights tend to be harder for you.</string>
+
+    <!-- Reports screen (design-spec.md §7.7). The screen title is tab_reports. -->
+    <!-- Segmented control (design-spec.md §6.11) -->
+    <string name="reports_daily">Daily</string>
+    <string name="reports_weekly">Weekly</string>
+    <string name="reports_monthly">Monthly</string>
+    <!-- TalkBack names of the arrows beside the period label -->
+    <string name="reports_previous">Previous period</string>
+    <string name="reports_next">Next period</string>
+    <!-- Period label when the Daily view shows today -->
+    <string name="reports_today">Today</string>
+    <!-- Context line of Ulap's bubble; the insight follows (insight_*) -->
+    <string name="reports_noticed">Ulap noticed:</string>
+    <!-- The bubble when no insight rule holds. Describes, never grades. -->
+    <string name="reports_noticed_none">Nothing stands out this time. I\'ll keep noticing with you.</string>
+    <!-- Fewer than 3 check-ins in the period (design-spec.md §7.7) -->
+    <string name="reports_not_enough">A few more check-ins and I\'ll start seeing patterns with you.</string>
+    <!-- Stat tiles (design-spec.md §6.14). reports_none shows when there is nothing to show. -->
+    <string name="reports_tile_check_ins">Check-ins</string>
+    <string name="reports_tile_stress">Average stress</string>
+    <string name="reports_tile_mood">Most common mood</string>
+    <string name="reports_tile_trigger">Top trigger</string>
+    <string name="reports_none">—</string>
+    <!-- Average stress sub line, compared with the period before. %1$s is a stress difference like 0.5 -->
+    <string name="reports_same">Same as before</string>
+    <string name="reports_stress_lower">%1$s lower than before</string>
+    <string name="reports_stress_higher">%1$s higher than before</string>
+    <!-- Top trigger tile sub line. %1$d check-ins with that trigger -->
+    <plurals name="reports_trigger_count">
+        <item quantity="one">In %1$d check-in</item>
+        <item quantity="other">In %1$d check-ins</item>
+    </plurals>
+    <!-- Stress trend chart (design-spec.md §6.15): title, then a one-line subtitle on the scale -->
+    <string name="reports_trend_title">Stress trend</string>
+    <string name="reports_trend_sub_daily">Each check-in, stress from 0 to 10</string>
+    <string name="reports_trend_sub_days">Average stress per day, from 0 to 10</string>
+    <!-- Band legend with its numeric range (design-spec.md §2.3) -->
+    <string name="reports_band_high">High 7–10</string>
+    <string name="reports_band_moderate">Moderate 4–6.9</string>
+    <string name="reports_band_low">Low 0–3.9</string>
+    <!-- TalkBack summary of the chart (design-spec.md §11). %1$s and %3$s are a time or day; %2$s and %4$s a stress value -->
+    <string name="reports_trend_summary_daily">Stress for each check-in. Highest %1$s, %2$s. Lowest %3$s, %4$s.</string>
+    <string name="reports_trend_summary_days">Daily average stress. Highest %1$s, %2$s. Lowest %3$s, %4$s.</string>
+    <!-- Horizontal bar lists (design-spec.md §6.15) -->
+    <string name="reports_moods_title">Moods</string>
+    <string name="reports_moods_sub">Your most common moods, by check-ins</string>
+    <string name="reports_helped_title">What helped most</string>
+    <string name="reports_helped_sub">How much stress went down afterward, on average</string>
+    <string name="reports_helped_empty">When you check your stress after trying something, it shows up here.</string>
+    <string name="reports_triggers_title">Top triggers</string>
+    <string name="reports_triggers_sub">Check-ins per trigger</string>
+    <!-- What-helped value: %1$s points lower, e.g. 2.5 -->
+    <string name="reports_helped_value">−%1$s</string>
+    <!-- Support names in What helped (technical-plan.md §10) -->
+    <string name="reports_support_breathe">Breathing</string>
+    <string name="reports_support_small_helps">Small helps</string>
+    <string name="reports_support_good_moment">Saving a good moment</string>
+    <!-- TalkBack for a bar row. %1$s is the name, %2$d the count -->
+    <plurals name="reports_bar_count_description">
+        <item quantity="one">%1$s, %2$d check-in</item>
+        <item quantity="other">%1$s, %2$d check-ins</item>
+    </plurals>
+    <!-- TalkBack for a What-helped row. %1$s the support, %2$s how many points stress went down -->
+    <string name="reports_helped_description">%1$s, stress went down by %2$s on average</string>
 </resources>

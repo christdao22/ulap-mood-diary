@@ -221,4 +221,14 @@ class ReportChartsTest {
         val week = ReportPeriod.of(WEEKLY, day("2026-11-09"))
         assertEquals(emptyList(), ReportInsight.of(data, week))
     }
+
+    @Test
+    fun `stress bands split at 4 and 7, as the legend says`() {
+        assertEquals(StressBand.LOW, StressBand.of(0.0))
+        assertEquals(StressBand.LOW, StressBand.of(3.9))
+        assertEquals(StressBand.MODERATE, StressBand.of(4.0))
+        assertEquals(StressBand.MODERATE, StressBand.of(6.9))
+        assertEquals(StressBand.HIGH, StressBand.of(7.0))
+        assertEquals(StressBand.HIGH, StressBand.of(10.0))
+    }
 }

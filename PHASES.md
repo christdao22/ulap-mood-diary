@@ -20,7 +20,7 @@ Last updated: November 7, 2026
 | 1 | Project setup | ✅ Complete | 18 / 18 |
 | 2 | Offline check-in | 🟡 In progress | 23 / 25 |
 | 3 | Logs | ✅ Complete | 13 / 13 |
-| 4 | Reports | 🟡 In progress | 10 / 17 |
+| 4 | Reports | ✅ Complete | 17 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
 | 6 | Server and accounts | ⬜ Not started | 0 / 26 |
 | 7 | Sync | ⬜ Not started | 0 / 25 |
@@ -179,7 +179,7 @@ Spec: [Design spec §7.6](docs/design-spec.md#76-logs) · [Design spec §6.13](d
 
 ---
 
-## Phase 4: Reports
+## Phase 4: Reports ✅ (Nov 2026)
 
 **Goal:** people see patterns in their feelings without feeling judged.
 Spec: [Technical plan §10](docs/technical-plan.md#10-reports-calculated-on-the-phone) · [Design spec §7.7](docs/design-spec.md#77-reports)
@@ -197,13 +197,13 @@ Spec: [Technical plan §10](docs/technical-plan.md#10-reports-calculated-on-the-
 - [x] Unit tests for every calculation
 
 ### UI
-- [ ] Segmented control and a period label with previous/next arrows
-- [ ] Stat tiles (2×2 grid)
-- [ ] Stress trend bar chart with gridlines, band colors and a legend, built with Vico (D9; [Design spec §6.15](docs/design-spec.md#615-charts))
-- [ ] Horizontal bar lists (moods, triggers, what helped)
-- [ ] Ulap insight bubble
-- [ ] Not-enough-data state (fewer than 3 check-ins)
-- [ ] Chart summaries for TalkBack
+- [x] Segmented control and a period label with previous/next arrows
+- [x] Stat tiles (2×2 grid)
+- [x] Stress trend bar chart with gridlines, band colors and a legend, built with Vico (D9; [Design spec §6.15](docs/design-spec.md#615-charts))
+- [x] Horizontal bar lists (moods, triggers, what helped)
+- [x] Ulap insight bubble
+- [x] Not-enough-data state (fewer than 3 check-ins)
+- [x] Chart summaries for TalkBack
 
 **Phase 4 complete when:** the reports match numbers calculated by hand for a test data set.
 

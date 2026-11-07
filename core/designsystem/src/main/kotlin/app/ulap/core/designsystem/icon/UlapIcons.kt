@@ -70,6 +70,15 @@ object UlapIcons {
         }
     }
 
+    /** A right chevron, for the Reports "next period" button (design-spec.md §7.7). */
+    val Forward: ImageVector by lazy {
+        lineIcon("Forward") {
+            moveTo(8.5f, 5f)
+            lineTo(14.5f, 11f)
+            lineTo(8.5f, 17f)
+        }
+    }
+
     /** A right arrow, between the "Before" and "Now" pills on the After screen (design-spec.md §7.5). */
     val Arrow: ImageVector by lazy {
         lineIcon("Arrow") {
