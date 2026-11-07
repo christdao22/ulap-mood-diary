@@ -2,7 +2,7 @@
 <resources>
     <!-- The window theme Android shows while the app starts. Everything after that is drawn by
          Compose (UlapTheme in core:designsystem). -->
-    <style name="Theme.Ulap" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.Ulap" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@color/bg</item>
     </style>
 </resources>

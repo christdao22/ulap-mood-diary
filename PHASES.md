@@ -21,7 +21,7 @@ Last updated: November 7, 2026
 | 2 | Offline check-in | 🟡 In progress | 23 / 25 |
 | 3 | Logs | ✅ Complete | 13 / 13 |
 | 4 | Reports | ✅ Complete | 17 / 17 |
-| 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
+| 5 | Languages and onboarding | 🟡 In progress | 4 / 15 |
 | 6 | Server and accounts | ⬜ Not started | 0 / 26 |
 | 7 | Sync | ⬜ Not started | 0 / 25 |
 | 8 | Privacy, safety and polish | ⬜ Not started | 0 / 23 |
@@ -215,12 +215,12 @@ Spec: [Technical plan §10](docs/technical-plan.md#10-reports-calculated-on-the-
 Spec: [Technical plan §11 and Appendix A–B](docs/technical-plan.md#11-languages-english-filipino-bisaya) · [Design spec §7.1 and §10.5](docs/design-spec.md#71-onboarding-3-steps)
 
 ### Languages
-- [ ] Every English string in `values/strings.xml` (no hard-coded text)
-- [ ] Filipino strings in `values-fil/strings.xml`
-- [ ] Bisaya strings in `values-b+ceb/strings.xml`
+- [x] Every English string in `values/strings.xml` (no hard-coded text)
+- [x] Filipino strings in `values-fil/strings.xml`
+- [x] Bisaya strings in `values-b+ceb/strings.xml`
 - [ ] Native-speaker review of the Filipino strings
 - [ ] Native-speaker review of the Bisaya strings (owner)
-- [ ] Fix duplicate mood words (e.g. Frustrated and Disappointed both "Nasagmuyo")
+- [x] Fix duplicate mood words (e.g. Frustrated and Disappointed both "Nasagmuyo")
 - [ ] Per-app language switch (`AppCompatDelegate.setApplicationLocales`)
 - [ ] Layouts tested with text 40% longer and at 200% font size
 

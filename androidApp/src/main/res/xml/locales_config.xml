@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The languages shown in Android 13+ Settings > Apps > Ulap > Language. Keep in step with
+     AppLanguage in core:ui and the values folders in core:ui (technical-plan.md §11). -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="fil" />
+    <locale android:name="ceb" />
+</locale-config>

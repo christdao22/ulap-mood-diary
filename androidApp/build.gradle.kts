@@ -105,6 +105,8 @@ dependencies {
     implementation(projects.feature.onboarding)
     implementation(projects.feature.reports)
 
+    // AppCompatActivity: per-app language on Android 8–12 (technical-plan.md §11).
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     // The NavHost and the tab bar's back stack. Features add their own screens to it.

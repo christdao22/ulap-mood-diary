@@ -12,4 +12,5 @@ android {
 dependencies {
     api(projects.core.model)
     implementation(projects.core.designsystem)
+    implementation(libs.androidx.appcompat)
 }

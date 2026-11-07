@@ -480,7 +480,7 @@ Tracked in [PHASES.md, Phase 11](../PHASES.md#phase-11-after-v1-backlog).
 | anxious | Anxious | Balisa | Kulbaan |
 | angry | Angry | Galit | Nasuko |
 | worried | Worried | Nag-aalala | Nabalaka |
-| frustrated | Frustrated | Naiinis | Nasagmuyo |
+| frustrated | Frustrated | Naiinis | Nabudlayan |
 | nervous | Nervous | Kinakabahan | Gikulbaan |
 | irritated | Irritated | Iritado | Nalagot |
 | restless | Restless | Hindi mapakali | Dili mahimutang |
@@ -502,7 +502,7 @@ Tracked in [PHASES.md, Phase 11](../PHASES.md#phase-11-after-v1-backlog).
 | calm | Calm | Kalmado | Kalma |
 
 Notes for review:
-- *Frustrated* and *Disappointed* both use **Nasagmuyo** in the draft. Pick different words so the two tiles aren't the same.
+- *Frustrated* is now **Nabudlayan** (struggling with something hard) so it no longer matches *Disappointed* (**Nasagmuyo**). Still needs the owner's Bisaya review.
 - *Proud* should feel positive. Avoid words that suggest arrogance.
 - Everyday Taglish or Bislish is fine where it's more natural (e.g. "Stressed," "Excited").
 
