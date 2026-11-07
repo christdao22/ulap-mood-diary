@@ -230,4 +230,22 @@
     <string name="mood_grateful">Mapasalamaton</string>
     <string name="mood_relaxed">Relaks</string>
     <string name="mood_calm">Kalma</string>
+
+    <!-- Reports "Ulap noticed:" bubble (technical-plan.md §10). Describe a pattern, never grade. -->
+    <!-- %1$s is a trigger name, e.g. "Work"; %2$d of %3$d check-ins in the period. -->
+    <plurals name="insight_trigger_share">
+        <item quantity="one">Nigawas ang %1$s sa %2$d sa imong %3$d ka check-in.</item>
+        <item quantity="other">Nigawas ang %1$s sa %2$d sa imong %3$d ka check-in.</item>
+    </plurals>
+    <string name="insight_weekday_monday">Kasagaran mas bug-at ang imong gibati kada Lunes.</string>
+    <string name="insight_weekday_tuesday">Kasagaran mas bug-at ang imong gibati kada Martes.</string>
+    <string name="insight_weekday_wednesday">Kasagaran mas bug-at ang imong gibati kada Miyerkoles.</string>
+    <string name="insight_weekday_thursday">Kasagaran mas bug-at ang imong gibati kada Huwebes.</string>
+    <string name="insight_weekday_friday">Kasagaran mas bug-at ang imong gibati kada Biyernes.</string>
+    <string name="insight_weekday_saturday">Kasagaran mas bug-at ang imong gibati kada Sabado.</string>
+    <string name="insight_weekday_sunday">Kasagaran mas bug-at ang imong gibati kada Domingo.</string>
+    <string name="insight_time_morning">Kasagaran mas bug-at ang imong gibati sa buntag.</string>
+    <string name="insight_time_afternoon">Kasagaran mas bug-at ang imong gibati sa hapon.</string>
+    <string name="insight_time_evening">Kasagaran mas bug-at ang imong gibati sa gabii.</string>
+    <string name="insight_time_night">Kasagaran mas bug-at ang imong gibati kon lawom na ang gabii.</string>
 </resources>

@@ -229,4 +229,22 @@
     <string name="mood_grateful">Nagpapasalamat</string>
     <string name="mood_relaxed">Relaks</string>
     <string name="mood_calm">Kalmado</string>
+
+    <!-- Reports "Ulap noticed:" bubble (technical-plan.md §10). Describe a pattern, never grade. -->
+    <!-- %1$s is a trigger name, e.g. "Work"; %2$d of %3$d check-ins in the period. -->
+    <plurals name="insight_trigger_share">
+        <item quantity="one">Nabanggit ang %1$s sa %2$d sa %3$d mong check-in.</item>
+        <item quantity="other">Nabanggit ang %1$s sa %2$d sa %3$d mong check-in.</item>
+    </plurals>
+    <string name="insight_weekday_monday">Kadalasang mas mabigat ang pakiramdam mo tuwing Lunes.</string>
+    <string name="insight_weekday_tuesday">Kadalasang mas mabigat ang pakiramdam mo tuwing Martes.</string>
+    <string name="insight_weekday_wednesday">Kadalasang mas mabigat ang pakiramdam mo tuwing Miyerkules.</string>
+    <string name="insight_weekday_thursday">Kadalasang mas mabigat ang pakiramdam mo tuwing Huwebes.</string>
+    <string name="insight_weekday_friday">Kadalasang mas mabigat ang pakiramdam mo tuwing Biyernes.</string>
+    <string name="insight_weekday_saturday">Kadalasang mas mabigat ang pakiramdam mo tuwing Sabado.</string>
+    <string name="insight_weekday_sunday">Kadalasang mas mabigat ang pakiramdam mo tuwing Linggo.</string>
+    <string name="insight_time_morning">Kadalasang mas mabigat ang pakiramdam mo sa umaga.</string>
+    <string name="insight_time_afternoon">Kadalasang mas mabigat ang pakiramdam mo sa hapon.</string>
+    <string name="insight_time_evening">Kadalasang mas mabigat ang pakiramdam mo sa gabi.</string>
+    <string name="insight_time_night">Kadalasang mas mabigat ang pakiramdam mo kapag gabing-gabi na.</string>
 </resources>

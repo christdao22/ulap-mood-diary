@@ -235,4 +235,22 @@
     <string name="mood_grateful">Grateful</string>
     <string name="mood_relaxed">Relaxed</string>
     <string name="mood_calm">Calm</string>
+
+    <!-- Reports "Ulap noticed:" bubble (technical-plan.md §10). Describe a pattern, never grade. -->
+    <!-- %1$s is a trigger name, e.g. "Work"; %2$d of %3$d check-ins in the period. -->
+    <plurals name="insight_trigger_share">
+        <item quantity="one">%1$s came up in %2$d of your %3$d check-in.</item>
+        <item quantity="other">%1$s came up in %2$d of your %3$d check-ins.</item>
+    </plurals>
+    <string name="insight_weekday_monday">Mondays tend to be harder for you.</string>
+    <string name="insight_weekday_tuesday">Tuesdays tend to be harder for you.</string>
+    <string name="insight_weekday_wednesday">Wednesdays tend to be harder for you.</string>
+    <string name="insight_weekday_thursday">Thursdays tend to be harder for you.</string>
+    <string name="insight_weekday_friday">Fridays tend to be harder for you.</string>
+    <string name="insight_weekday_saturday">Saturdays tend to be harder for you.</string>
+    <string name="insight_weekday_sunday">Sundays tend to be harder for you.</string>
+    <string name="insight_time_morning">Mornings tend to be harder for you.</string>
+    <string name="insight_time_afternoon">Afternoons tend to be harder for you.</string>
+    <string name="insight_time_evening">Evenings tend to be harder for you.</string>
+    <string name="insight_time_night">Late nights tend to be harder for you.</string>
 </resources>

@@ -20,7 +20,7 @@ Last updated: November 7, 2026
 | 1 | Project setup | ✅ Complete | 18 / 18 |
 | 2 | Offline check-in | 🟡 In progress | 23 / 25 |
 | 3 | Logs | ✅ Complete | 13 / 13 |
-| 4 | Reports | 🟡 In progress | 1 / 17 |
+| 4 | Reports | 🟡 In progress | 10 / 17 |
 | 5 | Languages and onboarding | ⬜ Not started | 0 / 15 |
 | 6 | Server and accounts | ⬜ Not started | 0 / 26 |
 | 7 | Sync | ⬜ Not started | 0 / 25 |
@@ -186,15 +186,15 @@ Spec: [Technical plan §10](docs/technical-plan.md#10-reports-calculated-on-the-
 
 ### Calculations (on the phone)
 - [x] Period selection: Daily, Weekly (7 days), Monthly (calendar month)
-- [ ] Summary tiles: check-ins, average stress, most common mood, top trigger, change vs. previous period
-- [ ] Stress trend data (per check-in for Daily, per-day average for Weekly and Monthly)
-- [ ] Zone mix counts and percentages
-- [ ] Mood frequency (top 5)
-- [ ] Top triggers with count and average stress
-- [ ] Time-of-day averages (Morning, Afternoon, Evening, Night)
-- [ ] What helped most (average of `stress − stressAfter` by support type)
-- [ ] "Ulap noticed" insight rules (wording without judgment, in all 3 languages)
-- [ ] Unit tests for every calculation
+- [x] Summary tiles: check-ins, average stress, most common mood, top trigger, change vs. previous period
+- [x] Stress trend data (per check-in for Daily, per-day average for Weekly and Monthly)
+- [x] Zone mix counts and percentages
+- [x] Mood frequency (top 5)
+- [x] Top triggers with count and average stress
+- [x] Time-of-day averages (Morning, Afternoon, Evening, Night)
+- [x] What helped most (average of `stress − stressAfter` by support type)
+- [x] "Ulap noticed" insight rules (wording without judgment, in all 3 languages)
+- [x] Unit tests for every calculation
 
 ### UI
 - [ ] Segmented control and a period label with previous/next arrows
