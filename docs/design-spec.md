@@ -305,7 +305,8 @@ Which actions appear is decided by `ResponseRules` ([Technical plan §5](technic
 ### 7.7 Reports
 - Title + "Sample data" badge (mockup only) → Daily/Weekly/Monthly control → period label ("Oct 29 – Nov 4").
 - Ulap (calm, 64dp) + bubble "**Ulap noticed:** …".
-- 2×2 stat tiles → stress trend chart → What helped most → Top triggers.
+- 2×2 stat tiles (check-ins, average stress, most common mood, top trigger) → stress trend chart → What helped most → Top triggers → Moods (top 5).
+- Only average stress compares with the previous period. Check-ins never do: "fewer than before" would read as a nudge to log more (§10).
 - Not enough data (fewer than 3 check-ins in the period): Ulap + "A few more check-ins and I'll start seeing patterns with you."
 
 ### 7.8 Account

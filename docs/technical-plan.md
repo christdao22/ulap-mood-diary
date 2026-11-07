@@ -360,12 +360,12 @@ Reports read from Room, so they work offline. "Day" means the user's local day, 
 
 | Report | How it's calculated |
 |---|---|
-| Summary tiles | Count of check-ins, average stress, average energy, most common mood, top trigger. Compared with the previous period. |
+| Summary tiles | Count of check-ins, average stress, average energy, most common mood, top trigger. Compared with the previous period. The screen shows four of these (no average energy tile) and only shows the stress change: a check-in count change would read as a nudge to log more ([Design spec §7.7](design-spec.md#77-reports)). |
 | Stress trend | Daily: one bar per check-in. Weekly: average per day (7 bars). Monthly: average per day (28–31 bars). |
-| Zone mix | Count per zone ÷ total |
+| Zone mix | Count per zone ÷ total. Calculated and tested, not shown in v1. |
 | Mood frequency | Top 5 moods by count |
 | Top triggers | Count and average stress per trigger |
-| Time of day | Average stress by block: Morning 5–11, Afternoon 12–17, Evening 18–21, Night 22–4 |
+| Time of day | Average stress by block: Morning 5–11, Afternoon 12–17, Evening 18–21, Night 22–4. Not shown as a card in v1; it feeds the "Ulap noticed" time-block rule. |
 | What helped | For check-ins with `stress_after`: average of `stress − stress_after`, grouped by `support_used` |
 | "Ulap noticed" text | Simple rules: highest-stress weekday, highest time block, top trigger share. No judgment words. |
 

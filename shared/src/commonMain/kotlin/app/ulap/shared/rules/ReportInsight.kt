@@ -71,7 +71,8 @@ sealed interface ReportInsight {
 
         /**
          * The key with the highest average stress, if some check-ins in the period fall outside
-         * it and its average is [STRESS_GAP] or more above [overall]. Ties go to the earlier key.
+         * it and its average is [STRESS_GAP] or more above [overall]. Ties go to the key whose first
+         * check-in comes first in the list (groupBy keeps that order), not to the earlier weekday or block.
          */
         private fun <K> Map<K, List<CheckIn>>.standsOut(total: Int, overall: Double): K? {
             val best = entries.maxByOrNull { (_, g) -> g.map { it.stress }.average() } ?: return null
