@@ -1,5 +1,6 @@
 package app.ulap.core.ui
 
+import app.ulap.core.model.AppLanguage
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

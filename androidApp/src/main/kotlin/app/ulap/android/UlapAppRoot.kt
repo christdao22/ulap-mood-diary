@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
@@ -22,37 +23,51 @@ import app.ulap.feature.checkin.navigation.checkInGraph
 import app.ulap.feature.checkin.navigation.editCheckInScreen
 import app.ulap.feature.checkin.navigation.navigateToEditCheckIn
 import app.ulap.feature.logs.navigation.logsGraph
+import app.ulap.feature.onboarding.navigation.OnboardingGraph
+import app.ulap.feature.onboarding.navigation.onboardingGraph
+import app.ulap.feature.onboarding.navigation.privacyNoticeScreen
 import app.ulap.feature.reports.navigation.reportsScreen
 
 /**
  * The app's root: every screen sits above the fixed tab bar (design-spec.md §7) and the app opens
  * on Check in. Each feature adds its own screens to the NavHost; features never import each
  * other, so moving between them happens here (technical-plan.md §4).
+ *
+ * Until [onboardingDone], the app opens on onboarding instead, with no tab bar, so it shows only
+ * once (design-spec.md §7.1). The start is picked once: when step 3 sets the flag, the root
+ * moves to Check in itself rather than rebuilding the NavHost.
  */
 @Composable
-fun UlapAppRoot(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()) {
+fun UlapAppRoot(
+    onboardingDone: Boolean,
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController(),
+) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
+    val startDestination: Any = remember { if (onboardingDone) CheckInGraph else OnboardingGraph }
 
     Scaffold(
         modifier = modifier,
         containerColor = UlapTheme.colors.bg,
         bottomBar = {
-            UlapTabBar {
-                TopLevelDestination.entries.forEach { destination ->
-                    UlapTabItem(
-                        selected = destination.isSelected(currentDestination),
-                        onClick = { navController.navigateToTab(destination) },
-                        label = stringResource(destination.labelRes),
-                        icon = destination.icon,
-                    )
+            if (onboardingDone) {
+                UlapTabBar {
+                    TopLevelDestination.entries.forEach { destination ->
+                        UlapTabItem(
+                            selected = destination.isSelected(currentDestination),
+                            onClick = { navController.navigateToTab(destination) },
+                            label = stringResource(destination.labelRes),
+                            icon = destination.icon,
+                        )
+                    }
                 }
             }
         },
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = CheckInGraph,
+            startDestination = startDestination,
             modifier = Modifier
                 .padding(padding)
                 .consumeWindowInsets(padding),
@@ -70,6 +85,15 @@ fun UlapAppRoot(modifier: Modifier = Modifier, navController: NavHostController 
             }
             reportsScreen()
             accountScreen()
+            onboardingGraph(
+                navController = navController,
+                onFinish = {
+                    navController.navigate(CheckInGraph) {
+                        popUpTo(OnboardingGraph) { inclusive = true }
+                    }
+                },
+            )
+            privacyNoticeScreen(navController)
         }
     }
 }

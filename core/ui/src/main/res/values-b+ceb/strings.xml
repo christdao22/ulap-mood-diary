@@ -11,6 +11,37 @@
     <string name="tab_reports">Report</string>
     <string name="tab_account">Account</string>
 
+    <!-- Onboarding step 1 (design-spec.md §7.1). Language names live in values only. -->
+    <string name="onboarding_language_title">Pilia ang imong pinulongan</string>
+    <string name="onboarding_continue">Padayon</string>
+
+    <!-- Onboarding step 2 (design-spec.md §7.1) -->
+    <string name="onboarding_meet_title">Hi, ako si Ulap.</string>
+    <string name="onboarding_meet_body">Kuyogan tika samtang mag-check in ka sa imong gibati. Okay ra ang bisan unsang gibati dinhi.</string>
+
+    <!-- Onboarding step 3 (design-spec.md §7.1) -->
+    <string name="onboarding_privacy_title">Imong privacy</string>
+    <string name="onboarding_privacy_phone">Ang imong diary magpabilin niining phone. Mahimo nimo kining i-back up unya.</string>
+    <string name="onboarding_privacy_disclaimer">Ang Ulap usa ka diary para sa pag-atiman sa kaugalingon, dili serbisyong medikal o pang-emergency.</string>
+    <string name="onboarding_privacy_consent">Kung magsugod ka, nag-uyon ka sa privacy notice.</string>
+    <string name="onboarding_start">Sugdi ang akong unang check-in</string>
+    <string name="onboarding_read_privacy">Basaha ang privacy notice</string>
+
+    <!-- Privacy notice (README §14). First draft. -->
+    <string name="privacy_title">Privacy notice</string>
+    <string name="privacy_back">Balik</string>
+    <string name="privacy_intro">Ang Ulap usa ka mood diary. Mao kini ang paagi nga ang imong diary magpabiling pribado.</string>
+    <string name="privacy_collect_title">Unsa ang gitipigan sa Ulap</string>
+    <string name="privacy_collect_body">Imong mga check-in: mood, enerhiya, stress, unsa kini mahitungod, imong mga nota ug ang oras. Kung mag-sign in ka, apil usab ang imong email, imong ngalan kung magbutang ka, ug imong mga setting.</string>
+    <string name="privacy_why_title">Ngano</string>
+    <string name="privacy_why_body">Aron lang ipakita kanimo ang imong diary ug mga report, ug aron i-back up kini kung gusto nimo.</string>
+    <string name="privacy_where_title">Asa kini gitipigan</string>
+    <string name="privacy_where_body">Niining phone. Kung mag-sign in ka aron mag-back up, anaa usab sa server sa Ulap, diin naka-encrypt ang imong mga nota. Kaugalingong check-in lang ang makita sa matag account.</string>
+    <string name="privacy_never_title">Ang dili gyud buhaton sa Ulap</string>
+    <string name="privacy_never_body">Walay ads. Dili gyud ibaligya sa Ulap ang imong data o ipaambit sa mga advertiser. Dili apil ang imong mga nota o email sa crash reports.</string>
+    <string name="privacy_delete_title">Pagpapas sa imong data</string>
+    <string name="privacy_delete_body">Mahimo nimong papason ang bisan unsang check-in sa Listahan. Hapit na mahimo ang pagpapas sa tibuok account ug tanan nimong data sa Account.</string>
+
     <!-- Logs (design-spec.md §6.13, §7.6). The screen title is tab_logs. -->
     <string name="logs_today">Karong adlawa</string>
     <string name="logs_yesterday">Gahapon</string>

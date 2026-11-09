@@ -9,6 +9,47 @@
     <string name="tab_reports">Reports</string>
     <string name="tab_account">Account</string>
 
+    <!-- Onboarding step 1: choose a language (design-spec.md §7.1) -->
+    <string name="onboarding_language_title">Choose your language</string>
+    <string name="onboarding_continue">Continue</string>
+
+    <!-- Onboarding step 2: meet Ulap (design-spec.md §7.1) -->
+    <string name="onboarding_meet_title">Hi, I\'m Ulap.</string>
+    <string name="onboarding_meet_body">I\'ll keep you company while you check in with your feelings. Any feeling is okay here.</string>
+
+    <!-- Onboarding step 3: your privacy (design-spec.md §7.1) -->
+    <string name="onboarding_privacy_title">Your privacy</string>
+    <string name="onboarding_privacy_phone">Your diary stays on this phone. You can back it up later.</string>
+    <string name="onboarding_privacy_disclaimer">Ulap is a self-care diary, not a medical or emergency service.</string>
+    <string name="onboarding_privacy_consent">By starting, you agree to the privacy notice.</string>
+    <string name="onboarding_start">Start my first check-in</string>
+    <string name="onboarding_read_privacy">Read the privacy notice</string>
+
+    <!-- Privacy notice (README §14). A first draft; the written notice replaces it (PHASES.md Phase 8). -->
+    <string name="privacy_title">Privacy notice</string>
+    <string name="privacy_back">Back</string>
+    <string name="privacy_intro">Ulap is a mood diary. Here\'s how Ulap keeps your diary private.</string>
+    <string name="privacy_collect_title">What Ulap keeps</string>
+    <string name="privacy_collect_body">Your check-ins: mood, energy, stress, what it was about, your notes and the time. If you sign in, also your email, your name if you add one, and your settings.</string>
+    <string name="privacy_why_title">Why</string>
+    <string name="privacy_why_body">Only to show you your diary and reports, and to back it up if you choose to.</string>
+    <string name="privacy_where_title">Where it\'s kept</string>
+    <!-- Say the phone copy is encrypted only once SQLCipher ships (PHASES.md Phase 2). -->
+    <string name="privacy_where_body">On this phone. If you sign in to back up, also on Ulap\'s server, where your notes are encrypted. Each account sees only its own check-ins.</string>
+    <string name="privacy_never_title">What Ulap never does</string>
+    <string name="privacy_never_body">No ads. Ulap never sells your data or shares it with advertisers. Crash reports never include your notes or email.</string>
+    <string name="privacy_delete_title">Deleting your data</string>
+    <!-- Promise account deletion only once DELETE /me and the Account screen ship (Phase 6). -->
+    <string name="privacy_delete_body">You can delete any check-in from Logs. Deleting your whole account and all your data from Account is coming soon.</string>
+    <!-- Each language named in itself, with a welcome in it, so it reads the same whatever the
+         app shows now. Same in every language, so these live here only. -->
+    <string name="language_english" translatable="false">English</string>
+    <string name="language_english_greeting" translatable="false">Welcome</string>
+    <string name="language_filipino" translatable="false">Filipino</string>
+    <string name="language_filipino_greeting" translatable="false">Maligayang pagdating</string>
+    <string name="language_bisaya" translatable="false">Bisaya</string>
+    <string name="language_bisaya_greeting" translatable="false">Maayong pag-abot</string>
+
     <!-- Logs (design-spec.md §6.13, §7.6). The screen title is tab_logs. -->
     <string name="logs_today">Today</string>
     <string name="logs_yesterday">Yesterday</string>

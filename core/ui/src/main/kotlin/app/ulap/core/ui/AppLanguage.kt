@@ -2,22 +2,7 @@ package app.ulap.core.ui
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
-
-/**
- * The three languages Ulap speaks (technical-plan.md §11). [tag] is the BCP 47 tag that picks
- * the values folder: `en` → values, `fil` → values-fil, `ceb` → values-b+ceb.
- */
-enum class AppLanguage(val tag: String) {
-    ENGLISH("en"),
-    FILIPINO("fil"),
-    BISAYA("ceb"),
-    ;
-
-    companion object {
-        /** The language for [tag], or null for anything Ulap doesn't have. */
-        fun fromTag(tag: String?): AppLanguage? = entries.firstOrNull { it.tag == tag?.substringBefore('-') }
-    }
-}
+import app.ulap.core.model.AppLanguage
 
 /**
  * Switches the whole app to [language] with the per-app language API. The visible Activity is

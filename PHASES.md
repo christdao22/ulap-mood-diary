@@ -21,7 +21,7 @@ Last updated: November 7, 2026
 | 2 | Offline check-in | 🟡 In progress | 23 / 25 |
 | 3 | Logs | ✅ Complete | 13 / 13 |
 | 4 | Reports | ✅ Complete | 17 / 17 |
-| 5 | Languages and onboarding | 🟡 In progress | 4 / 15 |
+| 5 | Languages and onboarding | 🟡 In progress | 9 / 15 |
 | 6 | Server and accounts | ⬜ Not started | 0 / 26 |
 | 7 | Sync | ⬜ Not started | 0 / 25 |
 | 8 | Privacy, safety and polish | ⬜ Not started | 0 / 23 |
@@ -221,15 +221,15 @@ Spec: [Technical plan §11 and Appendix A–B](docs/technical-plan.md#11-languag
 - [ ] Native-speaker review of the Filipino strings
 - [ ] Native-speaker review of the Bisaya strings (owner)
 - [x] Fix duplicate mood words (e.g. Frustrated and Disappointed both "Nasagmuyo")
-- [ ] Per-app language switch (`AppCompatDelegate.setApplicationLocales`)
+- [x] Per-app language switch (`AppCompatDelegate.setApplicationLocales`)
 - [ ] Layouts tested with text 40% longer and at 200% font size
 
 ### Onboarding
-- [ ] Step 1: choose a language (English, Filipino, Bisaya)
-- [ ] Step 2: meet Ulap
-- [ ] Step 3: privacy note, disclaimer, consent → "Start my first check-in"
+- [x] Step 1: choose a language (English, Filipino, Bisaya)
+- [x] Step 2: meet Ulap
+- [x] Step 3: privacy note, disclaimer, consent → "Start my first check-in"
 - [ ] Privacy notice screen (also linked from Account)
-- [ ] Onboarding shown only once (DataStore flag)
+- [x] Onboarding shown only once (DataStore flag)
 - [ ] Account: change language later
 - [ ] Account: mascot on/off switch (messages still show when off)
 

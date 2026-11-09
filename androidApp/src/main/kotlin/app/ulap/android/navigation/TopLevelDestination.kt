@@ -6,7 +6,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import app.ulap.core.designsystem.icon.UlapIcons
 import app.ulap.core.ui.R
 import app.ulap.feature.account.navigation.AccountRoute
@@ -51,7 +50,9 @@ fun NavController.navigateToTab(destination: TopLevelDestination) {
         return
     }
     navigate(destination.route) {
-        popUpTo(graph.findStartDestination().id) { saveState = true }
+        // Check in, not the graph's start: on the first run the start is onboarding, which is
+        // gone from the back stack once it's done, and Check in is always at the bottom then.
+        popUpTo(CheckInGraph) { saveState = true }
         launchSingleTop = true
         restoreState = true
     }

@@ -11,6 +11,37 @@
     <string name="tab_reports">Ulat</string>
     <string name="tab_account">Account</string>
 
+    <!-- Onboarding step 1 (design-spec.md §7.1). Language names live in values only. -->
+    <string name="onboarding_language_title">Piliin ang iyong wika</string>
+    <string name="onboarding_continue">Magpatuloy</string>
+
+    <!-- Onboarding step 2 (design-spec.md §7.1) -->
+    <string name="onboarding_meet_title">Hi, ako si Ulap.</string>
+    <string name="onboarding_meet_body">Sasamahan kita habang tinitingnan mo ang nararamdaman mo. Okay lang ang kahit anong nararamdaman dito.</string>
+
+    <!-- Onboarding step 3 (design-spec.md §7.1) -->
+    <string name="onboarding_privacy_title">Ang privacy mo</string>
+    <string name="onboarding_privacy_phone">Nananatili sa phone na ito ang diary mo. Puwede mo itong i-back up mamaya.</string>
+    <string name="onboarding_privacy_disclaimer">Ang Ulap ay diary para sa pag-aalaga sa sarili, hindi serbisyong medikal o pang-emergency.</string>
+    <string name="onboarding_privacy_consent">Kapag nagsimula ka, sumasang-ayon ka sa privacy notice.</string>
+    <string name="onboarding_start">Simulan ang una kong check-in</string>
+    <string name="onboarding_read_privacy">Basahin ang privacy notice</string>
+
+    <!-- Privacy notice (README §14). First draft. -->
+    <string name="privacy_title">Privacy notice</string>
+    <string name="privacy_back">Bumalik</string>
+    <string name="privacy_intro">Ang Ulap ay mood diary. Ganito pinapanatiling pribado ang diary mo.</string>
+    <string name="privacy_collect_title">Ano ang sine-save ng Ulap</string>
+    <string name="privacy_collect_body">Ang mga check-in mo: mood, enerhiya, stress, kung tungkol saan ito, ang mga tala mo at ang oras. Kapag nag-sign in ka, pati ang email mo, ang pangalan mo kung maglalagay ka, at ang mga setting mo.</string>
+    <string name="privacy_why_title">Bakit</string>
+    <string name="privacy_why_body">Para lang maipakita sa iyo ang diary at mga ulat mo, at para i-back up ito kung gusto mo.</string>
+    <string name="privacy_where_title">Saan ito naka-save</string>
+    <string name="privacy_where_body">Sa phone na ito. Kapag nag-sign in ka para mag-back up, nasa server din ng Ulap, kung saan naka-encrypt ang mga tala mo. Sariling check-in lang ang nakikita ng bawat account.</string>
+    <string name="privacy_never_title">Ang hindi kailanman ginagawa ng Ulap</string>
+    <string name="privacy_never_body">Walang ads. Hindi kailanman ibinebenta ng Ulap ang data mo o ibinabahagi sa mga advertiser. Hindi kasama ang mga tala o email mo sa crash reports.</string>
+    <string name="privacy_delete_title">Pagbura ng data mo</string>
+    <string name="privacy_delete_body">Puwede mong burahin ang kahit anong check-in sa Talaan. Malapit nang maging posible na burahin ang buong account at lahat ng data mo sa Account.</string>
+
     <!-- Logs (design-spec.md §6.13, §7.6). The screen title is tab_logs. -->
     <string name="logs_today">Ngayon</string>
     <string name="logs_yesterday">Kahapon</string>

@@ -258,7 +258,7 @@ All screens: 360–412dp wide phones, portrait. Content scrolls above a fixed ta
 ### 7.1 Onboarding (3 steps)
 1. **Choose your language:** three large options (English · Filipino · Bisaya), each with a short greeting in that language.
 2. **Meet Ulap:** Ulap (happy) + "Hi, I'm Ulap. I'll keep you company while you check in with your feelings. Any feeling is okay here."
-3. **Your privacy:** "Your diary stays on this phone. You can back it up later." + "Ulap is a self-care diary, not a medical or emergency service." + primary **"Start my first check-in"** + text link "Read the privacy notice."
+3. **Your privacy:** "Your diary stays on this phone. You can back it up later." + "Ulap is a self-care diary, not a medical or emergency service." + "By starting, you agree to the privacy notice." (consent; recording it with a timestamp is a Phase 8 task) + primary **"Start my first check-in"** + text link "Read the privacy notice."
 
 No account screen in onboarding.
 
