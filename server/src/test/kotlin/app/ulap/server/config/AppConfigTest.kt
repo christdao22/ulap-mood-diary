@@ -40,12 +40,76 @@ class AppConfigTest {
 
     @Test
     fun productionNeedsALongJwtSecret() {
-        val env = testEnv() + ("APP_ENV" to "production")
+        val env = productionEnv() + ("JWT_SECRET" to "too-short")
 
         val e = assertFailsWith<ConfigException> { AppConfig.fromEnv(env) }
 
         assertTrue(e.problems.single().startsWith("JWT_SECRET"))
     }
+
+    @Test
+    fun productionAcceptsACompleteEnvironment() {
+        val config = AppConfig.fromEnv(productionEnv())
+
+        assertEquals(AppEnv.PRODUCTION, config.env)
+        assertEquals("mailer", config.mail.smtpUser)
+    }
+
+    @Test
+    fun productionNeedsAnSmtpLogin() {
+        val env = productionEnv() - "SMTP_USER" - "SMTP_PASSWORD"
+
+        val e = assertFailsWith<ConfigException> { AppConfig.fromEnv(env) }
+
+        assertEquals(listOf("SMTP_USER is required", "SMTP_PASSWORD is required"), e.problems)
+    }
+
+    @Test
+    fun developmentNeedsNoSmtpLogin() {
+        val config = AppConfig.fromEnv(testEnv() + ("SMTP_USER" to "") + ("SMTP_PASSWORD" to " "))
+
+        assertEquals(null, config.mail.smtpUser)
+        assertEquals(null, config.mail.smtpPassword)
+    }
+
+    @Test
+    fun rejectsNumbersOutOfRange() {
+        val env = testEnv() + mapOf(
+            "PORT" to "0",
+            "SMTP_PORT" to "70000",
+            "DATABASE_POOL_SIZE" to "0",
+            "ACCESS_TOKEN_TTL_MIN" to "-5",
+            "REFRESH_TOKEN_TTL_DAYS" to "ten",
+        )
+
+        val e = assertFailsWith<ConfigException> { AppConfig.fromEnv(env) }
+
+        assertEquals(
+            listOf(
+                "PORT must be from 1 to 65535",
+                "DATABASE_POOL_SIZE must be at least 1",
+                "ACCESS_TOKEN_TTL_MIN must be at least 1",
+                "REFRESH_TOKEN_TTL_DAYS must be a whole number",
+                "SMTP_PORT must be from 1 to 65535",
+            ),
+            e.problems,
+        )
+    }
+
+    @Test
+    fun rejectsAnUnknownAppEnv() {
+        val e = assertFailsWith<ConfigException> { AppConfig.fromEnv(testEnv() + ("APP_ENV" to "staging")) }
+
+        assertEquals(listOf("APP_ENV must be development or production, not \"staging\""), e.problems)
+    }
+
+    /** A complete production environment. Placeholder values, not real secrets. */
+    private fun productionEnv(): Map<String, String> = testEnv() + mapOf(
+        "APP_ENV" to "production",
+        "JWT_SECRET" to "x".repeat(64),
+        "SMTP_USER" to "mailer",
+        "SMTP_PASSWORD" to "test-only-smtp-password",
+    )
 
     @Test
     fun secretsNeverAppearInToString() {

@@ -22,7 +22,7 @@ Last updated: November 7, 2026
 | 3 | Logs | ✅ Complete | 13 / 13 |
 | 4 | Reports | ✅ Complete | 17 / 17 |
 | 5 | Languages and onboarding | 🟡 In progress | 12 / 15 |
-| 6 | Server and accounts | 🟡 In progress | 2 / 26 |
+| 6 | Server and accounts | 🟡 In progress | 3 / 26 |
 | 7 | Sync | ⬜ Not started | 0 / 25 |
 | 8 | Privacy, safety and polish | ⬜ Not started | 0 / 23 |
 | 9 | Testing and beta | ⬜ Not started | 0 / 15 |
@@ -248,7 +248,7 @@ Spec: [API reference §3–§7 and §10–§12](docs/api-spec.md#3-authenticatio
 - [ ] Encryption at rest: AES-256-GCM for `note` and `triggerOther`, with `key_id` 🔒
 
 ### Server foundations
-- [ ] `AppConfig` reads every env var and fails fast if one is missing
+- [x] `AppConfig` reads every env var and fails fast if one is missing
 - [ ] Plugins: ContentNegotiation, CallId (`X-Request-Id`), StatusPages, RateLimit
 - [ ] The standard error format and every error code from the API spec
 - [ ] `logback.xml` with no request bodies, notes or tokens 🔒

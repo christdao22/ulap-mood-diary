@@ -55,26 +55,31 @@ data class AppConfig(
         private const val DEFAULT_REFRESH_TTL_DAYS = 60
         private const val NOTE_KEY_BYTES = 32
         private const val MIN_JWT_SECRET_BYTES_IN_PRODUCTION = 64
+        private const val MAX_PORT = 65_535
+        private val PORT_RANGE = 1..MAX_PORT
+        private val POSITIVE = 1..Int.MAX_VALUE
 
         /** Reads the config from [env] (normally `System.getenv()`), or throws [ConfigException]. */
         fun fromEnv(env: Map<String, String>): AppConfig {
             val reader = EnvReader(env)
             val appEnv = reader.appEnv()
+            val inProduction = appEnv == AppEnv.PRODUCTION
             val config = AppConfig(
-                env = appEnv,
-                port = reader.int("PORT", DEFAULT_PORT),
+                // Never returned with a null APP_ENV: that's already a problem, so fromEnv throws below.
+                env = appEnv ?: AppEnv.PRODUCTION,
+                port = reader.int("PORT", DEFAULT_PORT, PORT_RANGE),
                 database = DatabaseConfig(
                     url = reader.required("DATABASE_URL"),
                     user = reader.required("DATABASE_USER"),
                     password = Secret(reader.required("DATABASE_PASSWORD")),
-                    poolSize = reader.int("DATABASE_POOL_SIZE", DEFAULT_POOL_SIZE),
+                    poolSize = reader.int("DATABASE_POOL_SIZE", DEFAULT_POOL_SIZE, POSITIVE),
                 ),
                 jwt = JwtConfig(
                     secret = Secret(reader.required("JWT_SECRET")),
                     issuer = reader.required("JWT_ISSUER"),
                     audience = reader.required("JWT_AUDIENCE"),
-                    accessTokenTtlMinutes = reader.int("ACCESS_TOKEN_TTL_MIN", DEFAULT_ACCESS_TTL_MIN),
-                    refreshTokenTtlDays = reader.int("REFRESH_TOKEN_TTL_DAYS", DEFAULT_REFRESH_TTL_DAYS),
+                    accessTokenTtlMinutes = reader.int("ACCESS_TOKEN_TTL_MIN", DEFAULT_ACCESS_TTL_MIN, POSITIVE),
+                    refreshTokenTtlDays = reader.int("REFRESH_TOKEN_TTL_DAYS", DEFAULT_REFRESH_TTL_DAYS, POSITIVE),
                 ),
                 googleWebClientId = reader.optional("GOOGLE_WEB_CLIENT_ID"),
                 noteEncryption = NoteEncryptionConfig(
@@ -83,19 +88,20 @@ data class AppConfig(
                 ),
                 mail = MailConfig(
                     smtpHost = reader.required("SMTP_HOST"),
-                    smtpPort = reader.requiredInt("SMTP_PORT"),
-                    smtpUser = reader.optional("SMTP_USER"),
-                    smtpPassword = reader.optional("SMTP_PASSWORD")?.let(::Secret),
+                    smtpPort = reader.requiredInt("SMTP_PORT", PORT_RANGE),
+                    // Mailpit needs no login in development; a real mail server does (README §8 "prod").
+                    smtpUser = reader.requiredIf(inProduction, "SMTP_USER"),
+                    smtpPassword = reader.requiredIf(inProduction, "SMTP_PASSWORD")?.let(::Secret),
                     from = reader.required("MAIL_FROM"),
                 ),
                 appLinkBase = reader.required("APP_LINK_BASE"),
-                minAndroidVersionCode = reader.int("MIN_ANDROID_VERSION_CODE", 1),
+                minAndroidVersionCode = reader.int("MIN_ANDROID_VERSION_CODE", 1, POSITIVE),
                 sentryDsn = reader.optional("SENTRY_DSN"),
             )
             reader.check("NOTE_ENCRYPTION_KEY", "must be base64 for exactly 32 bytes (AES-256)") {
                 decodedLength(config.noteEncryption.key.value) == NOTE_KEY_BYTES
             }
-            if (appEnv == AppEnv.PRODUCTION) {
+            if (inProduction) {
                 reader.check("JWT_SECRET", "must be at least 64 bytes in production (README §7.1)") {
                     config.jwt.secret.value.toByteArray().size >= MIN_JWT_SECRET_BYTES_IN_PRODUCTION
                 }
@@ -125,33 +131,48 @@ private class EnvReader(private val env: Map<String, String>) {
         ""
     }
 
-    fun int(name: String, default: Int): Int {
+    /** Required when [condition] holds, otherwise optional. Unset → null either way. */
+    fun requiredIf(condition: Boolean, name: String): String? =
+        if (condition) required(name).takeIf { it.isNotEmpty() } else optional(name)
+
+    /** An optional whole number in [range], or [default] when unset. */
+    fun int(name: String, default: Int, range: IntRange): Int {
         val raw = optional(name) ?: return default
-        return raw.toIntOrNull() ?: run {
-            problems += "$name must be a whole number"
-            default
-        }
+        return parseInt(name, raw, range) ?: default
     }
 
-    fun requiredInt(name: String): Int {
+    /** A required whole number in [range]. */
+    fun requiredInt(name: String, range: IntRange): Int {
         val raw = required(name)
         if (raw.isEmpty()) return 0
-        return raw.toIntOrNull() ?: run {
-            problems += "$name must be a whole number"
-            0
-        }
+        return parseInt(name, raw, range) ?: 0
     }
 
-    fun appEnv(): AppEnv = when (val raw = required("APP_ENV")) {
+    private fun parseInt(name: String, raw: String, range: IntRange): Int? {
+        val value = raw.toIntOrNull()
+        when {
+            value == null -> problems += "$name must be a whole number"
+            value !in range && range.last == Int.MAX_VALUE -> problems += "$name must be at least ${range.first}"
+            value !in range -> problems += "$name must be from ${range.first} to ${range.last}"
+            else -> return value
+        }
+        return null
+    }
+
+    /**
+     * Null when `APP_ENV` is missing or unknown. That's already a problem, so the caller skips the
+     * production-only checks instead of reporting a pile of follow-on ones.
+     */
+    fun appEnv(): AppEnv? = when (val raw = required("APP_ENV")) {
         "development" -> AppEnv.DEVELOPMENT
 
         "production" -> AppEnv.PRODUCTION
 
-        "" -> AppEnv.PRODUCTION
+        "" -> null
 
         else -> {
             problems += "APP_ENV must be development or production, not \"$raw\""
-            AppEnv.PRODUCTION
+            null
         }
     }
 
