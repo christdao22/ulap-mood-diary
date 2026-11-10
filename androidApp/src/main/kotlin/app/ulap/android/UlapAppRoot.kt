@@ -17,15 +17,16 @@ import app.ulap.android.navigation.navigateToTab
 import app.ulap.core.designsystem.component.UlapTabBar
 import app.ulap.core.designsystem.component.UlapTabItem
 import app.ulap.core.designsystem.theme.UlapTheme
-import app.ulap.feature.account.navigation.accountScreen
+import app.ulap.feature.account.navigation.accountGraph
 import app.ulap.feature.checkin.navigation.CheckInGraph
 import app.ulap.feature.checkin.navigation.checkInGraph
 import app.ulap.feature.checkin.navigation.editCheckInScreen
 import app.ulap.feature.checkin.navigation.navigateToEditCheckIn
 import app.ulap.feature.logs.navigation.logsGraph
 import app.ulap.feature.onboarding.navigation.OnboardingGraph
+import app.ulap.feature.onboarding.navigation.accountPrivacyNoticeScreen
+import app.ulap.feature.onboarding.navigation.navigateToAccountPrivacyNotice
 import app.ulap.feature.onboarding.navigation.onboardingGraph
-import app.ulap.feature.onboarding.navigation.privacyNoticeScreen
 import app.ulap.feature.reports.navigation.reportsScreen
 
 /**
@@ -84,7 +85,13 @@ fun UlapAppRoot(
                 editCheckInScreen(navController)
             }
             reportsScreen()
-            accountScreen()
+            // The privacy notice belongs to onboarding but opens inside the Account tab too (design-spec.md §7.8).
+            accountGraph(
+                navController = navController,
+                onOpenPrivacyNotice = navController::navigateToAccountPrivacyNotice,
+            ) {
+                accountPrivacyNoticeScreen(navController)
+            }
             onboardingGraph(
                 navController = navController,
                 onFinish = {
@@ -93,7 +100,6 @@ fun UlapAppRoot(
                     }
                 },
             )
-            privacyNoticeScreen(navController)
         }
     }
 }

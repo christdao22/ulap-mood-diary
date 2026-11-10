@@ -57,7 +57,7 @@ internal fun PrivacyNoticeScreen(onBack: () -> Unit, modifier: Modifier = Modifi
             horizontalArrangement = Arrangement.spacedBy(UlapSpacing.S),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            UlapIconButton(onClick = onBack, contentDescription = stringResource(R.string.privacy_back)) {
+            UlapIconButton(onClick = onBack, contentDescription = stringResource(R.string.back)) {
                 Icon(imageVector = UlapIcons.Back, contentDescription = null)
             }
             Text(

@@ -9,6 +9,13 @@
     <string name="tab_reports">Reports</string>
     <string name="tab_account">Account</string>
 
+    <!-- TalkBack name of the back arrow at the top of a screen -->
+    <string name="back">Back</string>
+
+    <!-- Account settings list (design-spec.md §7.8). The screen title is tab_account; the
+         Privacy notice row uses privacy_title. -->
+    <string name="account_language">Language</string>
+
     <!-- Onboarding step 1: choose a language (design-spec.md §7.1) -->
     <string name="onboarding_language_title">Choose your language</string>
     <string name="onboarding_continue">Continue</string>
@@ -27,7 +34,6 @@
 
     <!-- Privacy notice (README §14). A first draft; the written notice replaces it (PHASES.md Phase 8). -->
     <string name="privacy_title">Privacy notice</string>
-    <string name="privacy_back">Back</string>
     <string name="privacy_intro">Ulap is a mood diary. Here\'s how Ulap keeps your diary private.</string>
     <string name="privacy_collect_title">What Ulap keeps</string>
     <string name="privacy_collect_body">Your check-ins: mood, energy, stress, what it was about, your notes and the time. If you sign in, also your email, your name if you add one, and your settings.</string>

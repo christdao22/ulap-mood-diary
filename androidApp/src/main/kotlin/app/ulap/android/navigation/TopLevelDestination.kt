@@ -8,6 +8,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import app.ulap.core.designsystem.icon.UlapIcons
 import app.ulap.core.ui.R
+import app.ulap.feature.account.navigation.AccountGraph
 import app.ulap.feature.account.navigation.AccountRoute
 import app.ulap.feature.checkin.navigation.CheckInGraph
 import app.ulap.feature.checkin.navigation.PickMoodRoute
@@ -29,7 +30,7 @@ enum class TopLevelDestination(
     CHECK_IN(CheckInGraph, R.string.tab_check_in, UlapIcons.CheckIn, startRoute = PickMoodRoute),
     LOGS(LogsGraph, R.string.tab_logs, UlapIcons.Logs, startRoute = LogsRoute),
     REPORTS(ReportsRoute, R.string.tab_reports, UlapIcons.Reports),
-    ACCOUNT(AccountRoute, R.string.tab_account, UlapIcons.Account),
+    ACCOUNT(AccountGraph, R.string.tab_account, UlapIcons.Account, startRoute = AccountRoute),
     ;
 
     private val routeClass: KClass<*> get() = route::class

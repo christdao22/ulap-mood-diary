@@ -21,7 +21,7 @@ Last updated: November 7, 2026
 | 2 | Offline check-in | 🟡 In progress | 23 / 25 |
 | 3 | Logs | ✅ Complete | 13 / 13 |
 | 4 | Reports | ✅ Complete | 17 / 17 |
-| 5 | Languages and onboarding | 🟡 In progress | 9 / 15 |
+| 5 | Languages and onboarding | 🟡 In progress | 11 / 15 |
 | 6 | Server and accounts | ⬜ Not started | 0 / 26 |
 | 7 | Sync | ⬜ Not started | 0 / 25 |
 | 8 | Privacy, safety and polish | ⬜ Not started | 0 / 23 |
@@ -228,9 +228,9 @@ Spec: [Technical plan §11 and Appendix A–B](docs/technical-plan.md#11-languag
 - [x] Step 1: choose a language (English, Filipino, Bisaya)
 - [x] Step 2: meet Ulap
 - [x] Step 3: privacy note, disclaimer, consent → "Start my first check-in"
-- [ ] Privacy notice screen (also linked from Account)
+- [x] Privacy notice screen (also linked from Account)
 - [x] Onboarding shown only once (DataStore flag)
-- [ ] Account: change language later
+- [x] Account: change language later
 - [ ] Account: mascot on/off switch (messages still show when off)
 
 **Phase 5 complete when:** a new user can complete onboarding and a check-in fully in Bisaya without seeing any English.

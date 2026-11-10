@@ -11,6 +11,13 @@
     <string name="tab_reports">Report</string>
     <string name="tab_account">Account</string>
 
+    <!-- TalkBack name of the back arrow at the top of a screen -->
+    <string name="back">Balik</string>
+
+    <!-- Account settings list (design-spec.md §7.8). The screen title is tab_account; the
+         Privacy notice row uses privacy_title. -->
+    <string name="account_language">Pinulongan</string>
+
     <!-- Onboarding step 1 (design-spec.md §7.1). Language names live in values only. -->
     <string name="onboarding_language_title">Pilia ang imong pinulongan</string>
     <string name="onboarding_continue">Padayon</string>
@@ -29,7 +36,6 @@
 
     <!-- Privacy notice (README §14). First draft. -->
     <string name="privacy_title">Privacy notice</string>
-    <string name="privacy_back">Balik</string>
     <string name="privacy_intro">Ang Ulap usa ka mood diary. Mao kini ang paagi nga ang imong diary magpabiling pribado.</string>
     <string name="privacy_collect_title">Unsa ang gitipigan sa Ulap</string>
     <string name="privacy_collect_body">Imong mga check-in: mood, enerhiya, stress, unsa kini mahitungod, imong mga nota ug ang oras. Kung mag-sign in ka, apil usab ang imong email, imong ngalan kung magbutang ka, ug imong mga setting.</string>

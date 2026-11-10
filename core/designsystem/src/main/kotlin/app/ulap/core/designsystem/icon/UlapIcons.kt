@@ -70,7 +70,7 @@ object UlapIcons {
         }
     }
 
-    /** A right chevron, for the Reports "next period" button (design-spec.md §7.7). */
+    /** A right chevron: the Reports "next period" button (design-spec.md §7.7) and settings rows (§7.8). */
     val Forward: ImageVector by lazy {
         lineIcon("Forward") {
             moveTo(8.5f, 5f)

@@ -1,6 +1,5 @@
 package app.ulap.feature.onboarding.language
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +17,8 @@ import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.model.AppLanguage
 import app.ulap.core.ui.R
+import app.ulap.core.ui.greetingRes
+import app.ulap.core.ui.nameRes
 import app.ulap.feature.onboarding.OnboardingStepLayout
 import app.ulap.feature.onboarding.OnboardingTitle
 
@@ -71,22 +72,6 @@ internal fun ChooseLanguageContent(
         }
     }
 }
-
-/** Each language's own name for itself. The same in every values folder. */
-private val AppLanguage.nameRes: Int
-    @StringRes get() = when (this) {
-        AppLanguage.ENGLISH -> R.string.language_english
-        AppLanguage.FILIPINO -> R.string.language_filipino
-        AppLanguage.BISAYA -> R.string.language_bisaya
-    }
-
-/** A welcome written in that language, whatever the app is showing now. */
-private val AppLanguage.greetingRes: Int
-    @StringRes get() = when (this) {
-        AppLanguage.ENGLISH -> R.string.language_english_greeting
-        AppLanguage.FILIPINO -> R.string.language_filipino_greeting
-        AppLanguage.BISAYA -> R.string.language_bisaya_greeting
-    }
 
 @Preview(showBackground = true)
 @Composable
