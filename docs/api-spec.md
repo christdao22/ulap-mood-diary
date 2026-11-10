@@ -83,7 +83,9 @@ If the app is too old, any route can return `426 Upgrade Required` with error co
 ### Refresh rules
 - Each refresh returns a **new** refresh token and invalidates the old one.
 - If an already-used refresh token is presented again, the server **revokes every token for that device** (it was probably stolen) and returns `401 REFRESH_TOKEN_REUSED`. The app signs the user out, and local data stays on the phone.
+- A token that was signed out (`/auth/logout`, `/auth/logout-all`, a password reset) is simply unknown afterwards: `401 REFRESH_TOKEN_INVALID`, not "reused".
 - The server stores only a **SHA-256 hash** of each refresh token.
+- Signed-in routes answer `401 TOKEN_EXPIRED` for an expired access token and `401 UNAUTHENTICATED` for a missing or bad one, so the app knows when a refresh will help.
 
 ### Client flow
 1. Call an API with the access token.
@@ -321,6 +323,8 @@ The verification email link opens the app (Android App Link `https://ulap.app/ve
 **Request** `{ "token": "Rr8…", "newPassword": "Bag-ong-Password-2026" }`
 **Responses** `204` (all of the user's refresh tokens are revoked) · `410 TOKEN_USED_OR_EXPIRED` · `422 WEAK_PASSWORD`
 
+A weak password is refused before the link is spent, so the person can try again with the same link. Opening the link proves the person reads this inbox, so the email also counts as verified.
+
 ---
 
 ### 6.9 `POST /auth/refresh`
@@ -337,7 +341,7 @@ The verification email link opens the app (Android App Link `https://ulap.app/ve
 ---
 
 ### 6.10 `POST /auth/logout` 🔒
-**Request** `{ "refreshToken": "kq3Vd0…" }` → `204`. Revokes this device's session.
+**Request** `{ "refreshToken": "kq3Vd0…" }` → `204`. Revokes this device's session (the device in the access token's `did`). `refreshToken` may be left out: a phone that lost it can still sign out.
 
 ### 6.11 `POST /auth/logout-all` 🔒
 **Request** `{}` → `204`. Revokes every session on every device.
@@ -345,10 +349,16 @@ The verification email link opens the app (Android App Link `https://ulap.app/ve
 ---
 
 ### 6.12 `POST /auth/link/google` 🔒
-Adds Google sign-in to an email account (or the other way round with `/auth/link/email`).
+Adds Google sign-in to an email account.
 
 **Request** `{ "idToken": "…" }`
-**Responses** `200` `User` · `409 IDENTITY_LINKED_ELSEWHERE`
+**Responses** `200` `User` (linking the same Google account again is a no-op) · `401 INVALID_GOOGLE_TOKEN` · `409 IDENTITY_LINKED_ELSEWHERE` (the Google account belongs to another Ulap user, or this account already has a different Google sign-in)
+
+### 6.13 `POST /auth/link/email` 🔒
+Adds email and password sign-in to a Google account. The password rules of §6.3 apply, and a verification email is sent (§6.5).
+
+**Request** `{ "email": "christian@example.com", "password": "Kalma-sa-Ulap-2026" }`
+**Responses** `200` `User` (the new identity has `emailVerified: false`) · `409 EMAIL_TAKEN` (the email is in use, or this account already has an email sign-in) · `422 WEAK_PASSWORD`
 
 ---
 
@@ -612,7 +622,7 @@ The hotline is also hard-coded in the app, so it works offline. `/meta` only all
 | Everything else | 120 per minute | user or IP |
 
 On a limit: `429 RATE_LIMITED` with `Retry-After: <seconds>`.
-In Ktor: the `RateLimit` plugin, with named limiters per route group.
+In Ktor: the `RateLimit` plugin, with named limiters per route group. The limits keyed by email can't be a Ktor limiter, because the email is in the request body, so the auth services count them in memory the same way. Every attempt counts, including failed ones.
 "IP" is the `CF-Connecting-IP` header set by the Cloudflare Tunnel, the only way in to production ([ulap-reference §8.4](ulap-reference.md#84-hosting-d14-accepted)). Without it (local runs) it's the socket address. Counters are kept in memory, which is enough for one server.
 
 ---

@@ -1,5 +1,7 @@
 package app.ulap.server
 
+import app.ulap.server.auth.authRoutes
+import app.ulap.server.auth.installAccessTokenAuth
 import app.ulap.server.common.AppVersionGate
 import app.ulap.server.common.RateLimits
 import app.ulap.server.common.RequestIds
@@ -51,7 +53,7 @@ fun main() {
 
 /**
  * The whole HTTP API. Plugins are installed in the order of ulap-reference.md §6.2: request id,
- * compression, the app-version gate, rate limits, then (with the auth tasks) authentication.
+ * compression, the app-version gate, rate limits, then authentication.
  */
 fun Application.module(deps: AppDeps) {
     install(CallId) {
@@ -72,13 +74,15 @@ fun Application.module(deps: AppDeps) {
     install(AppVersionGate) {
         minAndroidVersionCode = deps.config.minAndroidVersionCode
     }
-    installRateLimits(deps.rateLimits)
+    installRateLimits(deps.rateLimits, deps.auth.accessTokens)
+    installAccessTokenAuth(deps.auth.accessTokens)
 
     routing {
         rateLimit(RateLimits.DEFAULT) {
             route(Api.PATH_PREFIX) {
                 healthRoutes(deps.dataSource)
                 metaRoutes(deps.config)
+                authRoutes(deps.authServices)
             }
         }
     }

@@ -3,6 +3,7 @@ package app.ulap.server.common
 import app.ulap.shared.api.ErrorBody
 import app.ulap.shared.api.ErrorCode
 import app.ulap.shared.api.ErrorResponse
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
@@ -14,6 +15,7 @@ import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.PayloadTooLargeException
 import io.ktor.server.plugins.callid.callId
 import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.response.header
 import io.ktor.server.response.respond
 
 /**
@@ -24,6 +26,7 @@ import io.ktor.server.response.respond
 fun Application.installErrorHandling() {
     install(StatusPages) {
         exception<ApiException> { call, e ->
+            e.retryAfterSeconds?.let { call.response.header(HttpHeaders.RetryAfter, it.toString()) }
             call.respondError(e.code, e.message, e)
         }
         // Malformed JSON, a missing required field, or a body that isn't JSON.

@@ -9,9 +9,14 @@ import io.ktor.http.HttpStatusCode
  * StatusPages turns it into the standard error body (api-spec.md §4). Routes never catch it.
  * The HTTP status comes from [code] (see [ErrorStatuses]), so a code can't be sent with the wrong one.
  * [message] is for developers, in English, and must never contain a note, token or password.
+ * [retryAfterSeconds] becomes the `Retry-After` header of a `429` (api-spec.md §10).
  */
-class ApiException(val code: String, override val message: String, val details: List<ErrorDetail>? = null) :
-    RuntimeException(message) {
+class ApiException(
+    val code: String,
+    override val message: String,
+    val details: List<ErrorDetail>? = null,
+    val retryAfterSeconds: Long? = null,
+) : RuntimeException(message) {
     val status: HttpStatusCode = ErrorStatuses.of(code)
 
     companion object {
@@ -20,10 +25,17 @@ class ApiException(val code: String, override val message: String, val details: 
         fun validationFailed(details: List<ErrorDetail>, message: String = "Validation failed"): ApiException =
             ApiException(ErrorCode.VALIDATION_FAILED, message, details)
 
+        /** One field that failed, e.g. `email` / `INVALID`. */
+        fun invalidField(field: String, issue: String = "INVALID"): ApiException =
+            validationFailed(listOf(ErrorDetail(field, issue)), "$field is not allowed: $issue")
+
         fun unauthenticated(message: String = "Sign-in required"): ApiException =
             ApiException(ErrorCode.UNAUTHENTICATED, message)
 
         fun notFound(message: String = "Not found"): ApiException = ApiException(ErrorCode.NOT_FOUND, message)
+
+        fun rateLimited(retryAfterSeconds: Long): ApiException =
+            ApiException(ErrorCode.RATE_LIMITED, "Too many requests", retryAfterSeconds = retryAfterSeconds)
 
         fun unavailable(message: String): ApiException = ApiException(ErrorCode.UNAVAILABLE, message)
     }

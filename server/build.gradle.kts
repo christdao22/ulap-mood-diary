@@ -66,6 +66,14 @@ dependencies {
     implementation(libs.ktor.server.rate.limit)
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.server.auth)
+
+    // Auth (api-spec.md §3, §6): signed access tokens, Argon2id password hashes, Google ID token
+    // checks and the verification and reset emails.
+    implementation(libs.java.jwt)
+    implementation(libs.argon2.jvm)
+    implementation(libs.google.api.client)
+    implementation(libs.jakarta.mail)
 
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
@@ -77,6 +85,8 @@ dependencies {
     implementation(libs.logback.classic)
 
     testImplementation(libs.ktor.server.test.host)
+    // The test client sends and reads the shared DTOs as JSON.
+    testImplementation(libs.ktor.client.content.negotiation)
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.junit)
     testImplementation(libs.testcontainers.postgresql)

@@ -3,6 +3,7 @@ package app.ulap.server.db
 import javax.sql.DataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database as ExposedDatabase
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -28,3 +29,6 @@ class Db(dataSource: DataSource) {
         transaction(database) { block() }
     }
 }
+
+/** True when PostgreSQL refused a row because a UNIQUE constraint already holds that value (SQLSTATE 23505). */
+fun ExposedSQLException.isUniqueViolation(): Boolean = sqlState == "23505"

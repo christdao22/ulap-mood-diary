@@ -244,6 +244,8 @@ server/src/main/kotlin/app/ulap/server/
 | DAL | Exposed queries only. Every function takes an optional transaction. |
 | Deps | `AppDeps` is passed into `module()`, so `testApplication` tests pass fakes (macro-tracker's `AppDeps` pattern). |
 
+As built (Phase 6), the packages are flat: `common/` instead of `lib/`, and `health/`, `meta/`, `auth/`, `users/` directly under the server package instead of `modules/<m>/`. The layering rules above are what matter; the folder names are a Proposed change to this sketch until the owner decides.
+
 ### 6.2 Plugin order **[pattern]**
 macro-tracker's middleware order (MT §4), mapped to Ktor `install` order:
 
