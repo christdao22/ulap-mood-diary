@@ -66,6 +66,9 @@ dependencies {
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.serialization.kotlinx.json)
 
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.java.time)
     implementation(libs.hikari)
     implementation(libs.postgresql)
     implementation(libs.flyway.core)

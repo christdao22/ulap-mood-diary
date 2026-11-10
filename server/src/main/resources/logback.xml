@@ -16,6 +16,9 @@
     <logger name="com.zaxxer.hikari" level="WARN" />
     <logger name="io.netty" level="WARN" />
     <logger name="org.flywaydb" level="INFO" />
+    <!-- Exposed logs every SQL statement with its values filled in at DEBUG: token and password
+         hashes and note ciphertext would land in the log. Keep it at WARN, even when debugging. -->
+    <logger name="Exposed" level="WARN" />
     <logger name="org.testcontainers" level="WARN" />
     <logger name="tc" level="WARN" />
 </configuration>
