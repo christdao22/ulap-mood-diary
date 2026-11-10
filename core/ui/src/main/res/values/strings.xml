@@ -13,7 +13,9 @@
     <string name="back">Back</string>
 
     <!-- Account settings list (design-spec.md §7.8). The screen title is tab_account; the
+         Ulap switch hides only the character, never its messages (§8.5). The
          Privacy notice row uses privacy_title. -->
+    <string name="account_show_ulap">Show Ulap the cloud</string>
     <string name="account_language">Language</string>
 
     <!-- Onboarding step 1: choose a language (design-spec.md §7.1) -->

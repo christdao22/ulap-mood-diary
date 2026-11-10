@@ -21,6 +21,8 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTouchHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchWidthIsEqualTo
@@ -229,6 +231,34 @@ class ComponentsTest {
         }
 
         compose.onNodeWithText("Gusto ba nimo moginhawa uban nako").assertHeightIsAtLeast(80.dp)
+    }
+
+    @Test
+    fun `a settings switch row toggles from anywhere on the row and stays at least 56dp tall`() {
+        var checked by mutableStateOf(true)
+        show {
+            UlapSettingsSwitchRow(title = "Show Ulap the cloud", checked = checked, onCheckedChange = { checked = it })
+        }
+
+        compose.onNodeWithText("Show Ulap the cloud")
+            .assertHeightIsAtLeast(56.dp)
+            .assertIsOn()
+            .performClick()
+            .assertIsOff()
+    }
+
+    @Test
+    fun `a settings switch row wraps its title at 200 percent text instead of cutting it off`() {
+        show(fontScale = 2f) {
+            UlapSettingsSwitchRow(
+                title = "Ipakita si Ulap ang panganod",
+                checked = false,
+                onCheckedChange = {},
+                modifier = Modifier.width(240.dp),
+            )
+        }
+
+        compose.onNodeWithText("Ipakita si Ulap ang panganod").assertHeightIsAtLeast(80.dp)
     }
 
     private companion object {

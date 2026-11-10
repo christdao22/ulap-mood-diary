@@ -9,10 +9,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -71,6 +74,52 @@ fun UlapSettingsRow(title: String, onClick: () -> Unit, modifier: Modifier = Mod
     }
 }
 
+/**
+ * One row in a settings list that turns something on or off, like "Show Ulap the cloud"
+ * (design-spec.md §7.8): a [title] and a Material 3 Switch (§6.16). The whole row is the toggle,
+ * so tapping the words works too, and TalkBack reads it as one switch with its state. At least
+ * 56dp tall, like [UlapSettingsRow].
+ */
+@Composable
+fun UlapSettingsSwitchRow(
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = UlapTheme.colors
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = MinRowHeight)
+            .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange)
+            .padding(horizontal = UlapSpacing.CardPadding, vertical = UlapSpacing.S),
+        horizontalArrangement = Arrangement.spacedBy(UlapSpacing.S),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = title,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyLarge,
+            color = colors.ink,
+        )
+        // The row handles taps, so the Switch only shows the state (null onCheckedChange).
+        Switch(
+            checked = checked,
+            onCheckedChange = null,
+            // §6.16: on is the Green strong track, off is the outlineButton track.
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = colors.surface,
+                checkedTrackColor = colors.green.strong,
+                checkedBorderColor = colors.green.strong,
+                uncheckedThumbColor = colors.surface,
+                uncheckedTrackColor = colors.outlineButton,
+                uncheckedBorderColor = colors.outlineButton,
+            ),
+        )
+    }
+}
+
 /** The 1dp `lineSoft` row divider between two [UlapSettingsRow]s (design-spec.md §2.1). */
 @Composable
 fun UlapSettingsDivider(modifier: Modifier = Modifier) {
@@ -88,6 +137,8 @@ private val MinRowHeight = 56.dp
 private fun UlapSettingsCardPreview() {
     UlapTheme {
         UlapSettingsCard(modifier = Modifier.padding(UlapSpacing.M)) {
+            UlapSettingsSwitchRow(title = "Show Ulap the cloud", checked = true, onCheckedChange = {})
+            UlapSettingsDivider()
             UlapSettingsRow(title = "Language", value = "Bisaya", onClick = {})
             UlapSettingsDivider()
             UlapSettingsRow(title = "Privacy notice", onClick = {})

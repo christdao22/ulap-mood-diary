@@ -15,7 +15,9 @@
     <string name="back">Balik</string>
 
     <!-- Account settings list (design-spec.md §7.8). The screen title is tab_account; the
+         Ulap switch hides only the character, never its messages (§8.5). The
          Privacy notice row uses privacy_title. -->
+    <string name="account_show_ulap">Ipakita si Ulap</string>
     <string name="account_language">Pinulongan</string>
 
     <!-- Onboarding step 1 (design-spec.md §7.1). Language names live in values only. -->
