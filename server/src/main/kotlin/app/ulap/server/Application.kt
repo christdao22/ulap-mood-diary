@@ -1,12 +1,16 @@
 package app.ulap.server
 
+import app.ulap.server.common.AppVersionGate
+import app.ulap.server.common.RateLimits
 import app.ulap.server.common.RequestIds
 import app.ulap.server.common.installErrorHandling
+import app.ulap.server.common.installRateLimits
 import app.ulap.server.config.AppConfig
 import app.ulap.server.config.AppEnv
 import app.ulap.server.config.ConfigException
 import app.ulap.server.db.Database
 import app.ulap.server.health.healthRoutes
+import app.ulap.server.meta.metaRoutes
 import app.ulap.shared.api.Api
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -19,6 +23,7 @@ import io.ktor.server.plugins.callid.callIdMdc
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.ratelimit.rateLimit
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import kotlin.system.exitProcess
@@ -46,7 +51,7 @@ fun main() {
 
 /**
  * The whole HTTP API. Plugins are installed in the order of ulap-reference.md §6.2: request id,
- * compression, then (in later phases) the app-version gate, rate limits and authentication.
+ * compression, the app-version gate, rate limits, then (with the auth tasks) authentication.
  */
 fun Application.module(deps: AppDeps) {
     install(CallId) {
@@ -64,10 +69,17 @@ fun Application.module(deps: AppDeps) {
         json(Api.json)
     }
     installErrorHandling()
+    install(AppVersionGate) {
+        minAndroidVersionCode = deps.config.minAndroidVersionCode
+    }
+    installRateLimits(deps.rateLimits)
 
     routing {
-        route(Api.PATH_PREFIX) {
-            healthRoutes(deps.dataSource)
+        rateLimit(RateLimits.DEFAULT) {
+            route(Api.PATH_PREFIX) {
+                healthRoutes(deps.dataSource)
+                metaRoutes(deps.config)
+            }
         }
     }
 }

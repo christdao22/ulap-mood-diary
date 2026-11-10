@@ -1,5 +1,6 @@
 package app.ulap.server
 
+import app.ulap.server.common.RateLimitSettings
 import app.ulap.server.config.AppConfig
 import app.ulap.server.crypto.NoteCipher
 import app.ulap.server.db.Db
@@ -14,4 +15,5 @@ class AppDeps(
     val dataSource: DataSource,
     val db: Db = Db(dataSource),
     val noteCipher: NoteCipher = NoteCipher.from(config.noteEncryption),
+    val rateLimits: RateLimitSettings = RateLimitSettings(),
 )

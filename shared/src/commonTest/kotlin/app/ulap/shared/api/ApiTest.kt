@@ -16,6 +16,23 @@ class ApiTest {
     }
 
     @Test
+    fun metaBodyMatchesTheApiSpec() {
+        val meta = MetaResponse(
+            minAppVersion = PlatformVersions(android = 1),
+            latestAppVersion = PlatformVersions(android = 1),
+            moodCatalogVersion = 1,
+            hotline = HotlineInfo.NCMH,
+        )
+
+        // api-spec.md §9.3. "ios": null is left out, which the spec treats the same (§2, Format).
+        assertEquals(
+            """{"minAppVersion":{"android":1},"latestAppVersion":{"android":1},"moodCatalogVersion":1,""" +
+                """"hotline":{"name":"NCMH Crisis Hotline","number":"1553"}}""",
+            Api.json.encodeToString(meta),
+        )
+    }
+
+    @Test
     fun routesLiveUnderV1() {
         assertEquals("/v1", Api.PATH_PREFIX)
     }

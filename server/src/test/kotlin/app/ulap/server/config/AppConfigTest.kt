@@ -18,6 +18,23 @@ class AppConfigTest {
         assertEquals(15, config.jwt.accessTokenTtlMinutes)
         assertEquals(60, config.jwt.refreshTokenTtlDays)
         assertEquals(1, config.minAndroidVersionCode)
+        assertEquals(1, config.latestAndroidVersionCode)
+    }
+
+    @Test
+    fun theLatestBuildDefaultsToTheMinimum() {
+        val config = AppConfig.fromEnv(testEnv() + ("MIN_ANDROID_VERSION_CODE" to "4"))
+
+        assertEquals(4, config.latestAndroidVersionCode)
+    }
+
+    @Test
+    fun theLatestBuildCanNotBeBelowTheMinimum() {
+        val env = testEnv() + ("MIN_ANDROID_VERSION_CODE" to "4") + ("LATEST_ANDROID_VERSION_CODE" to "3")
+
+        val e = assertFailsWith<ConfigException> { AppConfig.fromEnv(env) }
+
+        assertEquals(listOf("LATEST_ANDROID_VERSION_CODE must not be below MIN_ANDROID_VERSION_CODE"), e.problems)
     }
 
     @Test

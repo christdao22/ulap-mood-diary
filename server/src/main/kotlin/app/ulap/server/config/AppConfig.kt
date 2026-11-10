@@ -26,6 +26,7 @@ data class AppConfig(
     val mail: MailConfig,
     val appLinkBase: String,
     val minAndroidVersionCode: Int,
+    val latestAndroidVersionCode: Int,
     val sentryDsn: String?,
 ) {
     data class DatabaseConfig(val url: String, val user: String, val password: Secret, val poolSize: Int)
@@ -64,6 +65,7 @@ data class AppConfig(
             val reader = EnvReader(env)
             val appEnv = reader.appEnv()
             val inProduction = appEnv == AppEnv.PRODUCTION
+            val minAndroid = reader.int("MIN_ANDROID_VERSION_CODE", 1, POSITIVE)
             val config = AppConfig(
                 // Never returned with a null APP_ENV: that's already a problem, so fromEnv throws below.
                 env = appEnv ?: AppEnv.PRODUCTION,
@@ -95,11 +97,16 @@ data class AppConfig(
                     from = reader.required("MAIL_FROM"),
                 ),
                 appLinkBase = reader.required("APP_LINK_BASE"),
-                minAndroidVersionCode = reader.int("MIN_ANDROID_VERSION_CODE", 1, POSITIVE),
+                minAndroidVersionCode = minAndroid,
+                // GET /v1/meta tells the app about a newer build (api-spec.md §9.3). Defaults to the minimum.
+                latestAndroidVersionCode = reader.int("LATEST_ANDROID_VERSION_CODE", minAndroid, POSITIVE),
                 sentryDsn = reader.optional("SENTRY_DSN"),
             )
             reader.check("NOTE_ENCRYPTION_KEY", "must be base64 for exactly 32 bytes (AES-256)") {
                 decodedLength(config.noteEncryption.key.value) == NOTE_KEY_BYTES
+            }
+            reader.check("LATEST_ANDROID_VERSION_CODE", "must not be below MIN_ANDROID_VERSION_CODE") {
+                config.latestAndroidVersionCode >= config.minAndroidVersionCode
             }
             if (inProduction) {
                 reader.check("JWT_SECRET", "must be at least 64 bytes in production (README §7.1)") {

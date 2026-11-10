@@ -22,7 +22,7 @@ Last updated: November 7, 2026
 | 3 | Logs | ✅ Complete | 13 / 13 |
 | 4 | Reports | ✅ Complete | 17 / 17 |
 | 5 | Languages and onboarding | 🟡 In progress | 12 / 15 |
-| 6 | Server and accounts | 🟡 In progress | 3 / 26 |
+| 6 | Server and accounts | 🟡 In progress | 8 / 26 |
 | 7 | Sync | ⬜ Not started | 0 / 25 |
 | 8 | Privacy, safety and polish | ⬜ Not started | 0 / 23 |
 | 9 | Testing and beta | ⬜ Not started | 0 / 15 |
@@ -249,12 +249,12 @@ Spec: [API reference §3–§7 and §10–§12](docs/api-spec.md#3-authenticatio
 
 ### Server foundations
 - [x] `AppConfig` reads every env var and fails fast if one is missing
-- [ ] Plugins: ContentNegotiation, CallId (`X-Request-Id`), StatusPages, RateLimit
-- [ ] The standard error format and every error code from the API spec
+- [x] Plugins: ContentNegotiation, CallId (`X-Request-Id`), StatusPages, RateLimit
+- [x] The standard error format and every error code from the API spec
 - [ ] `logback.xml` with no request bodies, notes or tokens 🔒
-- [ ] `GET /v1/ready`: `SELECT 1` with a 2-second timeout → 200, or 503 `UNAVAILABLE` ([API reference §9.2](docs/api-spec.md#92-get-ready))
-- [ ] `GET /v1/meta` (minimum app version, hotline)
-- [ ] `426 APP_UPDATE_REQUIRED` check from `X-App-Version`
+- [x] `GET /v1/ready`: `SELECT 1` with a 2-second timeout → 200, or 503 `UNAVAILABLE` ([API reference §9.2](docs/api-spec.md#92-get-ready))
+- [x] `GET /v1/meta` (minimum app version, hotline)
+- [x] `426 APP_UPDATE_REQUIRED` check from `X-App-Version`
 
 ### Auth (server) 🔒
 - [ ] JWT access tokens (15 minutes) with `sub` and `did`

@@ -439,6 +439,7 @@ docker run -d --name ulap-server -p 8080:8080 --env-file .env.production ulap-se
 | `MAIL_FROM` | `Ulap <hello@ulap.app>` | ✅ | |
 | `APP_LINK_BASE` | `https://ulap.app` | ✅ | Base URL for verify and reset links |
 | `MIN_ANDROID_VERSION_CODE` | `1` | | Below this → `426 APP_UPDATE_REQUIRED` |
+| `LATEST_ANDROID_VERSION_CODE` | `1` | | Newest build, sent by `GET /v1/meta`. Defaults to the minimum; can't be below it. |
 | `SENTRY_DSN` | `https://…@….ingest.sentry.io/…` | | Crash reports (D11). Empty sends nothing. |
 
 ### Android (`~/.gradle/gradle.properties`, never committed)

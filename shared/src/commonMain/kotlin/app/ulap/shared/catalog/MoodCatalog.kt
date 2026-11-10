@@ -12,6 +12,9 @@ import app.ulap.shared.model.Zone
  * check-ins refer to it.
  */
 object MoodCatalog {
+    /** Goes up by one whenever a mood is added. `GET /v1/meta` reports it (api-spec.md §9.3). */
+    const val VERSION: Int = 1
+
     /** The one mood that shows the NCMH 1553 hotline instead of activity buttons. */
     const val HOPELESS: String = "hopeless"
 

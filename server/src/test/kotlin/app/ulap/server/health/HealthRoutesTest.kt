@@ -1,9 +1,6 @@
 package app.ulap.server.health
 
-import app.ulap.server.AppDeps
-import app.ulap.server.db.Database
-import app.ulap.server.module
-import app.ulap.server.testConfig
+import app.ulap.server.withTestServer
 import app.ulap.shared.api.Api
 import app.ulap.shared.api.ErrorCode
 import app.ulap.shared.api.ErrorResponse
@@ -12,7 +9,6 @@ import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.ApplicationTestBuilder
-import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -20,15 +16,7 @@ import kotlin.test.assertTrue
 
 /** Health, readiness and the error shape, with a database that never answers (api-spec.md §9). */
 class HealthRoutesTest {
-    private fun withDeadDatabase(block: suspend ApplicationTestBuilder.() -> Unit) {
-        val config = testConfig()
-        Database.createDataSource(config.database).use { dataSource ->
-            testApplication {
-                application { module(AppDeps(config, dataSource)) }
-                block()
-            }
-        }
-    }
+    private fun withDeadDatabase(block: suspend ApplicationTestBuilder.() -> Unit) = withTestServer(block = block)
 
     @Test
     fun healthIsOkWithoutTheDatabase() = withDeadDatabase {

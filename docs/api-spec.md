@@ -54,6 +54,9 @@ Local dev:   http://10.0.2.2:8080/v1         (Android emulator → host machine)
 
 ### Minimum app version
 If the app is too old, any route can return `426 Upgrade Required` with error code `APP_UPDATE_REQUIRED`. The app then shows "Please update Ulap to keep syncing." Local use still works.
+- The server reads the build number in brackets from `X-App-Version` (`android/1.0.0 (12)` → `12`) and compares it with `MIN_ANDROID_VERSION_CODE` ([README §8](../README.md#8-configuration-reference)).
+- `/health`, `/ready` and `/meta` never return 426, so health checks work without the header and an old app can still read `/meta`.
+- A missing or unreadable `X-App-Version` isn't blocked. The check is about compatibility, not security.
 
 ---
 
@@ -593,6 +596,7 @@ No auth. Lets the app check its compatibility.
 }
 ```
 The hotline is also hard-coded in the app, so it works offline. `/meta` only allows updating it without an app release.
+`minAppVersion.android` and `latestAppVersion.android` come from `MIN_ANDROID_VERSION_CODE` and `LATEST_ANDROID_VERSION_CODE` ([README §8](../README.md#8-configuration-reference)). There's no iOS app yet, so `ios` is left out (the same as `null`, §2).
 
 ---
 
@@ -609,6 +613,7 @@ The hotline is also hard-coded in the app, so it works offline. `/meta` only all
 
 On a limit: `429 RATE_LIMITED` with `Retry-After: <seconds>`.
 In Ktor: the `RateLimit` plugin, with named limiters per route group.
+"IP" is the `CF-Connecting-IP` header set by the Cloudflare Tunnel, the only way in to production ([ulap-reference §8.4](ulap-reference.md#84-hosting-d14-accepted)). Without it (local runs) it's the socket address. Counters are kept in memory, which is enough for one server.
 
 ---
 
