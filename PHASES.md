@@ -6,9 +6,9 @@
 
 Track progress by ticking boxes: change `- [ ]` to `- [x]` when a task is **done** (it meets the Definition of Done below).
 
-**Legend:** `- [x]` complete · `- [ ]` not started or in progress · 🔒 needs two-reviewer approval (auth, sync, encryption, safety)
+**Legend:** `- [x]` complete · `- [ ]` not started or in progress · 🔒 needs two-reviewer approval (auth, sync, encryption, safety) · ⏳ 🔒 task built and tested, waiting for the second reviewer before it can be ticked
 
-Last updated: November 7, 2026
+Last updated: November 12, 2026
 
 ---
 
@@ -132,7 +132,7 @@ Spec: [Technical plan §5–§6](docs/technical-plan.md#5-shared-domain-model) �
 - [x] Room `CheckInEntity` with every column from the technical plan
 - [x] `CheckInDao` (insert, update, soft delete, observe by day)
 - [x] `CheckInRepository` (save sets `PENDING` and `updatedAt`)
-- [ ] Database encryption: SQLCipher on Room 2.8, with a random passphrase wrapped by Tink and the Android Keystore, kept in `noBackupFilesDir`. Recovers from a lost key. Includes an instrumented test that the file can't be opened without the passphrase ([Technical plan §6](docs/technical-plan.md#encryption-of-the-phone-database)) 🔒
+- [ ] Database encryption: SQLCipher on Room 2.8, with a random passphrase wrapped by Tink and the Android Keystore, kept in `noBackupFilesDir`. Recovers from a lost key. Includes an instrumented test that the file can't be opened without the passphrase ([Technical plan §6](docs/technical-plan.md#encryption-of-the-phone-database)) 🔒 ⏳
 - [x] Turn off Android cloud backup of the database
 - [x] DataStore for settings (language, mascot on/off, device ID)
 
@@ -149,7 +149,7 @@ Spec: [Technical plan §5–§6](docs/technical-plan.md#5-shared-domain-model) �
 - [x] Support cards: breathing circle (4-2-6), small helps list, saved to good moments
 - [x] "How stressed do you feel now?" check-in (Red and Blue only)
 - [x] After screen: before → now, with the right message (lower, same, higher)
-- [ ] Hopeless: quiet Ulap plus the NCMH 1553 card (dialer intent) 🔒
+- [ ] Hopeless: quiet Ulap plus the NCMH 1553 card (dialer intent) 🔒 ⏳
 - [x] Bottom tab bar (Check in, Logs, Reports, Account)
 
 **Phase 2 complete when:** in airplane mode, you can log all 25 moods and each shows the right response, and the data survives an app restart.
@@ -245,38 +245,38 @@ Spec: [API reference §3–§7 and §10–§12](docs/api-spec.md#3-authenticatio
 ### Database
 - [x] Flyway `V2__init_schema.sql` (V1 is the empty Phase 1 migration): `users`, `auth_identities`, `refresh_tokens`, `email_tokens`, `check_ins`, `check_in_seq`, `sync_purge`
 - [x] Exposed table definitions plus a transaction helper
-- [ ] Encryption at rest: AES-256-GCM for `note` and `triggerOther`, with `key_id` 🔒
+- [ ] Encryption at rest: AES-256-GCM for `note` and `triggerOther`, with `key_id` 🔒 ⏳
 
 ### Server foundations
 - [x] `AppConfig` reads every env var and fails fast if one is missing
 - [x] Plugins: ContentNegotiation, CallId (`X-Request-Id`), StatusPages, RateLimit
 - [x] The standard error format and every error code from the API spec
-- [ ] `logback.xml` with no request bodies, notes or tokens 🔒
+- [ ] `logback.xml` with no request bodies, notes or tokens 🔒 ⏳
 - [x] `GET /v1/ready`: `SELECT 1` with a 2-second timeout → 200, or 503 `UNAVAILABLE` ([API reference §9.2](docs/api-spec.md#92-get-ready))
 - [x] `GET /v1/meta` (minimum app version, hotline)
 - [x] `426 APP_UPDATE_REQUIRED` check from `X-App-Version`
 
 ### Auth (server) 🔒
-- [ ] JWT access tokens (15 minutes) with `sub` and `did`
-- [ ] Refresh tokens (60 days), stored hashed, rotating, with reuse detection
-- [ ] `POST /auth/google` (verify signature, `aud`, `iss`, `exp`)
-- [ ] `POST /auth/email/register` with password rules plus Argon2id
-- [ ] `POST /auth/email/login`
-- [ ] Email verification (`/verify`, `/resend-verification`) with a 24-hour single-use token
-- [ ] Password reset (`/forgot`, `/reset`) with a 30-minute single-use token, revoking all sessions
-- [ ] `POST /auth/refresh`, `/logout`, `/logout-all`
-- [ ] `POST /auth/link/google` and `/auth/link/email`
-- [ ] Rate limits on every auth route
+- [ ] JWT access tokens (15 minutes) with `sub` and `did` ⏳
+- [ ] Refresh tokens (60 days), stored hashed, rotating, with reuse detection ⏳
+- [ ] `POST /auth/google` (verify signature, `aud`, `iss`, `exp`) ⏳
+- [ ] `POST /auth/email/register` with password rules plus Argon2id ⏳
+- [ ] `POST /auth/email/login` ⏳
+- [ ] Email verification (`/verify`, `/resend-verification`) with a 24-hour single-use token ⏳
+- [ ] Password reset (`/forgot`, `/reset`) with a 30-minute single-use token, revoking all sessions ⏳
+- [ ] `POST /auth/refresh`, `/logout`, `/logout-all` ⏳
+- [ ] `POST /auth/link/google` and `/auth/link/email` ⏳
+- [ ] Rate limits on every auth route ⏳
 
 ### User routes
 - [x] `GET /me`, `PATCH /me`
-- [ ] `DELETE /me` (hard delete of everything, in one transaction) 🔒
+- [ ] `DELETE /me` (hard delete of everything, in one transaction) 🔒 ⏳
 
 ### Auth (Android) 🔒
-- [ ] Credential Manager "Continue with Google"
-- [ ] Email sign-up, sign-in and forgot-password forms
-- [ ] Secure token storage (Keystore-backed) plus automatic refresh with a mutex
-- [ ] Sign-in bottom sheet and the Account screen's "Back up and sync" card
+- [ ] Credential Manager "Continue with Google" ⏳
+- [ ] Email sign-up, sign-in and forgot-password forms ⏳
+- [ ] Secure token storage (Keystore-backed) plus automatic refresh with a mutex ⏳
+- [ ] Sign-in bottom sheet and the Account screen's "Back up and sync" card ⏳
 
 **Phase 6 complete when:** a user can sign up with Google and with email, verify the email, sign out and in again, and delete the account. All auth tests pass.
 

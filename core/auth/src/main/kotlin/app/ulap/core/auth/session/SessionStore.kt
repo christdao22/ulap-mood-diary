@@ -23,8 +23,22 @@ internal data class StoredSession(
     val refreshToken: String,
     /** Epoch milliseconds. */
     val refreshTokenExpiresAt: Long,
+    /** Null only in files written before the Account screen showed a profile. */
+    val profile: StoredProfile? = null,
 ) {
     override fun toString(): String = "StoredSession(userId=$userId, refreshToken=***)"
+}
+
+/** What the Account screen shows about the person. Kept in the encrypted file, never in plain DataStore. */
+@Serializable
+internal data class StoredProfile(
+    val displayName: String? = null,
+    val email: String? = null,
+    val emailVerified: Boolean = false,
+    /** Epoch milliseconds. */
+    val createdAt: Long,
+) {
+    override fun toString(): String = "StoredProfile(emailVerified=$emailVerified)"
 }
 
 /**

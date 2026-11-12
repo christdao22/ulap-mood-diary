@@ -193,7 +193,7 @@ ulap/
 │   ├── database/                      # Room entities, DAOs, UlapDatabase (SQLCipher); schemas/ committed
 │   ├── datastore/                     # settings
 │   ├── network/                       # Ktor client, AuthApi, SyncApi, client plugins
-│   ├── auth/                          # Credential Manager, token store
+│   ├── auth/                          # session and token store, AccountRepository
 │   ├── data/                          # repositories (CheckInRepository, SettingsRepository)
 │   ├── sync/                          # SyncEngine, SyncWorker, SyncTriggers
 │   └── testing/                       # fakes, MainDispatcherRule
@@ -203,7 +203,7 @@ ulap/
 │   ├── checkin/                       # PickMood, Details, Response, AfterCheck
 │   ├── logs/
 │   ├── reports/
-│   └── account/
+│   └── account/                       # incl. the sign-in sheet and its Credential Manager call
 │
 ├── infra/
 │   ├── compose.yaml                   # postgres, migrate (one-off Flyway), server

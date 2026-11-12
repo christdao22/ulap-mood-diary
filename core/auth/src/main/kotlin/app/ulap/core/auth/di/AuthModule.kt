@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.core.okio.OkioStorage
+import app.ulap.core.auth.account.SessionAccountRepository
 import app.ulap.core.auth.session.SessionFile
 import app.ulap.core.auth.session.SessionManager
 import app.ulap.core.auth.session.SessionSerializer
 import app.ulap.core.auth.session.SessionStore
+import app.ulap.core.domain.account.AccountRepository
 import app.ulap.core.network.AccessTokenSource
 import com.google.crypto.tink.Aead
 import com.google.crypto.tink.KeyTemplates
@@ -57,6 +59,10 @@ internal interface AuthBindsModule {
     /** core:network's bearer plugin gets its tokens from the session. */
     @Binds
     fun bindsAccessTokenSource(manager: SessionManager): AccessTokenSource
+
+    /** Features sign in and out through the domain interface only (README §5). */
+    @Binds
+    fun bindsAccountRepository(repository: SessionAccountRepository): AccountRepository
 }
 
 private const val SESSION_FILE = "session.enc"

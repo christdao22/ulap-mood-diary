@@ -20,6 +20,68 @@
     <string name="account_show_ulap">Ipakita si Ulap</string>
     <string name="account_language">Pinulongan</string>
 
+    <!-- Back up and sync (design-spec.md §7.8, §7.9). Signing in is optional: the app works the
+         same without an account, so nothing here may pressure. Say "saved", not "safe", for
+         check-ins that are only on this phone. -->
+    <string name="account_backup_title">I-back up ug i-sync</string>
+    <string name="account_backup_body">Ipabilin nga luwas ang imong diary bisan mobalhin ka og phone</string>
+    <string name="account_sign_in_again_title">Pag-sign in usab aron magpadayon ang sync.</string>
+    <string name="account_sign_in_again_body">Naka-save gihapon niining phone ang imong mga check-in.</string>
+    <string name="account_sign_in_again_button">Pag-sign in</string>
+    <!-- Profile card. %1$s is a month and year, e.g. "October 2026" -->
+    <string name="account_member_since">Nag-check in na sukad %1$s</string>
+    <!-- The email isn't verified yet, so sync waits (api-spec.md §6.2). %1$s is the address -->
+    <string name="account_verify_body">Nagpadala mi og link sa %1$s. Magsugod ang backup inig abli nimo niini.</string>
+    <string name="account_verify_resend">Ipadala pag-usab ang link</string>
+    <string name="account_verify_sent">Napadala na. Basin pila pa ka minuto una kini moabot.</string>
+    <string name="account_sign_out">Pag-sign out</string>
+    <string name="account_sign_out_title">Mag-sign out?</string>
+    <string name="account_sign_out_body">Magpabilin niining phone ang imong mga check-in. Pwede ka mag-sign in usab bisan kanus-a aron magpadayon ang backup.</string>
+    <string name="account_sign_out_confirm">Pag-sign out</string>
+    <string name="account_sign_out_cancel">Ayaw sa</string>
+
+    <!-- Sign-in sheet and email forms (design-spec.md §7.9) -->
+    <string name="signin_sheet_title">I-back up ang imong diary</string>
+    <string name="signin_sheet_supporting">Kung gusto lang nimo. Mogana gihapon ang tanan bisan walay account.</string>
+    <string name="signin_google">Padayon gamit ang Google</string>
+    <string name="signin_use_email">Email na lang ang gamiton</string>
+    <string name="signin_create_title">Paghimo og account</string>
+    <string name="signin_email_title">Pag-sign in gamit ang email</string>
+    <string name="signin_email_label">Email</string>
+    <string name="signin_password_label">Password</string>
+    <string name="signin_password_hint">Labing menos 10 ka character. Maayo ang mubo nga phrase.</string>
+    <string name="signin_show_password">Ipakita ang password</string>
+    <string name="signin_hide_password">Tagoa ang password</string>
+    <string name="signin_create_button">Paghimo og account</string>
+    <string name="signin_sign_in_button">Pag-sign in</string>
+    <string name="signin_forgot_link">Nakalimtan ang password?</string>
+    <string name="signin_switch_to_sign_in">Naa na kay account? Pag-sign in</string>
+    <string name="signin_switch_to_create">Bag-o ka diri? Paghimo og account</string>
+    <string name="signin_forgot_title">I-reset ang imong password</string>
+    <string name="signin_forgot_body">Mag-email mi nimo og link aron makabutang ka og bag-ong password. Magamit kini sulod sa 30 minutos.</string>
+    <string name="signin_forgot_button">Ipadala ang link</string>
+    <string name="signin_forgot_sent_title">Tan-awa ang imong email</string>
+    <!-- %1$s is the email. It doesn't say whether the account exists (api-spec.md §6.7) -->
+    <string name="signin_forgot_sent_body">Kung naay Ulap account para sa %1$s, padulong na ang link. Magamit kini sulod sa 30 minutos.</string>
+    <string name="signin_back_to_sign_in">Balik sa pag-sign in</string>
+
+    <!-- Sign-in errors: under the field, in ink with an icon, never Red (design-spec.md §7.9).
+         They never say whether an account exists, except EMAIL_TAKEN at sign-up (api-spec.md §6). -->
+    <string name="signin_error_email">Pagbutang og email sama sa name@example.com.</string>
+    <string name="signin_error_password_empty">Ibutang ang imong password.</string>
+    <string name="signin_error_password_short">Gamit og labing menos 10 ka character. Maayo ang mubo nga phrase.</string>
+    <string name="signin_error_password_long">Hangtod 128 ka character lang.</string>
+    <string name="signin_error_password_same_as_email">Pagpili og password nga lahi sa imong email.</string>
+    <string name="signin_error_wrong_credentials">Dili magkatugma kanang email ug password. Sulayi pag-usab, o i-reset ang imong password.</string>
+    <string name="signin_error_email_taken">Naa nay account niining email. Gusto ka mag-sign in na lang?</string>
+    <string name="signin_error_weak_password">Sayon ra tag-anon kanang password. Sulayi ang mas taas nga phrase.</string>
+    <string name="signin_error_google">Wala nahuman ang pag-sign in sa Google. Sulayi pag-usab, o email na lang ang gamiton.</string>
+    <string name="signin_error_no_google_account">Wala pay Google account niining phone. Pwede ka magdugang sa Settings, o email na lang ang gamiton.</string>
+    <string name="signin_error_offline">Offline ka karon. Naka-save gihapon niining phone ang imong mga check-in. Sulayi pag-usab inig online na nimo.</string>
+    <string name="signin_error_too_many">Pahulay usa kadiyot. Sulayi pag-usab human sa pila ka minuto.</string>
+    <string name="signin_error_update">Palihug i-update ang Ulap aron makapag-sign in.</string>
+    <string name="signin_error_server">Wala motubag ang server sa Ulap karon. Sulayi pag-usab unya-unya.</string>
+
     <!-- Onboarding step 1 (design-spec.md §7.1). Language names live in values only. -->
     <string name="onboarding_language_title">Pilia ang imong pinulongan</string>
     <string name="onboarding_continue">Padayon</string>

@@ -128,6 +128,38 @@ object UlapIcons {
         }
     }
 
+    /** An open eye: "Show password" on a password field (design-spec.md §7.9). */
+    val Show: ImageVector by lazy {
+        lineIcon("Show") {
+            eye()
+        }
+    }
+
+    /** The eye struck through: "Hide password". */
+    val Hide: ImageVector by lazy {
+        lineIcon("Hide") {
+            eye()
+            moveTo(4f, 4f)
+            lineTo(18f, 18f)
+        }
+    }
+
+    /**
+     * An "i" in a circle, beside an error under a field. Errors are ink with this icon,
+     * never Red, so a typo doesn't look like an alarm (design-spec.md §7.9) and color is never
+     * the only signal (§11).
+     */
+    val Notice: ImageVector by lazy {
+        lineIcon("Notice") {
+            circle(cx = 11f, cy = 11f, r = 8f)
+            // A stroke this short, with round caps, draws as a dot.
+            moveTo(11f, 7.4f)
+            lineTo(11f, 7.5f)
+            moveTo(11f, 10.5f)
+            lineTo(11f, 15f)
+        }
+    }
+
     private const val GRID = 22f
     private const val STROKE = 1.8f
     private const val BASELINE = 18f
@@ -146,6 +178,15 @@ object UlapIcons {
         strokeLineJoin = StrokeJoin.Round,
         pathBuilder = pathBuilder,
     ).build()
+
+    /** An almond outline with the pupil in the middle, shared by [Show] and [Hide]. */
+    private val eye: PathBuilder.() -> Unit = {
+        moveTo(2f, 11f)
+        quadTo(11f, 2f, 20f, 11f)
+        quadTo(11f, 20f, 2f, 11f)
+        close()
+        circle(cx = 11f, cy = 11f, r = 2.75f)
+    }
 
     private fun PathBuilder.circle(cx: Float, cy: Float, r: Float) {
         moveTo(cx - r, cy)

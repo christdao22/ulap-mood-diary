@@ -5,6 +5,7 @@ import app.ulap.core.network.AccessTokenSource
 import app.ulap.core.network.ApiResult
 import app.ulap.core.network.SessionRefreshUnavailable
 import app.ulap.core.network.auth.AuthApi
+import app.ulap.core.network.auth.SessionProfile
 import app.ulap.core.network.auth.SessionTokens
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,7 +28,8 @@ sealed interface SessionState {
     /** The server ended the session. Local data stays; the app says "Sign in again to keep syncing." */
     data object SignInAgain : SessionState
 
-    data class SignedIn(val userId: String) : SessionState
+    /** [profile] is null only for a session saved before profiles were kept; the next refresh fills it. */
+    data class SignedIn(val userId: String, val profile: SessionProfile?) : SessionState
 }
 
 /**
@@ -63,7 +65,7 @@ class SessionManager @Inject internal constructor(
     val state: Flow<SessionState> = store.file
         .map { file ->
             when {
-                file.session != null -> SessionState.SignedIn(file.session.userId)
+                file.session != null -> SessionState.SignedIn(file.session.userId, file.session.profile?.toProfile())
                 file.signInAgain -> SessionState.SignInAgain
                 else -> SessionState.SignedOut
             }
@@ -79,10 +81,22 @@ class SessionManager @Inject internal constructor(
     }
 
     /**
-     * Forgets the session on this phone. Check-ins stay. Telling the server (`/auth/logout`)
-     * is the caller's job, before this, while the token still works.
+     * The person signs out. [endOnServer] tells the server (`/auth/logout`, api-spec.md §6.10)
+     * while the tokens still work; then the session is forgotten here, whatever the server said.
+     * Offline still signs out: the person asked to, and the refresh token expires by itself.
+     *
+     * [endOnServer] runs outside the mutex, because its request may need a refresh, which takes
+     * the mutex. The whole sign-out runs in [scope], so closing the screen can't stop it halfway.
      */
-    suspend fun signedOut() {
+    suspend fun signOut(endOnServer: suspend (refreshToken: String) -> Unit) {
+        scope.async {
+            store.current()?.let { endOnServer(it.refreshToken) }
+            signedOut()
+        }.await()
+    }
+
+    /** Forgets the session on this phone. Check-ins stay. */
+    private suspend fun signedOut() {
         mutex.withLock {
             access = null
             store.clear(signInAgain = false)
@@ -166,4 +180,17 @@ private fun SessionTokens.toStored() = StoredSession(
     userId = userId,
     refreshToken = refreshToken,
     refreshTokenExpiresAt = refreshTokenExpiresAt.toEpochMilliseconds(),
+    profile = StoredProfile(
+        displayName = profile.displayName,
+        email = profile.email,
+        emailVerified = profile.emailVerified,
+        createdAt = profile.createdAt.toEpochMilliseconds(),
+    ),
+)
+
+private fun StoredProfile.toProfile() = SessionProfile(
+    displayName = displayName,
+    email = email,
+    emailVerified = emailVerified,
+    createdAt = Instant.fromEpochMilliseconds(createdAt),
 )

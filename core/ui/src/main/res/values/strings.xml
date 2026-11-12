@@ -18,6 +18,68 @@
     <string name="account_show_ulap">Show Ulap the cloud</string>
     <string name="account_language">Language</string>
 
+    <!-- Back up and sync (design-spec.md §7.8, §7.9). Signing in is optional: the app works the
+         same without an account, so nothing here may pressure. Say "saved", not "safe", for
+         check-ins that are only on this phone. -->
+    <string name="account_backup_title">Back up and sync</string>
+    <string name="account_backup_body">Keep your diary safe across phones</string>
+    <string name="account_sign_in_again_title">Sign in again to keep syncing.</string>
+    <string name="account_sign_in_again_body">Your check-ins are still saved on this phone.</string>
+    <string name="account_sign_in_again_button">Sign in</string>
+    <!-- Profile card. %1$s is a month and year, e.g. "October 2026" -->
+    <string name="account_member_since">Checking in since %1$s</string>
+    <!-- The email isn't verified yet, so sync waits (api-spec.md §6.2). %1$s is the address -->
+    <string name="account_verify_body">We sent a link to %1$s. Backup starts once you open it.</string>
+    <string name="account_verify_resend">Send the link again</string>
+    <string name="account_verify_sent">Sent. It can take a few minutes to arrive.</string>
+    <string name="account_sign_out">Sign out</string>
+    <string name="account_sign_out_title">Sign out?</string>
+    <string name="account_sign_out_body">Your check-ins stay on this phone. Sign in again any time to keep backing up.</string>
+    <string name="account_sign_out_confirm">Sign out</string>
+    <string name="account_sign_out_cancel">Stay signed in</string>
+
+    <!-- Sign-in sheet and email forms (design-spec.md §7.9) -->
+    <string name="signin_sheet_title">Back up your diary</string>
+    <string name="signin_sheet_supporting">Only if you want to. Everything works without an account too.</string>
+    <string name="signin_google">Continue with Google</string>
+    <string name="signin_use_email">Use email instead</string>
+    <string name="signin_create_title">Create an account</string>
+    <string name="signin_email_title">Sign in with email</string>
+    <string name="signin_email_label">Email</string>
+    <string name="signin_password_label">Password</string>
+    <string name="signin_password_hint">At least 10 characters. A short phrase works well.</string>
+    <string name="signin_show_password">Show password</string>
+    <string name="signin_hide_password">Hide password</string>
+    <string name="signin_create_button">Create account</string>
+    <string name="signin_sign_in_button">Sign in</string>
+    <string name="signin_forgot_link">Forgot password?</string>
+    <string name="signin_switch_to_sign_in">Already have an account? Sign in</string>
+    <string name="signin_switch_to_create">New here? Create an account</string>
+    <string name="signin_forgot_title">Reset your password</string>
+    <string name="signin_forgot_body">We\'ll email you a link to set a new password. It works for 30 minutes.</string>
+    <string name="signin_forgot_button">Send link</string>
+    <string name="signin_forgot_sent_title">Check your email</string>
+    <!-- %1$s is the email. It doesn't say whether the account exists (api-spec.md §6.7) -->
+    <string name="signin_forgot_sent_body">If there\'s a Ulap account for %1$s, a link is on its way. It works for 30 minutes.</string>
+    <string name="signin_back_to_sign_in">Back to sign in</string>
+
+    <!-- Sign-in errors: under the field, in ink with an icon, never Red (design-spec.md §7.9).
+         They never say whether an account exists, except EMAIL_TAKEN at sign-up (api-spec.md §6). -->
+    <string name="signin_error_email">Enter an email like name@example.com.</string>
+    <string name="signin_error_password_empty">Enter your password.</string>
+    <string name="signin_error_password_short">Use at least 10 characters. A short phrase works well.</string>
+    <string name="signin_error_password_long">Use 128 characters or fewer.</string>
+    <string name="signin_error_password_same_as_email">Pick a password that\'s different from your email.</string>
+    <string name="signin_error_wrong_credentials">That email and password don\'t match. Try again, or reset your password.</string>
+    <string name="signin_error_email_taken">There\'s already an account with this email. Want to sign in instead?</string>
+    <string name="signin_error_weak_password">That password is easy to guess. Try a longer phrase.</string>
+    <string name="signin_error_google">Google sign-in didn\'t go through. Try again, or use email instead.</string>
+    <string name="signin_error_no_google_account">There\'s no Google account on this phone yet. You can add one in Settings, or use email instead.</string>
+    <string name="signin_error_offline">You\'re offline right now. Your check-ins are still saved on this phone. Try again when you\'re online.</string>
+    <string name="signin_error_too_many">Let\'s pause for a moment. Try again in a few minutes.</string>
+    <string name="signin_error_update">Please update Ulap to sign in.</string>
+    <string name="signin_error_server">Ulap\'s server isn\'t answering right now. Please try again in a bit.</string>
+
     <!-- Onboarding step 1: choose a language (design-spec.md §7.1) -->
     <string name="onboarding_language_title">Choose your language</string>
     <string name="onboarding_continue">Continue</string>

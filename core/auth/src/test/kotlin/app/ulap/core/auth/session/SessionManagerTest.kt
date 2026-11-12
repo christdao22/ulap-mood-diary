@@ -3,6 +3,7 @@ package app.ulap.core.auth.session
 import app.ulap.core.network.ApiResult
 import app.ulap.core.network.SessionRefreshUnavailable
 import app.ulap.core.network.auth.AuthApi
+import app.ulap.core.network.auth.SessionProfile
 import app.ulap.core.network.auth.SessionTokens
 import java.io.File
 import java.io.IOException
@@ -54,6 +55,14 @@ class SessionManagerTest {
             gate?.await()
             return next(refreshToken)
         }
+
+        override suspend fun google(idToken: String, displayName: String?) = error("not used")
+
+        override suspend fun register(email: String, password: String) = error("not used")
+
+        override suspend fun login(email: String, password: String) = error("not used")
+
+        override suspend fun forgotPassword(email: String) = error("not used")
     }
 
     private val api = FakeAuthApi()
@@ -70,7 +79,10 @@ class SessionManagerTest {
         refreshToken = "refresh-$n",
         refreshTokenExpiresAt = clock.now + 60.days,
         isNewUser = false,
+        profile = profile(verified = n > 1),
     )
+
+    private fun profile(verified: Boolean) = SessionProfile("Ana", "ana@example.com", verified, start - 10.days)
 
     private fun TestScope.manager(): Pair<SessionManager, SessionStore> {
         val store = testSessionStore(file, backgroundScope)
@@ -97,7 +109,7 @@ class SessionManagerTest {
 
         assertEquals("access-1", manager.accessToken())
         assertEquals(emptyList(), api.sent)
-        assertEquals(SessionState.SignedIn("user-1"), manager.state.first())
+        assertEquals(SessionState.SignedIn("user-1", profile(verified = false)), manager.state.first())
     }
 
     @Test
@@ -175,7 +187,7 @@ class SessionManagerTest {
         assertFailsWith<SessionRefreshUnavailable> { manager.accessToken() }
 
         assertEquals("refresh-1", store.current()?.refreshToken)
-        assertEquals(SessionState.SignedIn("user-1"), manager.state.first())
+        assertEquals(SessionState.SignedIn("user-1", profile(verified = false)), manager.state.first())
     }
 
     @Test
@@ -199,7 +211,7 @@ class SessionManagerTest {
 
         val call = async { manager.accessToken() }
         runCurrent()
-        manager.signedOut()
+        manager.signOut {}
         api.gate?.complete(Unit)
 
         assertNull(call.await())
@@ -224,5 +236,46 @@ class SessionManagerTest {
         assertEquals("refresh-2", store.current()?.refreshToken)
         assertEquals("access-2", manager.accessToken())
         assertEquals(listOf("refresh-1"), api.sent)
+    }
+
+    @Test
+    fun `a refresh brings the latest profile, such as a verified email`() = runTest {
+        val (manager, _) = manager()
+        manager.signedIn(tokens(1))
+        clock.now += 20.minutes
+        api.next = { ApiResult.Success(tokens(2)) }
+
+        manager.accessToken()
+
+        assertEquals(SessionState.SignedIn("user-1", profile(verified = true)), manager.state.first())
+    }
+
+    @Test
+    fun `sign-out tells the server with the current refresh token, then forgets the session`() = runTest {
+        val (manager, store) = manager()
+        manager.signedIn(tokens(1))
+        val toldServer = mutableListOf<String>()
+
+        manager.signOut { refreshToken ->
+            // Still signed in while the server is told, so the logout request has a token.
+            assertEquals("access-1", manager.accessToken())
+            toldServer += refreshToken
+        }
+
+        assertEquals(listOf("refresh-1"), toldServer)
+        assertNull(store.current())
+        assertNull(manager.accessToken())
+        assertEquals(SessionState.SignedOut, manager.state.first())
+    }
+
+    @Test
+    fun `a guest signing out doesn't call the server`() = runTest {
+        val (manager, _) = manager()
+        var called = false
+
+        manager.signOut { called = true }
+
+        assertEquals(false, called)
+        assertEquals(SessionState.SignedOut, manager.state.first())
     }
 }

@@ -4,12 +4,15 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -18,6 +21,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -26,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import app.ulap.core.designsystem.icon.GoogleLogo
 import app.ulap.core.designsystem.theme.UlapShape
 import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
@@ -143,6 +148,33 @@ fun UlapIconButton(
     }
 }
 
+/**
+ * "Continue with Google" in the shape of Google's standard button (design-spec.md §7.9): the
+ * neutral theme, a white fill, a thin outline and the four-color G on the left. It isn't a
+ * primary, so it can sit on a screen that already has one.
+ */
+@Composable
+fun UlapGoogleButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
+    val colors = UlapTheme.colors
+    OutlinedButton(
+        onClick = onClick,
+        modifier = modifier.heightIn(min = SecondaryHeight),
+        enabled = enabled,
+        shape = UlapShape.Button,
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = colors.surface,
+            contentColor = colors.ink,
+            disabledContainerColor = colors.surface,
+            disabledContentColor = colors.muted,
+        ),
+        border = BorderStroke(UlapSpacing.Border, colors.outlineButton),
+    ) {
+        Icon(imageVector = GoogleLogo, contentDescription = null, tint = Color.Unspecified)
+        Spacer(Modifier.width(GoogleLogoGap))
+        ButtonLabel(text, MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium))
+    }
+}
+
 @Composable
 private fun ButtonLabel(text: String, style: TextStyle) {
     Text(text = text, style = style, textAlign = TextAlign.Center)
@@ -152,6 +184,7 @@ private val PrimaryHeight = 52.dp
 private val SecondaryHeight = 48.dp
 private val StrongBorder = 1.5.dp
 private val IconButtonSize = 44.dp
+private val GoogleLogoGap = 10.dp
 
 @Preview(showBackground = true, backgroundColor = 0xFFF4F5F8, widthDp = 360)
 @Composable
@@ -164,6 +197,7 @@ private fun ButtonsPreview() {
             UlapPrimaryButton(text = "Breathe with me", onClick = {}, modifier = Modifier.fillMaxWidth())
             UlapSecondaryButton(text = "Maybe later", onClick = {}, modifier = Modifier.fillMaxWidth())
             UlapTertiaryButton(text = "Check in", onClick = {}, modifier = Modifier.fillMaxWidth())
+            UlapGoogleButton(text = "Continue with Google", onClick = {}, modifier = Modifier.fillMaxWidth())
             UlapTextLink(text = "Reset to default", onClick = {})
             UlapIconButton(onClick = {}, contentDescription = "Back to moods") { Text("‹") }
         }

@@ -20,6 +20,68 @@
     <string name="account_show_ulap">Ipakita si Ulap</string>
     <string name="account_language">Wika</string>
 
+    <!-- Back up and sync (design-spec.md §7.8, §7.9). Signing in is optional: the app works the
+         same without an account, so nothing here may pressure. Say "saved", not "safe", for
+         check-ins that are only on this phone. -->
+    <string name="account_backup_title">I-back up at i-sync</string>
+    <string name="account_backup_body">Panatilihing ligtas ang iyong diary kahit magpalit ka ng phone</string>
+    <string name="account_sign_in_again_title">Mag-sign in ulit para tuloy ang sync.</string>
+    <string name="account_sign_in_again_body">Naka-save pa rin sa phone na ito ang iyong mga check-in.</string>
+    <string name="account_sign_in_again_button">Mag-sign in</string>
+    <!-- Profile card. %1$s is a month and year, e.g. "October 2026" -->
+    <string name="account_member_since">Nagche-check in mula %1$s</string>
+    <!-- The email isn't verified yet, so sync waits (api-spec.md §6.2). %1$s is the address -->
+    <string name="account_verify_body">Nagpadala kami ng link sa %1$s. Magsisimula ang backup kapag binuksan mo ito.</string>
+    <string name="account_verify_resend">Ipadala ulit ang link</string>
+    <string name="account_verify_sent">Naipadala na. Baka ilang minuto bago ito dumating.</string>
+    <string name="account_sign_out">Mag-sign out</string>
+    <string name="account_sign_out_title">Mag-sign out?</string>
+    <string name="account_sign_out_body">Mananatili sa phone na ito ang iyong mga check-in. Puwede kang mag-sign in ulit anumang oras para tuloy ang backup.</string>
+    <string name="account_sign_out_confirm">Mag-sign out</string>
+    <string name="account_sign_out_cancel">Huwag muna</string>
+
+    <!-- Sign-in sheet and email forms (design-spec.md §7.9) -->
+    <string name="signin_sheet_title">I-back up ang iyong diary</string>
+    <string name="signin_sheet_supporting">Kung gusto mo lang. Gumagana pa rin ang lahat kahit walang account.</string>
+    <string name="signin_google">Magpatuloy gamit ang Google</string>
+    <string name="signin_use_email">Gamitin na lang ang email</string>
+    <string name="signin_create_title">Gumawa ng account</string>
+    <string name="signin_email_title">Mag-sign in gamit ang email</string>
+    <string name="signin_email_label">Email</string>
+    <string name="signin_password_label">Password</string>
+    <string name="signin_password_hint">Hindi bababa sa 10 character. Mainam ang maikling parirala.</string>
+    <string name="signin_show_password">Ipakita ang password</string>
+    <string name="signin_hide_password">Itago ang password</string>
+    <string name="signin_create_button">Gumawa ng account</string>
+    <string name="signin_sign_in_button">Mag-sign in</string>
+    <string name="signin_forgot_link">Nakalimutan ang password?</string>
+    <string name="signin_switch_to_sign_in">May account ka na? Mag-sign in</string>
+    <string name="signin_switch_to_create">Bago ka rito? Gumawa ng account</string>
+    <string name="signin_forgot_title">I-reset ang iyong password</string>
+    <string name="signin_forgot_body">Mag-e-email kami ng link para makapagtakda ka ng bagong password. Magagamit ito sa loob ng 30 minuto.</string>
+    <string name="signin_forgot_button">Ipadala ang link</string>
+    <string name="signin_forgot_sent_title">Tingnan ang iyong email</string>
+    <!-- %1$s is the email. It doesn't say whether the account exists (api-spec.md §6.7) -->
+    <string name="signin_forgot_sent_body">Kung may Ulap account para sa %1$s, papunta na ang link. Magagamit ito sa loob ng 30 minuto.</string>
+    <string name="signin_back_to_sign_in">Bumalik sa pag-sign in</string>
+
+    <!-- Sign-in errors: under the field, in ink with an icon, never Red (design-spec.md §7.9).
+         They never say whether an account exists, except EMAIL_TAKEN at sign-up (api-spec.md §6). -->
+    <string name="signin_error_email">Maglagay ng email na tulad ng name@example.com.</string>
+    <string name="signin_error_password_empty">Ilagay ang iyong password.</string>
+    <string name="signin_error_password_short">Gumamit ng hindi bababa sa 10 character. Mainam ang maikling parirala.</string>
+    <string name="signin_error_password_long">Hanggang 128 character lang.</string>
+    <string name="signin_error_password_same_as_email">Pumili ng password na iba sa iyong email.</string>
+    <string name="signin_error_wrong_credentials">Hindi tugma ang email at password na iyan. Subukan ulit, o i-reset ang iyong password.</string>
+    <string name="signin_error_email_taken">May account na gamit ang email na ito. Gusto mo bang mag-sign in na lang?</string>
+    <string name="signin_error_weak_password">Madaling hulaan ang password na iyan. Subukan ang mas mahabang parirala.</string>
+    <string name="signin_error_google">Hindi natuloy ang pag-sign in sa Google. Subukan ulit, o gamitin na lang ang email.</string>
+    <string name="signin_error_no_google_account">Wala pang Google account sa phone na ito. Puwede kang magdagdag sa Settings, o gamitin na lang ang email.</string>
+    <string name="signin_error_offline">Offline ka ngayon. Naka-save pa rin sa phone na ito ang iyong mga check-in. Subukan ulit kapag online ka na.</string>
+    <string name="signin_error_too_many">Pahinga muna sandali. Subukan ulit pagkalipas ng ilang minuto.</string>
+    <string name="signin_error_update">Paki-update ang Ulap para makapag-sign in.</string>
+    <string name="signin_error_server">Hindi sumasagot ang server ng Ulap ngayon. Subukan ulit mamaya.</string>
+
     <!-- Onboarding step 1 (design-spec.md §7.1). Language names live in values only. -->
     <string name="onboarding_language_title">Piliin ang iyong wika</string>
     <string name="onboarding_continue">Magpatuloy</string>
