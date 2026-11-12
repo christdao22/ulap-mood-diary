@@ -13,6 +13,7 @@ import app.ulap.server.config.ConfigException
 import app.ulap.server.db.Database
 import app.ulap.server.health.healthRoutes
 import app.ulap.server.meta.metaRoutes
+import app.ulap.server.users.userRoutes
 import app.ulap.shared.api.Api
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -83,6 +84,7 @@ fun Application.module(deps: AppDeps) {
                 healthRoutes(deps.dataSource)
                 metaRoutes(deps.config)
                 authRoutes(deps.authServices)
+                userRoutes(deps.userService)
             }
         }
     }

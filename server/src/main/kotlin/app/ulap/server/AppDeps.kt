@@ -6,6 +6,7 @@ import app.ulap.server.common.RateLimitSettings
 import app.ulap.server.config.AppConfig
 import app.ulap.server.crypto.NoteCipher
 import app.ulap.server.db.Db
+import app.ulap.server.users.UserService
 import java.time.Clock
 import javax.sql.DataSource
 
@@ -24,4 +25,5 @@ class AppDeps(
     val db: Db = Db(dataSource)
     val noteCipher: NoteCipher = NoteCipher.from(config.noteEncryption)
     val authServices: AuthServices = AuthServices(db, config, clock, rateLimits, auth)
+    val userService: UserService = UserService(db)
 }

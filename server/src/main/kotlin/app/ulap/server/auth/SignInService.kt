@@ -6,6 +6,7 @@ import app.ulap.server.common.ApiException
 import app.ulap.server.db.AuthProvider
 import app.ulap.server.db.Db
 import app.ulap.server.db.isUniqueViolation
+import app.ulap.server.users.findUser
 import app.ulap.server.users.insertUser
 import app.ulap.shared.api.AuthResponse
 import app.ulap.shared.api.EmailLoginRequest
@@ -99,6 +100,7 @@ class SignInService(
     suspend fun linkGoogle(userId: Uuid, idToken: String): UserDto {
         val identity = verifyGoogle(idToken)
         return db.tx {
+            requireAccount(userId)
             val existing = findIdentity(AuthProvider.GOOGLE, identity.subject)
             val conflict = when {
                 existing?.userId == userId -> null
@@ -134,6 +136,7 @@ class SignInService(
         passwords.requireStrong(request.password, email)
         val hash = withContext(Dispatchers.Default) { passwords.hash(request.password) }
         val (user, mail) = db.tx {
+            requireAccount(userId)
             val conflict = when {
                 findIdentity(AuthProvider.EMAIL, email) != null -> "An account with this email already exists"
 
@@ -188,4 +191,13 @@ class SignInService(
         if (!AccountRules.isValidDisplayName(name)) throw ApiException.invalidField("displayName", "TOO_LONG")
         return name
     }
+}
+
+/**
+ * An access token outlives a deleted account by up to 15 minutes (api-spec.md §3, §7.3).
+ * Without this check, linking with such a token would try to insert an identity for a user
+ * that is gone and fail as a `500` instead of `403 ACCOUNT_DELETED`.
+ */
+private fun JdbcTransaction.requireAccount(userId: Uuid) {
+    findUser(userId) ?: throw AuthErrors.accountDeleted()
 }

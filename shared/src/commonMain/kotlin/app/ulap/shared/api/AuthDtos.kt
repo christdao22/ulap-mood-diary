@@ -88,3 +88,18 @@ data class RefreshRequest(val refreshToken: String) {
 data class LogoutRequest(val refreshToken: String? = null) {
     override fun toString(): String = "LogoutRequest(refreshToken=***)"
 }
+
+/**
+ * `PATCH /me` (api-spec.md §7.2): only the fields that changed. A field left out, or sent as
+ * null, stays as it is.
+ */
+@Serializable
+data class UpdateMeRequest(
+    val displayName: String? = null,
+    val language: String? = null,
+    val mascotEnabled: Boolean? = null,
+)
+
+/** `DELETE /me` (api-spec.md §7.3). [confirm] must be `AccountRules.DELETE_CONFIRMATION`. */
+@Serializable
+data class DeleteMeRequest(val confirm: String? = null)

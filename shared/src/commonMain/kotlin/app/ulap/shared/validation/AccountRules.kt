@@ -15,6 +15,12 @@ object AccountRules {
     val LANGUAGES: Set<String> = setOf("en", "fil", "ceb")
     const val DEFAULT_LANGUAGE: String = "en"
 
+    /**
+     * What `DELETE /me` must carry as `confirm` (api-spec.md §7.3), so that a stray or replayed
+     * request can't delete an account by accident.
+     */
+    const val DELETE_CONFIRMATION: String = "DELETE"
+
     // One "@" with something on both sides and a dot in the domain. Deliverability is proven by
     // the verification email, not by a stricter pattern.
     private val emailShape = Regex("""[^\s@]+@[^\s@]+\.[^\s@]+""")

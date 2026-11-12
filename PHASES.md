@@ -22,7 +22,7 @@ Last updated: November 7, 2026
 | 3 | Logs | ✅ Complete | 13 / 13 |
 | 4 | Reports | ✅ Complete | 17 / 17 |
 | 5 | Languages and onboarding | 🟡 In progress | 12 / 15 |
-| 6 | Server and accounts | 🟡 In progress | 8 / 26 |
+| 6 | Server and accounts | 🟡 In progress | 9 / 26 |
 | 7 | Sync | ⬜ Not started | 0 / 25 |
 | 8 | Privacy, safety and polish | ⬜ Not started | 0 / 23 |
 | 9 | Testing and beta | ⬜ Not started | 0 / 15 |
@@ -269,7 +269,7 @@ Spec: [API reference §3–§7 and §10–§12](docs/api-spec.md#3-authenticatio
 - [ ] Rate limits on every auth route
 
 ### User routes
-- [ ] `GET /me`, `PATCH /me`
+- [x] `GET /me`, `PATCH /me`
 - [ ] `DELETE /me` (hard delete of everything, in one transaction) 🔒
 
 ### Auth (Android) 🔒
