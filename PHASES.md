@@ -300,7 +300,7 @@ Spec: [API reference §8](docs/api-spec.md#8-sync-endpoints-) · [Technical plan
 - [ ] Scheduled job to purge tombstones older than 90 days. It raises `sync_purge.purged_through_seq` in the same transaction. ⏳
 
 ### Android 🔒
-- [ ] `SyncApi` with the shared DTOs
+- [ ] `SyncApi` with the shared DTOs ⏳
 - [ ] `SyncEngine`: push PENDING in batches → pull until `hasMore = false` → save `lastPullSeq`
 - [ ] Merge pulled changes (local PENDING and newer → keep local)
 - [ ] Full resync on `resetRequired`: `pull_seen` table, `sync_resetting` flag, remove `SYNCED` rows the server didn't send ([Technical plan §8](docs/technical-plan.md#full-resync-resetrequired))

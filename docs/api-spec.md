@@ -541,6 +541,8 @@ Then the response is `{ "changes": [], "nextSince": 0, "hasMore": true, "resetRe
 | Local `PENDING` and server newer | Overwrite with the server version, mark `SYNCED` |
 | Server tombstone | Set local `deletedAt` (and remove it from the UI) |
 
+A `trigger` or `supportUsed` name the app doesn't know yet (a newer server added it) reads as `OTHER` or `NONE`, the way an unknown mood code shows as "Other feeling" (§5.4). One new value never stops a pull.
+
 ---
 
 ### 8.4 `GET /sync/status`
