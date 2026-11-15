@@ -535,8 +535,9 @@ Status: **Proposed** (the current docs win) · **Accepted** (update the listed d
 | D12 | Baseline Profile module | **Later** (after v1), when startup is measured | Phases 11 | **Accepted** (2026-11-05) |
 | D13 | Dev config: ports 8080 / 5434 / 8026 / 1026, `ulap.apiUrl.<buildType>` in `~/.gradle/gradle.properties`, add a `staging` build type, `.githooks/pre-commit` | **Yes**, to run beside macro-tracker without clashes | README §6, §7.2, §8, §15, Phases 1 | **Accepted** (2026-11-05) |
 | D14 | Hosting: same VPS as macro-tracker, separate Compose project, own Cloudflare Tunnel hostnames, images in GHCR by commit SHA | **Yes** | README §7.1, new `docs/runbooks/deploy.md` | **Accepted** (2026-11-05) |
+| D15 | 🔒 reviews: one at a time as tasks finish (current) **or** one batched review of all ⏳ 🔒 work at the end | **Batch it.** The owner is the only maintainer, so ⏳ boxes pile up anyway. Keep building, then have a second person review all 🔒 work (auth, sync, encryption, safety) after Phase 9 and **before** the Phase 10 release, so nothing ships unreviewed. Boxes stay ⏳ until then. | README §12, PHASES.md Phase 10 (a box: every ⏳ 🔒 task reviewed by a second person) | **Proposed** (2026-11-15) |
 
-All fourteen decisions were accepted on 2026-11-05. A new decision gets the next number (D15) and starts as **Proposed**.
+D1–D14 were accepted on 2026-11-05. A new decision gets the next number (D16) and starts as **Proposed**.
 
 ---
 
