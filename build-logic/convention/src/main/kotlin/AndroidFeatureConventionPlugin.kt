@@ -1,5 +1,7 @@
+import app.ulap.buildlogic.VerifyHiltViewModelsTask
 import app.ulap.buildlogic.libs
 import com.android.build.api.dsl.LibraryExtension
+import com.android.build.api.variant.AndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
@@ -7,6 +9,7 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 
 // Adapted from android/nowinandroid build-logic AndroidFeatureImplConventionPlugin.kt (Apache-2.0).
@@ -47,6 +50,23 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             val hasTests = file("src/test").exists()
             tasks.withType<Test>().configureEach {
                 failOnNoDiscoveredTests.set(hasTests)
+            }
+
+            // Runs after KSP and before compiling, so a missing Hilt ViewModel stops the build
+            // instead of crashing the app on that screen.
+            val androidComponents = extensions.getByName("androidComponents") as AndroidComponentsExtension<*, *, *>
+            androidComponents.onVariants { variant ->
+                val variantName = variant.name.replaceFirstChar { it.uppercase() }
+                val verify = tasks.register<VerifyHiltViewModelsTask>("verify${variantName}HiltViewModels") {
+                    sources.from(
+                        fileTree("src") {
+                            include("main/kotlin/**", "${variant.name}/kotlin/**", "${variant.buildType}/kotlin/**")
+                        },
+                    )
+                    kspOutput.set(layout.buildDirectory.dir("generated/ksp/${variant.name}"))
+                    dependsOn("ksp${variantName}Kotlin")
+                }
+                tasks.matching { it.name == "compile${variantName}Kotlin" }.configureEach { dependsOn(verify) }
             }
 
             configurations.configureEach {
