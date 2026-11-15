@@ -39,6 +39,41 @@
     <string name="account_sign_out_body">Magpabilin niining phone ang imong mga check-in. Pwede ka mag-sign in usab bisan kanus-a aron magpadayon ang backup.</string>
     <string name="account_sign_out_confirm">Pag-sign out</string>
     <string name="account_sign_out_cancel">Ayaw sa</string>
+    <!-- Delete account and all data (design-spec.md §7.8, api-spec.md §7.3) -->
+    <string name="account_delete">Papasa ang account ug tanang data</string>
+    <string name="account_deleting">Ginapapas…</string>
+    <string name="account_delete_title_backup">Papason ang imong account ug tanan nimong data?</string>
+    <string name="account_delete_title_phone">Papason ang tanan nimong data?</string>
+    <string name="account_delete_title_sign_in_again">Papason ang imong diary niining phone?</string>
+    <string name="account_delete_confirm_phone_only">Papasa dinhi sa phone</string>
+    <string name="account_delete_body_backup">Mapapas ang matag check-in ug note, dinhi sa phone ug sa imong backup. Dili na kini mabalik.</string>
+    <string name="account_delete_body_phone">Mapapas ang matag check-in ug note dinhi sa phone. Dili na kini mabalik.</string>
+    <string name="account_delete_body_sign_in_again">Mapapas ang matag check-in ug note dinhi sa phone. Dili na kini mabalik. Magpabilin ang imong backup sa server sa Ulap. Aron mapapas usab kini, pag-sign in usab una.</string>
+    <string name="account_delete_confirm">Papasa tanan</string>
+    <string name="account_delete_cancel">Itago ang akong diary</string>
+    <string name="account_delete_error_offline">Offline ka karon, mao nga walay napapas. Sulayi pag-usab inig online na nimo.</string>
+    <string name="account_delete_error_sign_in">Walay napapas. Aron mapapas usab ang imong backup, pag-sign in usab una.</string>
+    <string name="account_delete_error_too_many">Walay napapas. Hulat sa ta kadiyot, dayon sulayi pag-usab human sa pila ka minuto.</string>
+    <string name="account_delete_error_update">Walay napapas. Palihug i-update una ang Ulap, dayon pwede na nimo mapapas ang imong account.</string>
+    <string name="account_delete_error_server">Wala motubag ang server sa Ulap karon, mao nga walay napapas. Sulayi pag-usab unya-unya.</string>
+    <!-- Screens the account emails' links open (api-spec.md §6.5, §6.8) -->
+    <string name="link_checking">Ginatan-aw ang imong link…</string>
+    <string name="link_expired_title">Dili na mogana kining link</string>
+    <string name="link_go_to_account">Adto sa Account</string>
+    <string name="link_try_again">Sulayi pag-usab</string>
+    <string name="link_not_now">Unya na lang</string>
+    <string name="verify_done_title">Kumpirmado na ang imong email</string>
+    <string name="verify_done_body">Salamat. Pwede na magsugod ang backup ug sync.</string>
+    <string name="verify_expired_body">Kausa ra mogana ang matag link, sulod sa 24 ka oras. Kung wala pa makumpirma ang imong email, pwede ka magpadala og bag-ong link gikan sa Account.</string>
+    <string name="verify_failed_title">Wala pa namo matan-aw ang imong link</string>
+    <string name="reset_title">Paghimo og bag-ong password</string>
+    <string name="reset_body">Inig save niini, ma-sign out ka sa matag phone. Naka-save gihapon ang imong mga check-in, ug pwede ka mag-sign in gamit ang bag-o.</string>
+    <string name="reset_password_label">Bag-ong password</string>
+    <string name="reset_button">I-save ang password</string>
+    <string name="reset_done_title">Nausab na ang imong password</string>
+    <string name="reset_done_body">Pwede na ka mag-sign in gamit ang bag-ong password sa matag phone nga imong gamit. Naka-save gihapon ang imong mga check-in.</string>
+    <string name="reset_expired_body">Kausa ra mogana ang reset link, sulod sa 30 ka minuto. Pwede ka mangayo og bag-o.</string>
+    <string name="reset_new_link">Ipadala ang bag-ong link</string>
 
     <!-- Sign-in sheet and email forms (design-spec.md §7.9) -->
     <string name="signin_sheet_title">I-back up ang imong diary</string>

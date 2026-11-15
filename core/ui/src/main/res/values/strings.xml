@@ -37,6 +37,41 @@
     <string name="account_sign_out_body">Your check-ins stay on this phone. Sign in again any time to keep backing up.</string>
     <string name="account_sign_out_confirm">Sign out</string>
     <string name="account_sign_out_cancel">Stay signed in</string>
+    <!-- Delete account and all data (design-spec.md §7.8, api-spec.md §7.3) -->
+    <string name="account_delete">Delete account and all data</string>
+    <string name="account_deleting">Deleting…</string>
+    <string name="account_delete_title_backup">Delete your account and all your data?</string>
+    <string name="account_delete_title_phone">Delete all your data?</string>
+    <string name="account_delete_title_sign_in_again">Delete your diary from this phone?</string>
+    <string name="account_delete_confirm_phone_only">Delete from this phone</string>
+    <string name="account_delete_body_backup">This deletes every check-in and note, on this phone and in your backup. It can\'t be undone.</string>
+    <string name="account_delete_body_phone">This deletes every check-in and note on this phone. It can\'t be undone.</string>
+    <string name="account_delete_body_sign_in_again">This deletes every check-in and note on this phone. It can\'t be undone. Your backup stays on Ulap\'s server. To delete it too, sign in again first.</string>
+    <string name="account_delete_confirm">Delete everything</string>
+    <string name="account_delete_cancel">Keep my diary</string>
+    <string name="account_delete_error_offline">You\'re offline, so nothing was deleted. Try again when you\'re online.</string>
+    <string name="account_delete_error_sign_in">Nothing was deleted. To delete your backup too, sign in again first.</string>
+    <string name="account_delete_error_too_many">Nothing was deleted. Let\'s pause for a moment and try again in a few minutes.</string>
+    <string name="account_delete_error_update">Nothing was deleted. Update Ulap first, then you can delete your account.</string>
+    <string name="account_delete_error_server">Ulap\'s server isn\'t answering, so nothing was deleted. Please try again in a bit.</string>
+    <!-- Screens the account emails' links open (api-spec.md §6.5, §6.8) -->
+    <string name="link_checking">Checking your link…</string>
+    <string name="link_expired_title">This link doesn\'t work anymore</string>
+    <string name="link_go_to_account">Go to Account</string>
+    <string name="link_try_again">Try again</string>
+    <string name="link_not_now">Not now</string>
+    <string name="verify_done_title">Your email is confirmed</string>
+    <string name="verify_done_body">Thank you. Backup and sync can start now.</string>
+    <string name="verify_expired_body">Each link works once, for 24 hours. If your email isn\'t confirmed yet, you can send a new link from Account.</string>
+    <string name="verify_failed_title">We couldn\'t check your link yet</string>
+    <string name="reset_title">Set a new password</string>
+    <string name="reset_body">Saving it signs you out on every phone. Your check-ins stay saved, and you can sign in with the new one.</string>
+    <string name="reset_password_label">New password</string>
+    <string name="reset_button">Save new password</string>
+    <string name="reset_done_title">Your new password is set</string>
+    <string name="reset_done_body">You can now sign in with your new password on each phone you use. Your check-ins are still saved.</string>
+    <string name="reset_expired_body">Reset links work once, for 30 minutes. You can ask for a new one.</string>
+    <string name="reset_new_link">Send a new link</string>
 
     <!-- Sign-in sheet and email forms (design-spec.md §7.9) -->
     <string name="signin_sheet_title">Back up your diary</string>

@@ -48,4 +48,8 @@ internal class DataStoreSettingsRepository @Inject constructor(private val dataS
         }
         return checkNotNull(file.deviceId)
     }
+
+    override suspend fun clear() {
+        dataStore.updateData { SettingsFile() }
+    }
 }

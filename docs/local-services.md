@@ -33,6 +33,17 @@ From the Android emulator, the server is `http://10.0.2.2:8080/v1` (the emulator
 SQL client connection: `jdbc:postgresql://localhost:5434/ulap` (user `ulap`, password `ulap`), or
 `docker compose -f infra/compose.yaml -f infra/compose.dev.yaml exec postgres psql -U ulap ulap`.
 
+## Email links on the emulator
+
+Mailpit shows the verification and password-reset emails. Their links start with `APP_LINK_BASE` from `.env` (`http://localhost:8080`), which the app doesn't open. Copy the `token=` value from the link and give the app the link it does open:
+
+```sh
+adb shell am start -a android.intent.action.VIEW -d "https://ulap.app/verify?token=<token>" app.ulap.android.debug
+adb shell am start -a android.intent.action.VIEW -d "https://ulap.app/reset?token=<token>" app.ulap.android.debug
+```
+
+Naming the package skips Android's App Link check. Opening the links straight from an email needs `https://ulap.app/.well-known/assetlinks.json` with the app's signing key, which isn't hosted yet.
+
 ## Ports to leave alone
 
 Other local projects (macro-tracker and one more) use **5432, 5433, 6379, 6380, 3000, 8025, 9000, 9010, 9011, 45432, 46379**. Ulap's ports were picked to avoid them (decision D13). To move one, set `POSTGRES_HOST_PORT`, `MAILPIT_UI_PORT`, `MAILPIT_SMTP_PORT` or `SERVER_HOST_PORT` in your shell before `docker compose`, and change the matching value in `.env`.

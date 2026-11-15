@@ -22,7 +22,7 @@ Last updated: November 12, 2026
 | 3 | Logs | ✅ Complete | 13 / 13 |
 | 4 | Reports | ✅ Complete | 17 / 17 |
 | 5 | Languages and onboarding | 🟡 In progress | 12 / 15 |
-| 6 | Server and accounts | 🟡 In progress | 9 / 26 |
+| 6 | Server and accounts | 🟡 In progress | 9 / 28 |
 | 7 | Sync | ⬜ Not started | 0 / 25 |
 | 8 | Privacy, safety and polish | ⬜ Not started | 0 / 23 |
 | 9 | Testing and beta | ⬜ Not started | 0 / 15 |
@@ -277,6 +277,8 @@ Spec: [API reference §3–§7 and §10–§12](docs/api-spec.md#3-authenticatio
 - [ ] Email sign-up, sign-in and forgot-password forms ⏳
 - [ ] Secure token storage (Keystore-backed) plus automatic refresh with a mutex ⏳
 - [ ] Sign-in bottom sheet and the Account screen's "Back up and sync" card ⏳
+- [ ] "Delete account and all data": `DELETE /me` first, then wipe Room, DataStore and tokens and go back to onboarding; a guest erases this phone only ([API reference §7.3](docs/api-spec.md#73-delete-me)) ⏳
+- [ ] The email links open the app (App Links `/verify` and `/reset`): confirm the email, set a new password ([API reference §6.5, §6.8](docs/api-spec.md#65-post-authemailverify)) ⏳
 
 **Phase 6 complete when:** a user can sign up with Google and with email, verify the email, sign out and in again, and delete the account. All auth tests pass.
 

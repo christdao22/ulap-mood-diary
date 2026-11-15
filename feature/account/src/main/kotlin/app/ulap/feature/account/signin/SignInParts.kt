@@ -130,5 +130,7 @@ internal val SignInMessage.res: Int
         SignInMessage.OFFLINE -> R.string.signin_error_offline
         SignInMessage.TOO_MANY_TRIES -> R.string.signin_error_too_many
         SignInMessage.UPDATE_REQUIRED -> R.string.signin_error_update
+        SignInMessage.LINK_EXPIRED -> R.string.link_expired_title
+        SignInMessage.SIGN_IN_AGAIN -> R.string.account_sign_in_again_title
         SignInMessage.SERVER -> R.string.signin_error_server
     }

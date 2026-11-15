@@ -1,13 +1,21 @@
 package app.ulap.android
 
+import android.content.Intent
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.core.util.Consumer
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -36,7 +44,9 @@ import app.ulap.feature.reports.navigation.reportsScreen
  *
  * Until [onboardingDone], the app opens on onboarding instead, with no tab bar, so it shows only
  * once (design-spec.md §7.1). The start is picked once: when step 3 sets the flag, the root
- * moves to Check in itself rather than rebuilding the NavHost.
+ * moves to Check in itself rather than rebuilding the NavHost. When the flag goes back to false
+ * ("Delete account and all data" erases the settings, api-spec.md §7.3), the root clears every
+ * screen and opens onboarding, as on a fresh install.
  */
 @Composable
 fun UlapAppRoot(
@@ -47,6 +57,8 @@ fun UlapAppRoot(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
     val startDestination: Any = remember { if (onboardingDone) CheckInGraph else OnboardingGraph }
+    BackToOnboardingWhenErased(onboardingDone, navController)
+    OpenLinksWhileRunning(navController)
 
     Scaffold(
         modifier = modifier,
@@ -101,5 +113,38 @@ fun UlapAppRoot(
                 },
             )
         }
+    }
+}
+
+/**
+ * "Delete account and all data" erases the settings, so [onboardingDone] goes from true back to
+ * false (api-spec.md §7.3). Then every screen is cleared and onboarding opens, as on a fresh
+ * install. A first run, which starts on onboarding, isn't a change and does nothing.
+ */
+@Composable
+private fun BackToOnboardingWhenErased(onboardingDone: Boolean, navController: NavHostController) {
+    var wasOnboardingDone by remember { mutableStateOf(onboardingDone) }
+    LaunchedEffect(onboardingDone) {
+        if (wasOnboardingDone && !onboardingDone) {
+            navController.navigate(OnboardingGraph) {
+                popUpTo(navController.graph.id) { inclusive = true }
+            }
+        }
+        wasOnboardingDone = onboardingDone
+    }
+}
+
+/**
+ * The email links (`/verify`, `/reset`, api-spec.md §6.5, §6.8) open the app. On a cold start the
+ * NavHost reads the Activity's intent itself. When the app is already open, the link arrives as a
+ * new intent (MainActivity is `singleTop`) and is handed to navigation here.
+ */
+@Composable
+private fun OpenLinksWhileRunning(navController: NavHostController) {
+    val activity = LocalActivity.current as? ComponentActivity ?: return
+    DisposableEffect(activity, navController) {
+        val listener = Consumer<Intent> { intent -> navController.handleDeepLink(intent) }
+        activity.addOnNewIntentListener(listener)
+        onDispose { activity.removeOnNewIntentListener(listener) }
     }
 }

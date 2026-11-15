@@ -85,4 +85,44 @@ class AccountViewModelTest {
         assertEquals(listOf("signOut"), accounts.calls)
         assertEquals(AccountState.Guest, accounts.state.value)
     }
+
+    @Test
+    fun `delete with backup asks the server, and a failure keeps everything`() = runTest {
+        val accounts = FakeAccountRepository(AccountState.SignedIn(FakeAccountRepository().profile))
+        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts)
+        accounts.nextProblem = AuthProblem.OFFLINE
+
+        viewModel.deleteEverything(withBackup = true)
+
+        assertEquals(DeleteState.Failed(DeleteMessage.OFFLINE), viewModel.delete.value)
+        assertTrue(accounts.state.value is AccountState.SignedIn)
+
+        viewModel.deleteEverything(withBackup = true)
+
+        assertEquals(DeleteState.Idle, viewModel.delete.value)
+        assertEquals(listOf("delete", "delete"), accounts.calls)
+        assertEquals(AccountState.Guest, accounts.state.value)
+    }
+
+    @Test
+    fun `delete without backup only erases this phone`() = runTest {
+        val accounts = FakeAccountRepository(AccountState.SignInAgain)
+        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts)
+
+        viewModel.deleteEverything(withBackup = false)
+
+        assertEquals(listOf("erase"), accounts.calls)
+        assertEquals(DeleteState.Idle, viewModel.delete.value)
+    }
+
+    @Test
+    fun `an ended session asks to sign in again before the backup can go`() = runTest {
+        val accounts = FakeAccountRepository(AccountState.SignedIn(FakeAccountRepository().profile))
+        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts)
+        accounts.nextProblem = AuthProblem.SIGNED_OUT
+
+        viewModel.deleteEverything(withBackup = true)
+
+        assertEquals(DeleteState.Failed(DeleteMessage.SIGN_IN_AGAIN), viewModel.delete.value)
+    }
 }

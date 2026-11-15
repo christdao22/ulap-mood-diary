@@ -1,7 +1,9 @@
 package app.ulap.core.data.di
 
 import app.ulap.core.data.checkin.OfflineFirstCheckInRepository
+import app.ulap.core.data.erase.OnDeviceDataEraser
 import app.ulap.core.domain.checkin.CheckInRepository
+import app.ulap.core.domain.erase.LocalDataEraser
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -15,6 +17,9 @@ import kotlin.time.Clock
 internal interface DataModule {
     @Binds
     fun bindsCheckInRepository(repository: OfflineFirstCheckInRepository): CheckInRepository
+
+    @Binds
+    fun bindsLocalDataEraser(eraser: OnDeviceDataEraser): LocalDataEraser
 }
 
 @Module

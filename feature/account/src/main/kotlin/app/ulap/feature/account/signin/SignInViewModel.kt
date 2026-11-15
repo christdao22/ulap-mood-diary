@@ -43,6 +43,8 @@ internal enum class SignInMessage {
     OFFLINE,
     TOO_MANY_TRIES,
     UPDATE_REQUIRED,
+    LINK_EXPIRED,
+    SIGN_IN_AGAIN,
     SERVER,
 }
 
@@ -215,10 +217,13 @@ internal fun AuthProblem.toMessage(): SignInMessage = when (this) {
     AuthProblem.OFFLINE -> SignInMessage.OFFLINE
     AuthProblem.TOO_MANY_TRIES -> SignInMessage.TOO_MANY_TRIES
     AuthProblem.UPDATE_REQUIRED -> SignInMessage.UPDATE_REQUIRED
+    AuthProblem.LINK_USED_OR_EXPIRED -> SignInMessage.LINK_EXPIRED
+    AuthProblem.SIGNED_OUT -> SignInMessage.SIGN_IN_AGAIN
     AuthProblem.SERVER -> SignInMessage.SERVER
 }
 
-private fun PasswordRules.Problem.toMessage(): SignInMessage = when (this) {
+/** Also used by the reset-password screen, which checks the new password the same way. */
+internal fun PasswordRules.Problem.toMessage(): SignInMessage = when (this) {
     PasswordRules.Problem.TOO_SHORT -> SignInMessage.PASSWORD_TOO_SHORT
 
     PasswordRules.Problem.TOO_LONG -> SignInMessage.PASSWORD_TOO_LONG

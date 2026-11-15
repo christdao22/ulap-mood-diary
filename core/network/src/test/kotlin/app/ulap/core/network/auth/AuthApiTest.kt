@@ -190,4 +190,34 @@ class AuthApiTest {
 
         assertEquals(ApiResult.Failure(409, ErrorCode.EMAIL_TAKEN), api.register("ana@example.com", "Kalma-sa-Ulap"))
     }
+
+    @Test
+    fun `verify and reset post the link's token to their own routes`() = runTest {
+        val seen = mutableListOf<Pair<String, String>>()
+        val api = KtorAuthApi(
+            testClient { request ->
+                seen += request.url.encodedPath to
+                    (request.body as OutgoingContent.ByteArrayContent).bytes().decodeToString()
+                respond("", HttpStatusCode.NoContent)
+            },
+        )
+
+        assertEquals(ApiResult.Success(Unit), api.verifyEmail("Zk3"))
+        assertEquals(ApiResult.Success(Unit), api.resetPassword("Rr8", "Bag-ong-Password-2026"))
+
+        assertEquals(
+            listOf(
+                "/v1/auth/email/verify" to """{"token":"Zk3"}""",
+                "/v1/auth/password/reset" to """{"token":"Rr8","newPassword":"Bag-ong-Password-2026"}""",
+            ),
+            seen,
+        )
+    }
+
+    @Test
+    fun `a spent link comes back with its code`() = runTest {
+        val api = KtorAuthApi(testClient { respondError(HttpStatusCode.Gone, ErrorCode.TOKEN_USED_OR_EXPIRED) })
+
+        assertEquals(ApiResult.Failure(410, ErrorCode.TOKEN_USED_OR_EXPIRED), api.verifyEmail("Zk3"))
+    }
 }

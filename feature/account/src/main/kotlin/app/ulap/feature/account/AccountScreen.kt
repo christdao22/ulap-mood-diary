@@ -9,9 +9,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -41,12 +43,19 @@ import app.ulap.feature.account.signin.SignInViewModel
 import app.ulap.feature.account.signin.requestGoogleIdToken
 import kotlinx.coroutines.launch
 
-/** The Account tab (design-spec.md §7.8), wired to its ViewModels. */
+/**
+ * The Account tab (design-spec.md §7.8), wired to its ViewModels.
+ *
+ * @param openSignInStep Opens the sign-in sheet at this step, for example after a password reset
+ *   link. [onClearSignInStep] then clears the request, so it opens only once.
+ */
 @Composable
 internal fun AccountScreen(
     onOpenLanguage: () -> Unit,
     onOpenPrivacyNotice: () -> Unit,
     modifier: Modifier = Modifier,
+    openSignInStep: SignInStep? = null,
+    onClearSignInStep: () -> Unit = {},
     viewModel: AccountViewModel = hiltViewModel(),
     signInViewModel: SignInViewModel = hiltViewModel(),
 ) {
@@ -54,7 +63,15 @@ internal fun AccountScreen(
     val mascotEnabled by viewModel.mascotEnabled.collectAsStateWithLifecycle()
     val account by viewModel.account.collectAsStateWithLifecycle()
     val resend by viewModel.resend.collectAsStateWithLifecycle()
+    val delete by viewModel.delete.collectAsStateWithLifecycle()
     val signIn by signInViewModel.state.collectAsStateWithLifecycle()
+    val currentOnClearSignInStep by rememberUpdatedState(onClearSignInStep)
+    LaunchedEffect(openSignInStep) {
+        if (openSignInStep != null) {
+            signInViewModel.openSheet(openSignInStep)
+            currentOnClearSignInStep()
+        }
+    }
 
     // Google's picker opens over this Activity (api-spec.md §6.1). The result goes to the
     // ViewModel even if the sheet was closed meanwhile.
@@ -78,10 +95,12 @@ internal fun AccountScreen(
         account = account,
         signIn = signIn,
         resend = resend,
+        delete = delete,
         onContinueWithGoogle = continueWithGoogle,
         onOpenSignIn = signInViewModel::openSheet,
         onResendVerification = viewModel::resendVerification,
         onSignOut = viewModel::signOut,
+        onDeleteEverything = viewModel::deleteEverything,
     )
 
     if (signIn.sheetOpen) {
@@ -103,8 +122,8 @@ internal fun AccountScreen(
 /**
  * The Account tab: the account card, then the settings list (design-spec.md §7.8). The card is
  * "Back up and sync" for a guest, "Sign in again" when the server ended the session, and the
- * profile once signed in. Sync, the hotline row and deleting data join in their own PHASES.md
- * tasks, in the §7.8 order.
+ * profile once signed in. Sync and the hotline row join in their own PHASES.md tasks, in the
+ * §7.8 order. "Delete account and all data" is always last.
  *
  * @param account Null while the saved session is read: no card yet, so nothing flashes.
  */
@@ -119,12 +138,15 @@ internal fun AccountContent(
     account: AccountState? = null,
     signIn: SignInUiState = SignInUiState(googleAvailable = false),
     resend: ResendState = ResendState.Idle,
+    delete: DeleteState = DeleteState.Idle,
     onContinueWithGoogle: () -> Unit = {},
     onOpenSignIn: (SignInStep) -> Unit = {},
     onResendVerification: () -> Unit = {},
     onSignOut: () -> Unit = {},
+    onDeleteEverything: (withBackup: Boolean) -> Unit = {},
 ) {
     var confirmSignOut by rememberSaveable { mutableStateOf(false) }
+    var confirmDelete by rememberSaveable { mutableStateOf(false) }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -146,38 +168,89 @@ internal fun AccountContent(
             onOpenSignIn = onOpenSignIn,
             onResendVerification = onResendVerification,
         )
-        UlapSettingsCard {
-            UlapSettingsSwitchRow(
-                title = stringResource(R.string.account_show_ulap),
-                checked = mascotEnabled,
-                onCheckedChange = onMascotEnabledChange,
-            )
-            UlapSettingsDivider()
-            UlapSettingsRow(
-                title = stringResource(R.string.account_language),
-                value = language?.let { stringResource(it.nameRes) },
-                onClick = onOpenLanguage,
-            )
-            UlapSettingsDivider()
-            UlapSettingsRow(title = stringResource(R.string.privacy_title), onClick = onOpenPrivacyNotice)
-            if (account is AccountState.SignedIn) {
-                UlapSettingsDivider()
-                UlapSettingsRow(title = stringResource(R.string.account_sign_out), onClick = { confirmSignOut = true })
-            }
-        }
+        SettingsList(
+            language = language,
+            mascotEnabled = mascotEnabled,
+            onMascotEnabledChange = onMascotEnabledChange,
+            onOpenLanguage = onOpenLanguage,
+            onOpenPrivacyNotice = onOpenPrivacyNotice,
+            signedIn = account is AccountState.SignedIn,
+            delete = delete,
+            onSignOut = { confirmSignOut = true },
+            onDelete = { confirmDelete = true },
+        )
+        DeleteFailedNotice(delete)
     }
     if (confirmSignOut) {
-        UlapConfirmDialog(
-            title = stringResource(R.string.account_sign_out_title),
-            text = stringResource(R.string.account_sign_out_body),
-            confirmLabel = stringResource(R.string.account_sign_out_confirm),
-            dismissLabel = stringResource(R.string.account_sign_out_cancel),
+        SignOutDialog(
             onConfirm = {
                 confirmSignOut = false
                 onSignOut()
             },
             onDismiss = { confirmSignOut = false },
         )
+    }
+    if (confirmDelete) {
+        DeleteDataDialog(
+            account = account,
+            onConfirm = { withBackup ->
+                confirmDelete = false
+                onDeleteEverything(withBackup)
+            },
+            onDismiss = { confirmDelete = false },
+        )
+    }
+}
+
+/** Check-ins stay on this phone, and the dialog says so (design-spec.md §7.8). */
+@Composable
+private fun SignOutDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    UlapConfirmDialog(
+        title = stringResource(R.string.account_sign_out_title),
+        text = stringResource(R.string.account_sign_out_body),
+        confirmLabel = stringResource(R.string.account_sign_out_confirm),
+        dismissLabel = stringResource(R.string.account_sign_out_cancel),
+        onConfirm = onConfirm,
+        onDismiss = onDismiss,
+    )
+}
+
+/**
+ * The settings list, in the design-spec.md §7.8 order. [onSignOut] and [onDelete] only open their
+ * confirm dialogs.
+ */
+@Composable
+private fun SettingsList(
+    language: AppLanguage?,
+    mascotEnabled: Boolean,
+    onMascotEnabledChange: (Boolean) -> Unit,
+    onOpenLanguage: () -> Unit,
+    onOpenPrivacyNotice: () -> Unit,
+    signedIn: Boolean,
+    delete: DeleteState,
+    onSignOut: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    UlapSettingsCard {
+        UlapSettingsSwitchRow(
+            title = stringResource(R.string.account_show_ulap),
+            checked = mascotEnabled,
+            onCheckedChange = onMascotEnabledChange,
+        )
+        UlapSettingsDivider()
+        UlapSettingsRow(
+            title = stringResource(R.string.account_language),
+            value = language?.let { stringResource(it.nameRes) },
+            onClick = onOpenLanguage,
+        )
+        UlapSettingsDivider()
+        UlapSettingsRow(title = stringResource(R.string.privacy_title), onClick = onOpenPrivacyNotice)
+        if (signedIn) {
+            UlapSettingsDivider()
+            UlapSettingsRow(title = stringResource(R.string.account_sign_out), onClick = onSignOut)
+        }
+        UlapSettingsDivider()
+        DeleteDataRow(delete = delete, onClick = onDelete)
     }
 }
 

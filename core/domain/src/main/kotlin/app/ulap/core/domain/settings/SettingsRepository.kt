@@ -20,4 +20,10 @@ interface SettingsRepository {
      * `X-Device-Id` (api-spec.md §2), so the server can tell one person's phones apart.
      */
     suspend fun deviceId(): String
+
+    /**
+     * Back to a fresh install: no language, onboarding not done, a new device ID on next use. For
+     * "Delete account and all data" (api-spec.md §7.3).
+     */
+    suspend fun clear()
 }

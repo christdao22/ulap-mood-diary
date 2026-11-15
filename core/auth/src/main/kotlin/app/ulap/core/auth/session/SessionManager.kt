@@ -91,15 +91,33 @@ class SessionManager @Inject internal constructor(
     suspend fun signOut(endOnServer: suspend (refreshToken: String) -> Unit) {
         scope.async {
             store.current()?.let { endOnServer(it.refreshToken) }
-            signedOut()
+            forget()
         }.await()
     }
 
-    /** Forgets the session on this phone. Check-ins stay. */
-    private suspend fun signedOut() {
+    /**
+     * Forgets the session on this phone without telling the server, and clears "Sign in again".
+     * Check-ins stay. Used by sign-out after the server call, and after the account is deleted,
+     * when there's nothing left on the server to sign out of.
+     */
+    suspend fun forget() {
         mutex.withLock {
             access = null
             store.clear(signInAgain = false)
+        }
+    }
+
+    /**
+     * Refreshes now, even if the access token is still fresh, to bring the latest profile from the
+     * server, for example right after the email is verified. Offline or a server error changes
+     * nothing: the next refresh brings the profile anyway.
+     */
+    suspend fun refreshProfile() {
+        try {
+            // Passing the current token as "rejected" makes refreshOnce start a new refresh.
+            refreshOnce(rejected = access?.value)
+        } catch (_: SessionRefreshUnavailable) {
+            // Keep the session as it is.
         }
     }
 

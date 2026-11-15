@@ -11,7 +11,9 @@ import app.ulap.shared.api.ForgotPasswordRequest
 import app.ulap.shared.api.GoogleSignInRequest
 import app.ulap.shared.api.LogoutRequest
 import app.ulap.shared.api.RefreshRequest
+import app.ulap.shared.api.ResetPasswordRequest
 import app.ulap.shared.api.UserDto
+import app.ulap.shared.api.VerifyEmailRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -39,6 +41,18 @@ interface AuthApi {
 
     /** `POST /auth/password/forgot` (api-spec.md §6.7). 204 whether or not the account exists. */
     suspend fun forgotPassword(email: String): ApiResult<Unit>
+
+    /**
+     * `POST /auth/email/verify` (api-spec.md §6.5) with the token from the email's link. Needs no
+     * sign-in: the link may open on a phone that isn't signed in. 410 once the link is spent.
+     */
+    suspend fun verifyEmail(token: String): ApiResult<Unit>
+
+    /**
+     * `POST /auth/password/reset` (api-spec.md §6.8). A 204 signs out every device, this one too.
+     * A weak password is refused (422) without spending the link.
+     */
+    suspend fun resetPassword(token: String, newPassword: String): ApiResult<Unit>
 }
 
 /**
@@ -100,12 +114,22 @@ internal class KtorAuthApi @Inject constructor(private val client: HttpClient) :
     override suspend fun login(email: String, password: String): ApiResult<SessionTokens> =
         postForSession("auth/email/login", EmailLoginRequest(email, password))
 
-    override suspend fun forgotPassword(email: String): ApiResult<Unit> = client.apiCall {
-        post("auth/password/forgot") {
-            contentType(ContentType.Application.Json)
-            setBody(ForgotPasswordRequest(email))
+    override suspend fun forgotPassword(email: String): ApiResult<Unit> =
+        postForNothing("auth/password/forgot", ForgotPasswordRequest(email))
+
+    override suspend fun verifyEmail(token: String): ApiResult<Unit> =
+        postForNothing("auth/email/verify", VerifyEmailRequest(token))
+
+    override suspend fun resetPassword(token: String, newPassword: String): ApiResult<Unit> =
+        postForNothing("auth/password/reset", ResetPasswordRequest(token, newPassword))
+
+    private suspend inline fun <reified B : Any> postForNothing(path: String, body: B): ApiResult<Unit> =
+        client.apiCall {
+            post(path) {
+                contentType(ContentType.Application.Json)
+                setBody(body)
+            }
         }
-    }
 
     private suspend inline fun <reified B : Any> postForSession(path: String, body: B): ApiResult<SessionTokens> =
         client

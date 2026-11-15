@@ -1,16 +1,19 @@
 package app.ulap.core.auth.account
 
 import app.ulap.core.auth.session.SessionManager
+import app.ulap.core.auth.session.SessionStore
 import app.ulap.core.auth.session.testSessionStore
 import app.ulap.core.domain.account.AccountProfile
 import app.ulap.core.domain.account.AccountState
 import app.ulap.core.domain.account.AuthProblem
 import app.ulap.core.domain.account.SignInResult
+import app.ulap.core.domain.erase.LocalDataEraser
 import app.ulap.core.network.ApiResult
 import app.ulap.core.network.auth.AuthApi
 import app.ulap.core.network.auth.SessionProfile
 import app.ulap.core.network.auth.SessionTokens
 import app.ulap.core.network.auth.SignedInAuthApi
+import app.ulap.core.network.user.UserApi
 import app.ulap.shared.api.ErrorCode
 import java.io.File
 import java.io.IOException
@@ -52,8 +55,10 @@ class SessionAccountRepositoryTest {
         val sent = mutableListOf<String>()
         var next: ApiResult<SessionTokens> = ApiResult.NetworkError(IOException("no answer set"))
         var forgot: ApiResult<Unit> = ApiResult.Success(Unit)
+        var link: ApiResult<Unit> = ApiResult.Success(Unit)
+        var refreshed: ApiResult<SessionTokens> = ApiResult.NetworkError(IOException("no answer set"))
 
-        override suspend fun refresh(refreshToken: String) = error("not used")
+        override suspend fun refresh(refreshToken: String) = refreshed.also { sent += "refresh:$refreshToken" }
 
         override suspend fun google(idToken: String, displayName: String?) = next.also { sent += "google:$displayName" }
 
@@ -62,6 +67,25 @@ class SessionAccountRepositoryTest {
         override suspend fun login(email: String, password: String) = next.also { sent += "login:$email" }
 
         override suspend fun forgotPassword(email: String) = forgot.also { sent += "forgot:$email" }
+
+        override suspend fun verifyEmail(token: String) = link.also { sent += "verify:$token" }
+
+        override suspend fun resetPassword(token: String, newPassword: String) = link.also { sent += "reset:$token" }
+    }
+
+    private class FakeUserApi : UserApi {
+        var calls = 0
+        var delete: ApiResult<Unit> = ApiResult.Success(Unit)
+
+        override suspend fun deleteMe() = delete.also { calls++ }
+    }
+
+    private class FakeEraser : LocalDataEraser {
+        var erased = 0
+
+        override suspend fun eraseAll() {
+            erased++
+        }
     }
 
     private class FakeSignedInAuthApi : SignedInAuthApi {
@@ -75,6 +99,9 @@ class SessionAccountRepositoryTest {
 
     private val authApi = FakeAuthApi()
     private val signedInApi = FakeSignedInAuthApi()
+    private val userApi = FakeUserApi()
+    private val eraser = FakeEraser()
+    private lateinit var store: SessionStore
 
     @AfterTest
     fun tearDown() {
@@ -84,8 +111,14 @@ class SessionAccountRepositoryTest {
     private fun TestScope.repository(): SessionAccountRepository {
         val scope =
             CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext.job))
-        val manager = SessionManager(testSessionStore(File(dir, "session.enc"), backgroundScope), authApi, clock, scope)
-        return SessionAccountRepository(manager, authApi, signedInApi)
+        store = testSessionStore(File(dir, "session.enc"), backgroundScope)
+        val manager = SessionManager(store, authApi, clock, scope)
+        return SessionAccountRepository(manager, authApi, signedInApi, userApi, eraser, scope)
+    }
+
+    private suspend fun SessionAccountRepository.signedIn() {
+        authApi.next = ApiResult.Success(tokens)
+        signInWithEmail("ana@example.com", "pw")
     }
 
     @Test
@@ -158,5 +191,89 @@ class SessionAccountRepositoryTest {
 
         assertEquals(listOf<String?>("refresh-1"), signedInApi.loggedOut)
         assertEquals(AccountState.Guest, repository.state.first())
+    }
+
+    @Test
+    fun `delete erases the phone only after the server deleted the account`() = runTest {
+        val repository = repository()
+        repository.signedIn()
+
+        assertNull(repository.deleteAccount())
+
+        assertEquals(1, userApi.calls)
+        assertEquals(1, eraser.erased)
+        assertEquals(AccountState.Guest, repository.state.first())
+        assertNull(store.current())
+    }
+
+    @Test
+    fun `a delete that didn't reach the server erases nothing`() = runTest {
+        val repository = repository()
+        repository.signedIn()
+        val cases = mapOf(
+            ApiResult.NetworkError(IOException("offline")) to AuthProblem.OFFLINE,
+            ApiResult.Failure(503, null) to AuthProblem.SERVER,
+            ApiResult.Failure(429, ErrorCode.RATE_LIMITED) to AuthProblem.TOO_MANY_TRIES,
+        )
+
+        cases.forEach { (answer, problem) ->
+            userApi.delete = answer
+            assertEquals(problem, repository.deleteAccount(), "$answer")
+        }
+
+        assertEquals(0, eraser.erased)
+        assertEquals("refresh-1", store.current()?.refreshToken)
+    }
+
+    @Test
+    fun `an account that is already deleted erases the phone too`() = runTest {
+        val repository = repository()
+        repository.signedIn()
+        userApi.delete = ApiResult.Failure(403, ErrorCode.ACCOUNT_DELETED)
+
+        assertNull(repository.deleteAccount())
+
+        assertEquals(1, eraser.erased)
+        assertEquals(AccountState.Guest, repository.state.first())
+    }
+
+    @Test
+    fun `delete without a session asks to sign in and never calls the server`() = runTest {
+        val repository = repository()
+
+        assertEquals(AuthProblem.SIGNED_OUT, repository.deleteAccount())
+
+        assertEquals(0, userApi.calls)
+        assertEquals(0, eraser.erased)
+    }
+
+    @Test
+    fun `erasing this phone also clears Sign in again`() = runTest {
+        val repository = repository()
+        store.clear(signInAgain = true)
+
+        repository.eraseThisPhone()
+
+        assertEquals(1, eraser.erased)
+        assertEquals(AccountState.Guest, repository.state.first())
+    }
+
+    @Test
+    fun `a verified email refreshes the profile, and a spent link says so`() = runTest {
+        val repository = repository()
+        repository.signedIn()
+        authApi.refreshed = ApiResult.Success(
+            tokens.copy(refreshToken = "refresh-2", profile = tokens.profile.copy(emailVerified = true)),
+        )
+
+        assertNull(repository.verifyEmail("Zk3"))
+
+        assertEquals(listOf("verify:Zk3", "refresh:refresh-1"), authApi.sent.takeLast(2))
+        val state = repository.state.first() as AccountState.SignedIn
+        assertEquals(true, state.profile.emailVerified)
+
+        authApi.link = ApiResult.Failure(410, ErrorCode.TOKEN_USED_OR_EXPIRED)
+        assertEquals(AuthProblem.LINK_USED_OR_EXPIRED, repository.verifyEmail("Zk3"))
+        assertEquals(AuthProblem.LINK_USED_OR_EXPIRED, repository.resetPassword("Rr8", "Bag-ong-Password-2026"))
     }
 }

@@ -39,6 +39,41 @@
     <string name="account_sign_out_body">Mananatili sa phone na ito ang iyong mga check-in. Puwede kang mag-sign in ulit anumang oras para tuloy ang backup.</string>
     <string name="account_sign_out_confirm">Mag-sign out</string>
     <string name="account_sign_out_cancel">Huwag muna</string>
+    <!-- Delete account and all data (design-spec.md §7.8, api-spec.md §7.3) -->
+    <string name="account_delete">Burahin ang account at lahat ng data</string>
+    <string name="account_deleting">Binubura…</string>
+    <string name="account_delete_title_backup">Burahin ang account mo at lahat ng data mo?</string>
+    <string name="account_delete_title_phone">Burahin ang lahat ng data mo?</string>
+    <string name="account_delete_title_sign_in_again">Burahin ang diary mo sa phone na ito?</string>
+    <string name="account_delete_confirm_phone_only">Burahin sa phone na ito</string>
+    <string name="account_delete_body_backup">Mabubura ang bawat check-in at note, dito sa phone at sa backup mo. Hindi na ito maibabalik.</string>
+    <string name="account_delete_body_phone">Mabubura ang bawat check-in at note dito sa phone. Hindi na ito maibabalik.</string>
+    <string name="account_delete_body_sign_in_again">Mabubura ang bawat check-in at note dito sa phone. Hindi na ito maibabalik. Mananatili ang backup mo sa server ng Ulap. Para mabura rin ito, mag-sign in ulit muna.</string>
+    <string name="account_delete_confirm">Burahin lahat</string>
+    <string name="account_delete_cancel">Huwag burahin</string>
+    <string name="account_delete_error_offline">Offline ka ngayon, kaya walang nabura. Subukan ulit kapag online ka na.</string>
+    <string name="account_delete_error_sign_in">Walang nabura. Para mabura rin ang backup mo, mag-sign in ulit muna.</string>
+    <string name="account_delete_error_too_many">Walang nabura. Hinto muna tayo sandali, tapos subukan ulit pagkalipas ng ilang minuto.</string>
+    <string name="account_delete_error_update">Walang nabura. Paki-update muna ang Ulap, tapos puwede mo nang burahin ang account mo.</string>
+    <string name="account_delete_error_server">Hindi sumasagot ang server ng Ulap ngayon, kaya walang nabura. Subukan ulit mamaya.</string>
+    <!-- Screens the account emails' links open (api-spec.md §6.5, §6.8) -->
+    <string name="link_checking">Tinitingnan ang link mo…</string>
+    <string name="link_expired_title">Hindi na gumagana ang link na ito</string>
+    <string name="link_go_to_account">Pumunta sa Account</string>
+    <string name="link_try_again">Subukan ulit</string>
+    <string name="link_not_now">Mamaya na</string>
+    <string name="verify_done_title">Kumpirmado na ang email mo</string>
+    <string name="verify_done_body">Salamat. Puwede nang magsimula ang backup at sync.</string>
+    <string name="verify_expired_body">Isang beses lang gumagana ang bawat link, sa loob ng 24 oras. Kung hindi pa kumpirmado ang email mo, puwede kang magpadala ng bagong link mula sa Account.</string>
+    <string name="verify_failed_title">Hindi pa namin matingnan ang link mo</string>
+    <string name="reset_title">Gumawa ng bagong password</string>
+    <string name="reset_body">Kapag na-save ito, masa-sign out ka sa bawat phone. Naka-save pa rin ang mga check-in mo, at puwede kang mag-sign in gamit ang bago.</string>
+    <string name="reset_password_label">Bagong password</string>
+    <string name="reset_button">I-save ang password</string>
+    <string name="reset_done_title">Napalitan na ang password mo</string>
+    <string name="reset_done_body">Puwede ka nang mag-sign in gamit ang bagong password sa bawat phone na gamit mo. Naka-save pa rin ang mga check-in mo.</string>
+    <string name="reset_expired_body">Isang beses lang gumagana ang reset link, sa loob ng 30 minuto. Puwede kang humingi ng bago.</string>
+    <string name="reset_new_link">Magpadala ng bagong link</string>
 
     <!-- Sign-in sheet and email forms (design-spec.md §7.9) -->
     <string name="signin_sheet_title">I-back up ang iyong diary</string>

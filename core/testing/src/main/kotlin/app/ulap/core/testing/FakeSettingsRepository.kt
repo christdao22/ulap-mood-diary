@@ -20,4 +20,8 @@ class FakeSettingsRepository(initial: UserSettings = UserSettings()) : SettingsR
     override suspend fun setOnboardingDone() = settings.update { it.copy(onboardingDone = true) }
 
     override suspend fun deviceId(): String = deviceId
+
+    override suspend fun clear() {
+        settings.value = UserSettings()
+    }
 }

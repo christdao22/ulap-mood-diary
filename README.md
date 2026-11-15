@@ -192,9 +192,9 @@ ulap/
 │   │       └── values-b+ceb/strings.xml    # Bisaya (Cebuano)
 │   ├── database/                      # Room entities, DAOs, UlapDatabase (SQLCipher); schemas/ committed
 │   ├── datastore/                     # settings
-│   ├── network/                       # Ktor client, AuthApi, SyncApi, client plugins
+│   ├── network/                       # Ktor client, AuthApi, UserApi, SyncApi, client plugins
 │   ├── auth/                          # session and token store, AccountRepository
-│   ├── data/                          # repositories (CheckInRepository, SettingsRepository)
+│   ├── data/                          # repositories (CheckInRepository, SettingsRepository), LocalDataEraser
 │   ├── sync/                          # SyncEngine, SyncWorker, SyncTriggers
 │   └── testing/                       # fakes, MainDispatcherRule
 │
@@ -203,7 +203,7 @@ ulap/
 │   ├── checkin/                       # PickMood, Details, Response, AfterCheck
 │   ├── logs/
 │   ├── reports/
-│   └── account/                       # incl. the sign-in sheet and its Credential Manager call
+│   └── account/                       # incl. the sign-in sheet (Credential Manager), delete data, the email links' screens
 │
 ├── infra/
 │   ├── compose.yaml                   # postgres, migrate (one-off Flyway), server

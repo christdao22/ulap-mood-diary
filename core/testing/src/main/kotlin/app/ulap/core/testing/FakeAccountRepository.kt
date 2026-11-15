@@ -46,6 +46,23 @@ class FakeAccountRepository(initial: AccountState = AccountState.Guest) : Accoun
         state.value = AccountState.Guest
     }
 
+    override suspend fun verifyEmail(token: String): AuthProblem? = answer("verify:$token")
+
+    override suspend fun resetPassword(token: String, newPassword: String): AuthProblem? =
+        answer("resetPassword:$token")
+
+    /** Like the real one: the phone is erased (back to a guest) only when the server deleted. */
+    override suspend fun deleteAccount(): AuthProblem? = answer("delete").also { if (it == null) erased() }
+
+    override suspend fun eraseThisPhone() {
+        calls += "erase"
+        erased()
+    }
+
+    private fun erased() {
+        state.value = AccountState.Guest
+    }
+
     private suspend fun signIn(call: String): SignInResult = when (val problem = answer(call)) {
         null -> {
             state.value = AccountState.SignedIn(profile)

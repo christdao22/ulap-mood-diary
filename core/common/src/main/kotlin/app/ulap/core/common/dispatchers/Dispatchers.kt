@@ -17,10 +17,19 @@ import kotlinx.coroutines.Dispatchers
 @Retention(AnnotationRetention.RUNTIME)
 annotation class DefaultDispatcher
 
+/** The dispatcher for blocking disk work that has no suspend API, such as Room's `clearAllTables()`. */
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class IoDispatcher
+
 @Module
 @InstallIn(SingletonComponent::class)
 internal object DispatchersModule {
     @Provides
     @DefaultDispatcher
     fun providesDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
+
+    @Provides
+    @IoDispatcher
+    fun providesIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
 }

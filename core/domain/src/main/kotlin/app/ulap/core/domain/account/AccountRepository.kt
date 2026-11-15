@@ -32,8 +32,36 @@ interface AccountRepository {
     /** Sends the verification email again (api-spec.md §6.6). Null when it was sent. */
     suspend fun resendVerification(): AuthProblem?
 
+    /**
+     * Confirms the email with the token from the verification link (api-spec.md §6.5). Works
+     * signed in or not. When signed in, the profile then shows the email as verified.
+     * Null when it worked.
+     */
+    suspend fun verifyEmail(token: String): AuthProblem?
+
+    /**
+     * Sets a new password with the token from the reset link (api-spec.md §6.8). [newPassword] is
+     * checked with PasswordRules first. The server then signs out every device, so a phone signed
+     * in to that account shows "Sign in again" after its next refresh. Null when it worked.
+     */
+    suspend fun resetPassword(token: String, newPassword: String): AuthProblem?
+
     /** Signs out on the server if it can be reached, and on this phone always. Check-ins stay. */
     suspend fun signOut()
+
+    /**
+     * Deletes the account and every check-in on the server, then everything on this phone
+     * (api-spec.md §7.3). Nothing is erased here unless the server deleted first, so a failure
+     * never leaves a backup the person thinks is gone. [AuthProblem.SIGNED_OUT] when there's no
+     * working session. Null when it worked; the app then starts again from onboarding.
+     */
+    suspend fun deleteAccount(): AuthProblem?
+
+    /**
+     * Erases every check-in and setting on this phone, and any ended session, without asking the
+     * server. For guests, and for "Sign in again", where the server can't be asked.
+     */
+    suspend fun eraseThisPhone()
 }
 
 sealed interface AccountState {
@@ -74,6 +102,12 @@ enum class AuthProblem {
     OFFLINE,
     TOO_MANY_TRIES,
     UPDATE_REQUIRED,
+
+    /** The verification or reset link was already used, or is too old (`410`, api-spec.md §6.5, §6.8). */
+    LINK_USED_OR_EXPIRED,
+
+    /** The request needs a working session and there isn't one: never signed in, or it ended. */
+    SIGNED_OUT,
 
     /** A 5xx, or anything the app doesn't expect. Worth trying again later. */
     SERVER,

@@ -8,6 +8,8 @@ import app.ulap.core.network.auth.KtorAuthApi
 import app.ulap.core.network.auth.KtorSignedInAuthApi
 import app.ulap.core.network.auth.SignedInAuthApi
 import app.ulap.core.network.ulapHttpClient
+import app.ulap.core.network.user.KtorUserApi
+import app.ulap.core.network.user.UserApi
 import app.ulap.core.network.withBearerAuth
 import dagger.Binds
 import dagger.Module
@@ -54,4 +56,7 @@ internal interface NetworkBindsModule {
 
     @Binds
     fun bindsSignedInAuthApi(api: KtorSignedInAuthApi): SignedInAuthApi
+
+    @Binds
+    fun bindsUserApi(api: KtorUserApi): UserApi
 }

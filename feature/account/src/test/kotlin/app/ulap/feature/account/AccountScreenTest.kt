@@ -13,6 +13,7 @@ import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.domain.account.AccountProfile
 import app.ulap.core.domain.account.AccountState
@@ -41,6 +42,7 @@ class AccountScreenTest {
     private var googleTaps = 0
     private var signOuts = 0
     private var resends = 0
+    private val deletes = mutableListOf<Boolean>()
 
     private val profile =
         AccountProfile("Christian", "christian@example.com", true, Instant.parse("2026-10-15T02:00:00Z"))
@@ -50,6 +52,7 @@ class AccountScreenTest {
         mascotEnabled: Boolean = true,
         account: AccountState? = AccountState.Guest,
         googleAvailable: Boolean = true,
+        delete: DeleteState = DeleteState.Idle,
     ) {
         compose.setContent {
             UlapTheme {
@@ -65,6 +68,8 @@ class AccountScreenTest {
                     onOpenSignIn = { signInOpens += it },
                     onResendVerification = { resends++ },
                     onSignOut = { signOuts++ },
+                    delete = delete,
+                    onDeleteEverything = { deletes += it },
                 )
             }
         }
@@ -192,5 +197,52 @@ class AccountScreenTest {
         compose.onNodeWithText("Sign out").performClick()
         compose.onNode(hasText("Sign out") and hasAnyAncestor(isDialog())).performClick()
         assertEquals(1, signOuts)
+    }
+
+    @Test
+    fun `signed in, delete asks first and says the backup goes too`() {
+        show(account = AccountState.SignedIn(profile))
+
+        compose.onNodeWithText("Delete account and all data").performScrollTo().performClick()
+        compose.onNodeWithText(
+            "This deletes every check-in and note, on this phone and in your backup. It can't be undone.",
+        ).assertExists()
+        compose.onNodeWithText("Keep my diary").performClick()
+        assertEquals(emptyList(), deletes)
+
+        compose.onNodeWithText("Delete account and all data").performScrollTo().performClick()
+        compose.onNodeWithText("Delete everything").performClick()
+        assertEquals(listOf(true), deletes)
+    }
+
+    @Test
+    fun `a guest or an ended session deletes only this phone`() {
+        show(account = AccountState.SignInAgain)
+
+        compose.onNodeWithText("Delete account and all data").performScrollTo().performClick()
+        compose.onNodeWithText(
+            "This deletes every check-in and note on this phone. It can't be undone. " +
+                "Your backup stays on Ulap's server. To delete it too, sign in again first.",
+        ).assertExists()
+        compose.onNodeWithText("Delete from this phone").performClick()
+
+        assertEquals(listOf(false), deletes)
+    }
+
+    @Test
+    fun `a delete that didn't go through says nothing was deleted`() {
+        show(account = AccountState.SignedIn(profile), delete = DeleteState.Failed(DeleteMessage.OFFLINE))
+        compose.onNodeWithText("You're offline, so nothing was deleted. Try again when you're online.")
+            .performScrollTo()
+            .assertExists()
+    }
+
+    @Test
+    fun `while deleting, the row says so and doesn't open the dialog again`() {
+        show(account = AccountState.SignedIn(profile), delete = DeleteState.Deleting)
+
+        compose.onNodeWithText("Deleting…").performScrollTo().performClick()
+
+        compose.onNodeWithText("Delete everything").assertDoesNotExist()
     }
 }

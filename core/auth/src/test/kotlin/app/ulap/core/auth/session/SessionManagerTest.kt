@@ -63,6 +63,10 @@ class SessionManagerTest {
         override suspend fun login(email: String, password: String) = error("not used")
 
         override suspend fun forgotPassword(email: String) = error("not used")
+
+        override suspend fun verifyEmail(token: String) = error("not used")
+
+        override suspend fun resetPassword(token: String, newPassword: String) = error("not used")
     }
 
     private val api = FakeAuthApi()
@@ -277,5 +281,33 @@ class SessionManagerTest {
 
         assertEquals(false, called)
         assertEquals(SessionState.SignedOut, manager.state.first())
+    }
+
+    @Test
+    fun `refreshProfile refreshes even with a fresh access token, and offline changes nothing`() = runTest {
+        val (manager, store) = manager()
+        manager.signedIn(tokens(1))
+        api.next = { ApiResult.Success(tokens(2)) }
+
+        manager.refreshProfile()
+
+        assertEquals(listOf("refresh-1"), api.sent)
+        assertEquals(SessionState.SignedIn("user-1", profile(verified = true)), manager.state.first())
+
+        api.next = { ApiResult.NetworkError(IOException("offline")) }
+        manager.refreshProfile()
+        assertEquals("refresh-2", store.current()?.refreshToken)
+    }
+
+    @Test
+    fun `forget signs out here without the server and clears Sign in again`() = runTest {
+        val (manager, store) = manager()
+        store.clear(signInAgain = true)
+
+        manager.forget()
+
+        assertEquals(SessionState.SignedOut, manager.state.first())
+        assertNull(manager.accessToken())
+        assertEquals(emptyList(), api.sent)
     }
 }

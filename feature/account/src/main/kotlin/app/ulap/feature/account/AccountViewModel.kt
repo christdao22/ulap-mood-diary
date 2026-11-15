@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.ulap.core.domain.account.AccountRepository
 import app.ulap.core.domain.account.AccountState
+import app.ulap.core.domain.account.AuthProblem
 import app.ulap.core.domain.settings.SettingsRepository
 import app.ulap.core.model.AppLanguage
 import app.ulap.core.model.UserSettings
@@ -29,6 +30,18 @@ internal sealed interface ResendState {
 
     data class Failed(val message: SignInMessage) : ResendState
 }
+
+/** "Delete account and all data" (api-spec.md §7.3). After it works, the app leaves this tab. */
+internal sealed interface DeleteState {
+    data object Idle : DeleteState
+
+    data object Deleting : DeleteState
+
+    data class Failed(val message: DeleteMessage) : DeleteState
+}
+
+/** Why nothing was deleted. Each one says so, so the person never wonders what's left. */
+internal enum class DeleteMessage { OFFLINE, SIGN_IN_AGAIN, TOO_MANY_TRIES, UPDATE_REQUIRED, SERVER }
 
 /**
  * The Account tab (design-spec.md §7.8): the account card and the settings list. Everything here
@@ -60,6 +73,9 @@ class AccountViewModel @Inject constructor(
     private val _resend = MutableStateFlow<ResendState>(ResendState.Idle)
     internal val resend: StateFlow<ResendState> = _resend.asStateFlow()
 
+    private val _delete = MutableStateFlow<DeleteState>(DeleteState.Idle)
+    internal val delete: StateFlow<DeleteState> = _delete.asStateFlow()
+
     fun setMascotEnabled(enabled: Boolean) {
         viewModelScope.launch { settingsRepository.setMascotEnabled(enabled) }
     }
@@ -79,7 +95,36 @@ class AccountViewModel @Inject constructor(
         viewModelScope.launch { accounts.signOut() }
     }
 
+    /**
+     * Deletes what the person confirmed. [withBackup] is the signed-in dialog: the server deletes
+     * first, and the phone is erased only after it did. Without it (a guest, or "Sign in again"),
+     * only this phone is erased. The choice comes from the dialog, not the current state, so a
+     * session that ends meanwhile can't turn "delete my backup too" into "only this phone".
+     * Either way the repository finishes even if the tab closes.
+     */
+    fun deleteEverything(withBackup: Boolean) {
+        if (_delete.value == DeleteState.Deleting) return
+        _delete.value = DeleteState.Deleting
+        viewModelScope.launch {
+            val problem = if (withBackup) {
+                accounts.deleteAccount()
+            } else {
+                accounts.eraseThisPhone()
+                null
+            }
+            _delete.value = problem?.let { DeleteState.Failed(it.toDeleteMessage()) } ?: DeleteState.Idle
+        }
+    }
+
     private companion object {
         const val STOP_TIMEOUT_MILLIS = 5_000L
     }
+}
+
+private fun AuthProblem.toDeleteMessage(): DeleteMessage = when (this) {
+    AuthProblem.OFFLINE -> DeleteMessage.OFFLINE
+    AuthProblem.SIGNED_OUT -> DeleteMessage.SIGN_IN_AGAIN
+    AuthProblem.TOO_MANY_TRIES -> DeleteMessage.TOO_MANY_TRIES
+    AuthProblem.UPDATE_REQUIRED -> DeleteMessage.UPDATE_REQUIRED
+    else -> DeleteMessage.SERVER
 }
