@@ -8,6 +8,9 @@ import java.time.ZoneOffset
  * DTOs in kotlin.time.Instant (shared with the app). These convert between the two.
  */
 
+fun kotlin.time.Instant.toJavaTime(): java.time.Instant =
+    java.time.Instant.ofEpochSecond(epochSeconds, nanosecondsOfSecond.toLong())
+
 fun java.time.Instant.toApiInstant(): kotlin.time.Instant = kotlin.time.Instant.fromEpochSeconds(epochSecond, nano)
 
 /** For TIMESTAMPTZ columns: PostgreSQL stores the instant, so the offset is only a formality. */

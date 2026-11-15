@@ -4,6 +4,7 @@ import app.ulap.server.auth.authRoutes
 import app.ulap.server.auth.installAccessTokenAuth
 import app.ulap.server.common.AppVersionGate
 import app.ulap.server.common.RateLimits
+import app.ulap.server.common.RequestBodyLimit
 import app.ulap.server.common.RequestIds
 import app.ulap.server.common.installErrorHandling
 import app.ulap.server.common.installRateLimits
@@ -13,6 +14,7 @@ import app.ulap.server.config.ConfigException
 import app.ulap.server.db.Database
 import app.ulap.server.health.healthRoutes
 import app.ulap.server.meta.metaRoutes
+import app.ulap.server.sync.syncRoutes
 import app.ulap.server.users.userRoutes
 import app.ulap.shared.api.Api
 import io.ktor.serialization.kotlinx.json.json
@@ -72,6 +74,8 @@ fun Application.module(deps: AppDeps) {
         json(Api.json)
     }
     installErrorHandling()
+    // After error handling, so its 413 gets the standard error body (api-spec.md §11, Input limits).
+    install(RequestBodyLimit)
     install(AppVersionGate) {
         minAndroidVersionCode = deps.config.minAndroidVersionCode
     }
@@ -85,6 +89,7 @@ fun Application.module(deps: AppDeps) {
                 metaRoutes(deps.config)
                 authRoutes(deps.authServices)
                 userRoutes(deps.userService)
+                syncRoutes(deps.syncService)
             }
         }
     }

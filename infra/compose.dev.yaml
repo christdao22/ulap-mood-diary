@@ -11,6 +11,10 @@ services:
     environment:
       DATABASE_PASSWORD: ulap
 
+  scheduler:
+    environment:
+      DATABASE_PASSWORD: ulap
+
   # Usually you run the server with ./gradlew :server:run instead. This is for trying the image:
   # it reads the same root .env, with the database and mail hosts pointed inside the network.
   server:

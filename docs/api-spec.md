@@ -461,7 +461,9 @@ Sync needs a verified identity (Google is always verified; email needs verificat
 | Belongs to another user | any | → `rejected`, `reason: "FORBIDDEN"` |
 | Invalid values | any | → `rejected` with a reason |
 
-A clock guard: if an incoming `updatedAt` is more than 5 minutes in the future, the server uses its own current time instead.
+A clock guard: if an incoming `updatedAt` is more than 5 minutes in the future, the server uses its own current time instead. The same goes for `deletedAt`, so a tombstone from a fast clock is still purged after 90 days.
+
+The same `id` twice in one request is merged in order, so the later change is compared with the earlier one. A change the server can't read at all (an `id` that isn't a UUID, or a check-in missing a required field from §5.3) fails the whole request with `400`, like malformed JSON. These come only from bugs, because the phone builds changes from its own rows.
 
 **Response `200`**
 ```json
@@ -485,7 +487,7 @@ A clock guard: if an incoming `updatedAt` is more than 5 minutes in the future, 
 - The whole request fails with `500 INTERNAL` → add 1 to `sync_attempts` on each row in the batch. At 10, set `sync_error = "FAILED"` and stop retrying that row. Other failures (network, 429, 502–504) don't count.
 - Rows with `sync_error` set are left out of later pushes until the user taps **Try again** in Account or edits the check-in ([Technical plan §8](technical-plan.md#when-a-change-cant-upload)).
 
-**Errors:** `403 EMAIL_NOT_VERIFIED` · `413 PAYLOAD_TOO_LARGE` · `429 RATE_LIMITED`
+**Errors:** `400 BAD_REQUEST` · `400 VALIDATION_FAILED` · `403 EMAIL_NOT_VERIFIED` · `403 ACCOUNT_DELETED` · `413 PAYLOAD_TOO_LARGE` (over 200 changes, or a body over 1 MB) · `429 RATE_LIMITED`
 
 ---
 
@@ -548,6 +550,11 @@ A small check for the Account screen.
 ```json
 { "checkInCount": 128, "latestServerSeq": 1043, "lastPushAt": "2026-11-04T02:00:01.250Z" }
 ```
+- `checkInCount`: the caller's check-ins, deletes left out.
+- `latestServerSeq`: the highest `serverSeq` among the caller's rows, tombstones included. `0` when there are none.
+- `lastPushAt`: when the server last stored one of the caller's changes. A push of only `STALE` changes doesn't move it. Left out when nothing was ever stored.
+
+Like push and pull, it needs a verified identity (`403 EMAIL_NOT_VERIFIED`).
 
 ---
 
@@ -680,10 +687,10 @@ data class CheckInDto(
     val energy: Int? = null,
     val stress: Int? = null,
     val stressAfter: Int? = null,
-    val trigger: Trigger? = null,
-    val triggerOther: String? = null,
+    val trigger: String? = null,          // enum names as strings: an unknown one rejects one change (INVALID_ENUM),
+    val triggerOther: String? = null,     // not the whole request
     val note: String? = null,
-    val supportUsed: SupportType? = null,
+    val supportUsed: String? = null,
     val isGoodMoment: Boolean? = null,
     val loggedAt: Instant? = null,
     val tzOffsetMin: Int? = null,
@@ -696,7 +703,8 @@ data class CheckInDto(
 @Serializable data class PushResult(val id: String, val serverSeq: Long, val status: PushStatus)
 @Serializable data class PushRejection(val id: String, val reason: String, val field: String? = null)
 @Serializable data class PushResponse(val accepted: List<PushResult>, val rejected: List<PushRejection>, val serverTime: Instant)
-@Serializable data class PullResponse(val changes: List<CheckInDto>, val nextSince: Long, val hasMore: Boolean, val resetRequired: Boolean = false, val serverTime: Instant)
+@Serializable data class PullResponse(val changes: List<CheckInDto>, val nextSince: Long, val hasMore: Boolean, val resetRequired: Boolean, val serverTime: Instant)
+@Serializable data class SyncStatusResponse(val checkInCount: Long, val latestServerSeq: Long, val lastPushAt: Instant? = null)
 @Serializable enum class PushStatus { APPLIED, STALE }
 ```
 
@@ -721,6 +729,8 @@ WHERE check_ins.user_id = :userId
 RETURNING id, server_seq;
 ```
 Rows not returned are either `STALE` (read their current `server_seq`) or `FORBIDDEN` (the row belongs to another user).
+
+As built (`SyncService`, `SyncDal`), the same rules run as a `SELECT … FOR UPDATE` of the batch's ids followed by one `INSERT` or `UPDATE` per change, in one transaction. The push first locks the user row (`FOR NO KEY UPDATE`), so one user's pushes run one at a time. That keeps each user's `server_seq` values committing in order, so a pull can never move a cursor past a change that commits later.
 
 ---
 

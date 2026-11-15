@@ -396,6 +396,8 @@ docker run -d --name ulap-server -p 8080:8080 --env-file .env.production ulap-se
 
 **Migrations:** in staging and production, run them as their own step **before** starting the new server: `docker compose run --rm migrate`, then `docker compose up -d --wait`. The server doesn't migrate on startup there (only in development). For zero-downtime releases, only ship **backward-compatible** migrations (add columns, then remove them in a later release).
 
+**Scheduled jobs:** the `scheduler` service runs from the same image (`app.ulap.server.scheduler.SchedulerKt`) and needs only the database variables. It purges tombstones older than 90 days at 03:00 Manila time ([ulap-reference §6.6](docs/ulap-reference.md#66-jobs-without-redis-pattern)). `docker compose up -d --wait` starts it with the server.
+
 ### 7.2 Android release
 
 1. Create a release keystore (keep it safe and **never commit it**).

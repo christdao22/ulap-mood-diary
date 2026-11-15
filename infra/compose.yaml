@@ -6,7 +6,7 @@
 # Bump them here, for every environment at once. The Testcontainers tests use the same Postgres tag.
 name: ulap
 
-# The server and migrate run the same image, built from the fat JAR:
+# The server, migrate and scheduler run the same image, built from the fat JAR:
 #   ./gradlew :server:buildFatJar   (then compose builds server/Dockerfile)
 x-server-build: &server-build
   context: ..
@@ -20,7 +20,7 @@ x-hardening: &hardening
   security_opt: ["no-new-privileges:true"]
   tmpfs: [/tmp]
 
-# How the server and migrate reach Postgres inside the Compose network.
+# How the server, migrate and scheduler reach Postgres inside the Compose network.
 x-database-env: &database-env
   DATABASE_URL: jdbc:postgresql://postgres:5432/ulap
   DATABASE_USER: ulap
@@ -80,6 +80,20 @@ services:
       timeout: 3s
       retries: 5
       start_period: 20s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # Daily jobs (ulap-reference.md §6.6): purge-tombstones at 03:00 Asia/Manila. One copy only,
+  # so a job never runs twice. Needs only the database variables.
+  scheduler:
+    image: ${SERVER_IMAGE:-ulap-server:local}
+    build: *server-build
+    <<: *hardening
+    entrypoint: ["java", "-cp", "/app/app.jar", "app.ulap.server.scheduler.SchedulerKt"]
+    environment:
+      <<: *database-env
     depends_on:
       migrate:
         condition: service_completed_successfully

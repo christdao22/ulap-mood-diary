@@ -244,12 +244,14 @@ server/src/main/kotlin/app/ulap/server/
 | DAL | Exposed queries only. Every function takes an optional transaction. |
 | Deps | `AppDeps` is passed into `module()`, so `testApplication` tests pass fakes (macro-tracker's `AppDeps` pattern). |
 
-As built (Phase 6), the packages are flat: `common/` instead of `lib/`, and `health/`, `meta/`, `auth/`, `users/` directly under the server package instead of `modules/<m>/`. The layering rules above are what matter; the folder names are a Proposed change to this sketch until the owner decides.
+As built (Phases 6–7), the packages are flat: `common/` instead of `lib/`, and `health/`, `meta/`, `auth/`, `users/`, `sync/` directly under the server package instead of `modules/<m>/`. The sync rules live in `SyncService` (no separate `SyncRules.kt`), and the scheduler is `scheduler/Scheduler.kt` instead of `jobs/`. The layering rules above are what matter; the folder names are a Proposed change to this sketch until the owner decides.
 
 ### 6.2 Plugin order **[pattern]**
 macro-tracker's middleware order (MT §4), mapped to Ktor `install` order:
 
 1. `CallId` (`X-Request-Id`) → 2. `Compression` → 3. app-version gate (426) → 4. rate limits for auth routes → 5. `Authentication` (JWT) → 6. per-route rate limits → 7. routes
+
+As built, `StatusPages` and the 1 MB `RequestBodyLimit` (413, [API §11](api-spec.md#11-security-and-privacy)) are installed just before the app-version gate.
 
 ### 6.3 Errors **[pattern]**
 - Keep Ulap's shape `{ error: { code, message, details, requestId } }` ([API §4](api-spec.md#4-errors)). macro-tracker also returns `status`. Not needed, since the HTTP status already says it.
@@ -270,6 +272,8 @@ macro-tracker runs BullMQ jobs from a second entry point (`scheduler.ts`) using 
 | `purge-tombstones` | 03:00 daily | Delete `check_ins` tombstones older than 90 days |
 | `purge-tokens` | 03:15 daily | Delete expired or revoked refresh and email tokens |
 | (backup runs in its own container) | 04:30 daily | See §8 |
+
+As built (Phase 7): `app.ulap.server.scheduler.SchedulerKt` runs `purge-tombstones` as the `scheduler` Compose service. `purge-tokens` isn't built yet.
 
 Recommendation: a `Schedule.kt` table in the server and a separate `main` (`app.ulap.server.SchedulerKt`) run as a `scheduler` Compose service from the **same image**, so the jobs never run twice when the API scales. No Redis is needed for v1. The Ktor `RateLimit` plugin is in-memory, which is fine for **one** API instance. Add a shared store only if you run more than one.
 

@@ -23,7 +23,7 @@ Last updated: November 12, 2026
 | 4 | Reports | ✅ Complete | 17 / 17 |
 | 5 | Languages and onboarding | 🟡 In progress | 12 / 15 |
 | 6 | Server and accounts | 🟡 In progress | 9 / 28 |
-| 7 | Sync | ⬜ Not started | 0 / 25 |
+| 7 | Sync | 🟡 In progress | 0 / 25 |
 | 8 | Privacy, safety and polish | ⬜ Not started | 0 / 23 |
 | 9 | Testing and beta | ⬜ Not started | 0 / 15 |
 | 10 | Release v1.0 | ⬜ Not started | 0 / 15 |
@@ -290,14 +290,14 @@ Spec: [API reference §3–§7 and §10–§12](docs/api-spec.md#3-authenticatio
 Spec: [API reference §8](docs/api-spec.md#8-sync-endpoints-) · [Technical plan §8](docs/technical-plan.md#8-sync-design)
 
 ### Server 🔒
-- [ ] `POST /sync/push` (max 200 changes, merge by `updatedAt`, APPLIED/STALE/rejected)
-- [ ] Clock guard (future `updatedAt` → server time)
-- [ ] Tombstones: clear `note` and `triggerOther` when deleted
-- [ ] `GET /sync/pull` (since, limit, in order, `hasMore`)
-- [ ] `resetRequired` on pull: cursor below `purged_through_seq`, or above the latest `serverSeq` ([API reference §8.3](docs/api-spec.md#83-get-syncpull))
-- [ ] `GET /sync/status`
-- [ ] Block sync until the email is verified (`403 EMAIL_NOT_VERIFIED`)
-- [ ] Scheduled job to purge tombstones older than 90 days. It raises `sync_purge.purged_through_seq` in the same transaction.
+- [ ] `POST /sync/push` (max 200 changes, merge by `updatedAt`, APPLIED/STALE/rejected) ⏳
+- [ ] Clock guard (future `updatedAt` → server time) ⏳
+- [ ] Tombstones: clear `note` and `triggerOther` when deleted ⏳
+- [ ] `GET /sync/pull` (since, limit, in order, `hasMore`) ⏳
+- [ ] `resetRequired` on pull: cursor below `purged_through_seq`, or above the latest `serverSeq` ([API reference §8.3](docs/api-spec.md#83-get-syncpull)) ⏳
+- [ ] `GET /sync/status` ⏳
+- [ ] Block sync until the email is verified (`403 EMAIL_NOT_VERIFIED`) ⏳
+- [ ] Scheduled job to purge tombstones older than 90 days. It raises `sync_purge.purged_through_seq` in the same transaction. ⏳
 
 ### Android 🔒
 - [ ] `SyncApi` with the shared DTOs
@@ -314,8 +314,8 @@ Spec: [API reference §8](docs/api-spec.md#8-sync-endpoints-) · [Technical plan
 - [ ] Offline banner text: "Saved on this phone. Will back up when you're online."
 
 ### Tests
-- [ ] Push: insert, newer, older (STALE), delete, edit after delete, another user's ID (FORBIDDEN), 201 → 413
-- [ ] Pull: paging from `since=0`, tombstones, order
+- [ ] Push: insert, newer, older (STALE), delete, edit after delete, another user's ID (FORBIDDEN), 201 → 413 ⏳
+- [ ] Pull: paging from `since=0`, tombstones, order ⏳
 - [ ] Reset: an old cursor → `resetRequired`. The phone's full resync removes purged rows, keeps `PENDING` rows, and carries on after the app is killed.
 - [ ] Two devices edit the same entry offline → both end with the newest version
 - [ ] Network drops halfway through a sync → retry completes without duplicates

@@ -21,8 +21,7 @@ data class RateLimitRule(val limit: Int, val period: Duration)
  * The limits from api-spec.md §10. Tests pass smaller ones through `AppDeps`.
  * [default] and [authToken] are Ktor `RateLimit` limiters, keyed from headers. The email-keyed
  * ones ([emailSignIn], [emailSignInDaily], [emailSend]) need the email from the request body, so
- * the auth services apply them with a [WindowLimiter] (see `AuthLimits`). `/sync/push` (60/min)
- * and `/sync/pull` (120/min) by user arrive in Phase 7.
+ * the auth services apply them with a [WindowLimiter] (see `AuthLimits`).
  */
 data class RateLimitSettings(
     /** Everything else: 120 per minute by user or IP. */
@@ -35,6 +34,10 @@ data class RateLimitSettings(
     val emailSignInDaily: RateLimitRule = RateLimitRule(limit = 50, period = 1.days),
     /** `/auth/password/forgot` and `/auth/email/resend-verification`: 3 per hour by email. */
     val emailSend: RateLimitRule = RateLimitRule(limit = 3, period = 1.hours),
+    /** `/sync/push`: 60 per minute by user. */
+    val syncPush: RateLimitRule = RateLimitRule(limit = 60, period = 1.minutes),
+    /** `/sync/pull`: 120 per minute by user. */
+    val syncPull: RateLimitRule = RateLimitRule(limit = 120, period = 1.minutes),
 )
 
 object RateLimits {
@@ -43,6 +46,12 @@ object RateLimits {
 
     /** `/auth/google` and `/auth/refresh`: 30 per minute by IP + device (api-spec.md §10). */
     val AUTH_TOKEN: RateLimitName = RateLimitName("auth-token")
+
+    /** `/sync/push`: 60 per minute by user (api-spec.md §10). */
+    val SYNC_PUSH: RateLimitName = RateLimitName("sync-push")
+
+    /** `/sync/pull`: 120 per minute by user (api-spec.md §10). */
+    val SYNC_PULL: RateLimitName = RateLimitName("sync-pull")
 
     /**
      * Cloudflare's tunnel is the only way in to production (no open ports, ulap-reference.md
@@ -78,6 +87,16 @@ fun Application.installRateLimits(settings: RateLimitSettings, accessTokens: Acc
             requestKey { call ->
                 RateLimits.clientIp(call) + "|" + call.request.headers[Api.HEADER_DEVICE_ID].orEmpty()
             }
+        }
+        // Sync routes need a token, so these are per user; a call without one is turned away
+        // by authentication anyway.
+        register(RateLimits.SYNC_PUSH) {
+            rateLimiter(limit = settings.syncPush.limit, refillPeriod = settings.syncPush.period)
+            requestKey { call -> RateLimits.userOrIp(call, accessTokens) }
+        }
+        register(RateLimits.SYNC_PULL) {
+            rateLimiter(limit = settings.syncPull.limit, refillPeriod = settings.syncPull.period)
+            requestKey { call -> RateLimits.userOrIp(call, accessTokens) }
         }
     }
 }
