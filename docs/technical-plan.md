@@ -180,8 +180,22 @@ Indexes: `(deleted_at, logged_at)`, `(sync_state)`, `(mood_code)`.
 ### `pull_seen`
 One column, `id` (TEXT, primary key). Used only during a full resync (§8): it holds the IDs of every live check-in the server sent, and it's emptied when the resync ends.
 
+### `sync_position`
+One row: where sync is. It lives in Room, not DataStore, so every sync step changes the check-ins and the position in one transaction, and a new database (a lost Keystore key, or "Delete account and all data") starts sync again from nothing.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | INTEGER | Always 0 |
+| `owner_user_id` | TEXT NULL | The account these check-ins belong to, set at sign-in (§8, First sign-in) |
+| `last_pull_seq` | INTEGER | The last `serverSeq` pulled. 0 pulls everything |
+| `sync_resetting` | INTEGER (bool) | True while a download from 0 is running (§8, Full resync) |
+| `last_sync_at` | INTEGER NULL | When the last sync finished, for Account |
+| `asking_to_add` | INTEGER (bool) | Waiting for "Add this phone's check-ins to your account?". Nothing syncs until then |
+
+No row means every default.
+
 ### Settings (DataStore, not Room)
-`language` (`en` / `fil` / `ceb`), `mascot_enabled`, `onboarding_done`, `device_id` (UUID), `last_pull_seq`, `last_sync_at`, `sync_resetting` (true while a full resync is running, §8).
+`language` (`en` / `fil` / `ceb`), `mascot_enabled`, `onboarding_done`, `device_id` (UUID).
 
 ### Tokens
 Store refresh tokens in **EncryptedSharedPreferences**, or in DataStore encrypted with an **Android Keystore** key. Never store them in plain text.
@@ -192,7 +206,7 @@ Mood data is sensitive, so the **whole Room database is encrypted with SQLCipher
 - **Passphrase:** 32 random bytes, made once per install with `SecureRandom`.
 - **Where it's kept:** encrypted with a Tink AEAD keyset, in a file in `noBackupFilesDir`. The keyset itself is locked by a key in the **Android Keystore**, which never leaves the phone's secure hardware.
 - **Opening the database:** Room uses SQLCipher's `SupportOpenHelperFactory` with that passphrase. Reading the Keystore is slow, so build the database off the main thread.
-- **If the Keystore key is lost** (app data restored onto another phone, or the lock screen was reset), the old database can't be opened. Delete it, start an empty one and set `last_pull_seq` to 0. A signed-in user gets their synced check-ins back from the server on the next sync. A guest's check-ins, and any that hadn't synced yet, are gone. That's the price of real encryption.
+- **If the Keystore key is lost** (app data restored onto another phone, or the lock screen was reset), the old database can't be opened. Delete it and start an empty one. The sync position is in the same database, so `last_pull_seq` starts at 0 by itself. A signed-in user gets their synced check-ins back from the server on the next sync. A guest's check-ins, and any that hadn't synced yet, are gone. That's the price of real encryption.
 - **Backups:** turn off cloud backup of the database (`android:allowBackup="false"`, or exclude the database and the passphrase file in the backup rules). The server sync is the backup.
 - **Tests:** an instrumented test checks that the database file can't be opened without the passphrase.
 
@@ -323,7 +337,10 @@ Same schedule as [API reference §8.6](api-spec.md#86-when-the-app-syncs): after
 - While someone is signed in, it schedules the 6-hour periodic job and watches a Room `Flow` of the count of rows with `sync_state = PENDING` and `sync_error IS NULL`. When that count is above 0, it requests a sync 5 seconds later, so a burst of quick edits goes up in one push.
 - It also requests a sync when the app comes to the foreground (if the last sync was more than 15 minutes ago).
 - Requests go to one unique WorkManager job, so two syncs never run at once. Network required.
-- **Backoff:** when a run fails (network, 429, 5xx), `SyncWorker` returns `Result.retry()` with `BackoffPolicy.EXPONENTIAL` starting at **30 seconds**. Inside one run, single HTTP calls still use the short retries in [API reference §4](api-spec.md#retry-policy-client).
+- **Backoff:** when a run fails (network, 429, 5xx), `SyncWorker` returns `Result.retry()` with `BackoffPolicy.EXPONENTIAL` starting at **30 seconds**. Inside one run, single HTTP calls still use the short retries in [API reference §4](api-spec.md#retry-policy-client), for outages only (no answer, 429, 502, 503, 504). A `500 INTERNAL` ends the run at once, because each one counts against the rows in the push (below).
+- The 6-hour job is a second unique WorkManager job (WorkManager can't mix periodic and one-time work under one name). `SyncEngine` runs one sync at a time, so the two never overlap.
+- A run stops without retrying, and waits for the next trigger, on 401 (the session ended), 403 (`EMAIL_NOT_VERIFIED`, `ACCOUNT_DELETED`) and 426. `SyncTriggers` also asks for a run when the email becomes verified.
+- `413 PAYLOAD_TOO_LARGE` sends the same rows again in half-size batches: 200 long notes can pass the 1 MB body limit.
 
 ### When a change can't upload
 A row stops trying when `sync_error` is set. It stays on the phone and in every screen. Only uploading stops.
@@ -336,15 +353,17 @@ A row stops trying when `sync_error` is set. It stays on the phone and in every 
 Tombstones are purged after 90 days. A phone that was offline longer than that would never hear about those deletes, so the server tells it to start over ([API reference §8.3](api-spec.md#83-get-syncpull), D6).
 1. A pull returns `resetRequired: true` with no changes. The server does that when `0 < since < purged_through_seq`, or when `since` is higher than any `server_seq` it has (the database was restored, or it's a different server).
 2. The phone, in one transaction: empties `pull_seen`, sets `last_pull_seq = 0` and `sync_resetting = true`.
-3. It pulls from `since = 0` with the normal merge. While `sync_resetting` is true, it also adds the ID of every pulled change that isn't a tombstone to `pull_seen`.
-4. When the last page arrives (`hasMore = false`), in one transaction: delete local `SYNCED` rows whose ID isn't in `pull_seen`, empty `pull_seen`, and set `sync_resetting = false`.
+3. It pulls from `since = 0` with the normal merge, each page with `full=true` ([API reference §8.3](api-spec.md#83-get-syncpull)). Its cursor passes below the server's purge line on the way up, and without `full` the server would ask for a reset again on every page. While `sync_resetting` is true, it also adds the ID of every pulled change that isn't a tombstone to `pull_seen`. Each page, its merge and the new `last_pull_seq` are one transaction.
+4. When the last page arrives (`hasMore = false`), in the same transaction as that page: delete local `SYNCED` rows whose ID isn't in `pull_seen`, empty `pull_seen`, and set `sync_resetting = false`.
 5. `PENDING` rows are never removed. They push as usual. If the app is killed halfway, `sync_resetting` is still true, so the next run carries on.
+6. **Every download from 0 runs this way**, not only after `resetRequired`: a first sign-in and a new database too. Their cursor crosses the purge line the same way.
 
 ### First sign-in (guest → account)
 Follows [API reference §8.5](api-spec.md#85-first-sign-in-from-guest-mode):
-1. The user signs in, and `isNewUser` comes back in the auth response.
+1. The user signs in, and `isNewUser` comes back in the auth response. Before the session is saved, the phone sorts out its check-ins (below) in one transaction and records the account in `sync_position.owner_user_id`. Signing in again to that same account skips all of this and carries on where sync was.
 2. **New account:** mark all local check-ins `PENDING`, push everything, then pull from `since = 0`.
-3. **Existing account, and this phone has guest check-ins:** ask **"Add this phone's check-ins to your account?"** → **Add them** (push all, then pull) or **Don't add** (delete the local guest check-ins, then pull).
+3. **Existing account, and this phone has guest check-ins:** ask **"Add this phone's check-ins to your account?"** → **Add them** (push all, then pull) or **Don't add** (delete the local guest check-ins, then pull). Nothing syncs until the answer. Tapping outside the dialog isn't an answer: it closes it until Account opens again.
+4. Check-ins another account left on this phone count as this phone's check-ins. Local tombstones are dropped before a first upload: the account never had those check-ins.
 
 ---
 

@@ -3,6 +3,7 @@ package app.ulap.core.data.erase
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.ulap.core.data.checkin.OfflineFirstCheckInRepository
+import app.ulap.core.database.SyncLock
 import app.ulap.core.database.UlapDatabase
 import app.ulap.core.domain.checkin.SaveResult
 import app.ulap.core.domain.settings.SettingsRepository
@@ -71,7 +72,7 @@ class OnDeviceDataEraserTest {
         settings.setMascotEnabled(false)
         settings.setOnboardingDone()
 
-        OnDeviceDataEraser(database, settings, Dispatchers.Unconfined).eraseAll()
+        OnDeviceDataEraser(database, settings, SyncLock(), Dispatchers.Unconfined).eraseAll()
 
         assertEquals(emptyList(), database.checkInDao().observeAll().first())
         assertEquals(UserSettings(), settings.settings.value)

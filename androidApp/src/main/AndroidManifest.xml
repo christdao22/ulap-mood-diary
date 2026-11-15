@@ -48,6 +48,19 @@
             </intent-filter>
         </activity>
 
+        <!-- WorkManager starts on first use with UlapApp's configuration (Hilt's worker
+             factory), not with its own default at app start. -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
         <!-- Below Android 13, AppCompat saves the chosen app language itself and restores it on
              launch (technical-plan.md §11). From 13 on, the system keeps it. -->
         <service

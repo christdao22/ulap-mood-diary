@@ -2,10 +2,12 @@ package app.ulap.feature.account
 
 import app.ulap.core.domain.account.AccountState
 import app.ulap.core.domain.account.AuthProblem
+import app.ulap.core.domain.sync.SyncStatus
 import app.ulap.core.model.AppLanguage
 import app.ulap.core.model.UserSettings
 import app.ulap.core.testing.FakeAccountRepository
 import app.ulap.core.testing.FakeSettingsRepository
+import app.ulap.core.testing.FakeSyncRepository
 import app.ulap.core.testing.MainDispatcherRule
 import app.ulap.feature.account.signin.SignInMessage
 import kotlin.test.Test
@@ -24,7 +26,7 @@ class AccountViewModelTest {
     @Test
     fun `the Language row follows the saved language`() = runTest {
         val settings = FakeSettingsRepository(UserSettings(language = AppLanguage.ENGLISH))
-        val viewModel = AccountViewModel(settings, FakeAccountRepository())
+        val viewModel = AccountViewModel(settings, FakeAccountRepository(), FakeSyncRepository())
         assertEquals(AppLanguage.ENGLISH, viewModel.language.first { it != null })
 
         settings.settings.update { it.copy(language = AppLanguage.BISAYA) }
@@ -35,14 +37,14 @@ class AccountViewModelTest {
     @Test
     fun `the Ulap switch follows the saved setting`() = runTest {
         val settings = FakeSettingsRepository(UserSettings(mascotEnabled = false))
-        val viewModel = AccountViewModel(settings, FakeAccountRepository())
+        val viewModel = AccountViewModel(settings, FakeAccountRepository(), FakeSyncRepository())
         assertFalse(viewModel.mascotEnabled.first { !it })
     }
 
     @Test
     fun `turning Ulap off saves it, and turning it back on saves that too`() = runTest {
         val settings = FakeSettingsRepository(UserSettings(mascotEnabled = true))
-        val viewModel = AccountViewModel(settings, FakeAccountRepository())
+        val viewModel = AccountViewModel(settings, FakeAccountRepository(), FakeSyncRepository())
 
         viewModel.setMascotEnabled(false)
         assertFalse(settings.settings.first { !it.mascotEnabled }.mascotEnabled)
@@ -52,9 +54,23 @@ class AccountViewModelTest {
     }
 
     @Test
+    fun `the sync row follows the sync status and passes on each request`() = runTest {
+        val sync = FakeSyncRepository(SyncStatus(stuckCount = 2, askToAddCheckIns = true))
+        val viewModel = AccountViewModel(FakeSettingsRepository(), FakeAccountRepository(), sync)
+        assertEquals(2, viewModel.sync.first { it != null }?.stuckCount)
+
+        viewModel.syncNow()
+        viewModel.retryStuck()
+        viewModel.answerAddCheckIns(add = false)
+
+        assertEquals(listOf("syncNow", "retryStuck", "add:false"), sync.calls)
+        assertEquals(SyncStatus(), viewModel.sync.first { it == SyncStatus() })
+    }
+
+    @Test
     fun `the account card follows the saved session`() = runTest {
         val accounts = FakeAccountRepository(AccountState.SignInAgain)
-        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts)
+        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts, FakeSyncRepository())
         assertEquals(AccountState.SignInAgain, viewModel.account.first { it != null })
 
         accounts.state.value = AccountState.Guest
@@ -65,7 +81,7 @@ class AccountViewModelTest {
     @Test
     fun `sending the verification link again reports how it went`() = runTest {
         val accounts = FakeAccountRepository()
-        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts)
+        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts, FakeSyncRepository())
 
         viewModel.resendVerification()
         assertEquals(ResendState.Sent, viewModel.resend.value)
@@ -78,7 +94,7 @@ class AccountViewModelTest {
     @Test
     fun `signing out goes through the repository`() = runTest {
         val accounts = FakeAccountRepository(AccountState.SignedIn(FakeAccountRepository().profile))
-        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts)
+        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts, FakeSyncRepository())
 
         viewModel.signOut()
 
@@ -89,7 +105,7 @@ class AccountViewModelTest {
     @Test
     fun `delete with backup asks the server, and a failure keeps everything`() = runTest {
         val accounts = FakeAccountRepository(AccountState.SignedIn(FakeAccountRepository().profile))
-        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts)
+        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts, FakeSyncRepository())
         accounts.nextProblem = AuthProblem.OFFLINE
 
         viewModel.deleteEverything(withBackup = true)
@@ -107,7 +123,7 @@ class AccountViewModelTest {
     @Test
     fun `delete without backup only erases this phone`() = runTest {
         val accounts = FakeAccountRepository(AccountState.SignInAgain)
-        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts)
+        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts, FakeSyncRepository())
 
         viewModel.deleteEverything(withBackup = false)
 
@@ -118,7 +134,7 @@ class AccountViewModelTest {
     @Test
     fun `an ended session asks to sign in again before the backup can go`() = runTest {
         val accounts = FakeAccountRepository(AccountState.SignedIn(FakeAccountRepository().profile))
-        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts)
+        val viewModel = AccountViewModel(FakeSettingsRepository(), accounts, FakeSyncRepository())
         accounts.nextProblem = AuthProblem.SIGNED_OUT
 
         viewModel.deleteEverything(withBackup = true)

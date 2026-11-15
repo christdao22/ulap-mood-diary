@@ -109,6 +109,9 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
+    // UlapApp gives WorkManager Hilt's worker factory, so SyncWorker is built with its engine.
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.hilt.work)
     // The NavHost and the tab bar's back stack. Features add their own screens to it.
     implementation(libs.androidx.navigation.compose)
 

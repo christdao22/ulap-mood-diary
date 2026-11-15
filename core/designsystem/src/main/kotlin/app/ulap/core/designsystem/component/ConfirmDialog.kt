@@ -16,6 +16,9 @@ import app.ulap.core.designsystem.theme.UlapTheme
  * Asks before something that can't be undone, e.g. "Delete this check-in? This can't be undone."
  * with Delete · Keep (design-spec.md §7.6). Flat on `surface` (§4). Tapping outside or Back is
  * the same as [dismissLabel]: nothing happens.
+ *
+ * When [dismissLabel] is itself a choice that changes something ("Don't add"), pass
+ * [onDismissRequest] too, so tapping outside or Back only closes the dialog for now.
  */
 @Composable
 fun UlapConfirmDialog(
@@ -26,10 +29,11 @@ fun UlapConfirmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit = onDismiss,
 ) {
     val colors = UlapTheme.colors
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = onDismissRequest,
         confirmButton = { DialogButton(text = confirmLabel, onClick = onConfirm) },
         modifier = modifier,
         dismissButton = { DialogButton(text = dismissLabel, onClick = onDismiss) },

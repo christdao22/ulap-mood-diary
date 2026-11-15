@@ -294,31 +294,31 @@ Spec: [API reference §8](docs/api-spec.md#8-sync-endpoints-) · [Technical plan
 - [ ] Clock guard (future `updatedAt` → server time) ⏳
 - [ ] Tombstones: clear `note` and `triggerOther` when deleted ⏳
 - [ ] `GET /sync/pull` (since, limit, in order, `hasMore`) ⏳
-- [ ] `resetRequired` on pull: cursor below `purged_through_seq`, or above the latest `serverSeq` ([API reference §8.3](docs/api-spec.md#83-get-syncpull)) ⏳
+- [ ] `resetRequired` on pull: cursor below `purged_through_seq`, or above the latest `serverSeq` ([API reference §8.3](docs/api-spec.md#83-get-syncpull)). `full=true` skips the purge-line check, so a download from 0 can page past it ⏳
 - [ ] `GET /sync/status` ⏳
 - [ ] Block sync until the email is verified (`403 EMAIL_NOT_VERIFIED`) ⏳
 - [ ] Scheduled job to purge tombstones older than 90 days. It raises `sync_purge.purged_through_seq` in the same transaction. ⏳
 
 ### Android 🔒
 - [ ] `SyncApi` with the shared DTOs ⏳
-- [ ] `SyncEngine`: push PENDING in batches → pull until `hasMore = false` → save `lastPullSeq`
-- [ ] Merge pulled changes (local PENDING and newer → keep local)
-- [ ] Full resync on `resetRequired`: `pull_seen` table, `sync_resetting` flag, remove `SYNCED` rows the server didn't send ([Technical plan §8](docs/technical-plan.md#full-resync-resetrequired))
-- [ ] Handle rejected changes and internal errors: `sync_error = reason` right away, `sync_attempts`, then `FAILED` after 10 × `500 INTERNAL`. No endless retry ([Technical plan §8](docs/technical-plan.md#when-a-change-cant-upload)).
-- [ ] `SyncTriggers`: watches pending rows (repositories never schedule sync), syncs 5 seconds after a write and on app open, keeps the 6-hour job while signed in, cancels it all on sign-out ([Technical plan §8](docs/technical-plan.md#when-sync-runs))
-- [ ] `SyncWorker`: one unique job, network required, exponential backoff starting at 30 seconds
-- [ ] Account: "Sync now" plus last-synced time
-- [ ] Account: "%d check-ins couldn't back up yet. They're still saved on this phone." + Try again ([Design spec §7.8](docs/design-spec.md#78-account))
-- [ ] Guest → new account: upload everything
-- [ ] Guest → existing account: the "Add this phone's check-ins?" prompt
-- [ ] Offline banner text: "Saved on this phone. Will back up when you're online."
+- [ ] `SyncEngine`: push PENDING in batches → pull until `hasMore = false` → save `lastPullSeq` ⏳
+- [ ] Merge pulled changes (local PENDING and newer → keep local) ⏳
+- [ ] Full resync on `resetRequired`: `pull_seen` table, `sync_resetting` flag, remove `SYNCED` rows the server didn't send ([Technical plan §8](docs/technical-plan.md#full-resync-resetrequired)) ⏳
+- [ ] Handle rejected changes and internal errors: `sync_error = reason` right away, `sync_attempts`, then `FAILED` after 10 × `500 INTERNAL`. No endless retry ([Technical plan §8](docs/technical-plan.md#when-a-change-cant-upload)). ⏳
+- [ ] `SyncTriggers`: watches pending rows (repositories never schedule sync), syncs 5 seconds after a write and on app open, keeps the 6-hour job while signed in, cancels it all on sign-out ([Technical plan §8](docs/technical-plan.md#when-sync-runs)) ⏳
+- [ ] `SyncWorker`: one unique job, network required, exponential backoff starting at 30 seconds ⏳
+- [ ] Account: "Sync now" plus last-synced time ⏳
+- [ ] Account: "%d check-ins couldn't back up yet. They're still saved on this phone." + Try again ([Design spec §7.8](docs/design-spec.md#78-account)) ⏳
+- [ ] Guest → new account: upload everything ⏳
+- [ ] Guest → existing account: the "Add this phone's check-ins?" prompt ⏳
+- [ ] Offline banner text: "Saved on this phone. Will back up when you're online." ⏳
 
 ### Tests
 - [ ] Push: insert, newer, older (STALE), delete, edit after delete, another user's ID (FORBIDDEN), 201 → 413 ⏳
 - [ ] Pull: paging from `since=0`, tombstones, order ⏳
-- [ ] Reset: an old cursor → `resetRequired`. The phone's full resync removes purged rows, keeps `PENDING` rows, and carries on after the app is killed.
-- [ ] Two devices edit the same entry offline → both end with the newest version
-- [ ] Network drops halfway through a sync → retry completes without duplicates
+- [ ] Reset: an old cursor → `resetRequired`. The phone's full resync removes purged rows, keeps `PENDING` rows, and carries on after the app is killed. ⏳
+- [ ] Two devices edit the same entry offline → both end with the newest version ⏳
+- [ ] Network drops halfway through a sync → retry completes without duplicates ⏳
 
 **Phase 7 complete when:** two phones signed into the same account show the same check-ins after editing offline and reconnecting.
 

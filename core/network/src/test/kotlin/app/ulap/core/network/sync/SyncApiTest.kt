@@ -181,6 +181,22 @@ class SyncApiTest {
         api.pull(since = 0)
 
         assertEquals(SyncLimits.PULL_DEFAULT_LIMIT.toString(), checkNotNull(seen).url.parameters["limit"])
+        assertEquals(null, checkNotNull(seen).url.parameters["full"])
+    }
+
+    @Test
+    fun `a page of a download from 0 says full`() = runTest {
+        var seen: HttpRequestData? = null
+        val api = KtorSyncApi(
+            testClient { request ->
+                seen = request
+                respondJson(emptyPage(resetRequired = false))
+            },
+        )
+
+        api.pull(since = 500, full = true)
+
+        assertEquals("true", checkNotNull(seen).url.parameters["full"])
     }
 
     @Test

@@ -499,6 +499,7 @@ The same `id` twice in one request is merged in order, so the later change is co
 |---|---|---|---|
 | `since` | long | `0` | The last `serverSeq` the phone has. `0` = everything. |
 | `limit` | int | `500` | 1–1000 |
+| `full` | boolean | `false` | `true` while the phone downloads everything from `since = 0` (a first sign-in or a full resync). The server then skips the purge-line check below, because the phone's own cursor passes under it page by page. |
 
 **Response `200`**
 ```json
@@ -524,7 +525,7 @@ The same `id` twice in one request is merged in order, so the later change is co
 **`resetRequired`** (D6 in [ulap-reference §13](ulap-reference.md#13-decision-log))
 
 Tombstones are purged after 90 days, so an old `since` may have missed a delete. The server returns `resetRequired: true` when:
-- `0 < since < purged_through_seq`: a tombstone after this cursor was already purged (`sync_purge`, [Technical plan §7](technical-plan.md#7-server-database-postgresql)), or
+- `0 < since < purged_through_seq` and `full` isn't `true`: a tombstone after this cursor was already purged (`sync_purge`, [Technical plan §7](technical-plan.md#7-server-database-postgresql)), or
 - `since` is higher than any `serverSeq` the server has given out: the cursor comes from another database (a restore, or a different server).
 
 Then the response is `{ "changes": [], "nextSince": 0, "hasMore": true, "resetRequired": true, "serverTime": … }`. The phone starts a **full resync**: it pulls from `since = 0`, notes every ID it receives, and at the end removes local `SYNCED` rows the server didn't send. `PENDING` rows are kept and pushed. Steps: [Technical plan §8](technical-plan.md#full-resync-resetrequired).

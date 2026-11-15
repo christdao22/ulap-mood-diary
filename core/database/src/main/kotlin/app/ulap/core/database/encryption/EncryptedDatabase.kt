@@ -24,8 +24,9 @@ internal fun buildEncryptedDatabase(
         DeferredOpenHelperFactory { configuration ->
             val passphrase = passphraseStore().getOrCreate(
                 beforeNewPassphrase = {
-                    // On a first install there's nothing to delete. Phase 7 sync also has to
-                    // reset last_pull_seq to 0 here so a signed-in user's check-ins come back.
+                    // On a first install there's nothing to delete. The sync position lives in
+                    // the same database, so the new one pulls from 0 and a signed-in person's
+                    // check-ins come back on the next sync.
                     context.deleteDatabase(name)
                 },
             )

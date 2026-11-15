@@ -9,6 +9,7 @@ import app.ulap.core.domain.account.AccountState
 import app.ulap.core.domain.account.AuthProblem
 import app.ulap.core.domain.account.SignInResult
 import app.ulap.core.domain.erase.LocalDataEraser
+import app.ulap.core.domain.sync.SyncSignInPreparer
 import app.ulap.core.network.ApiResult
 import app.ulap.core.network.auth.AuthApi
 import app.ulap.core.network.auth.SessionProfile
@@ -29,12 +30,16 @@ import kotlinx.coroutines.flow.map
  * where a sign-in's tokens are handed to the session, and where API error codes become
  * [AuthProblem]s. Passwords pass straight through to the request and are never kept.
  */
+// Hilt builds it; each dependency is one thing an account action touches (session, three APIs,
+// this phone's diary, sync's handover, the app scope). Grouping them would only hide that.
+@Suppress("LongParameterList")
 internal class SessionAccountRepository @Inject constructor(
     private val sessionManager: SessionManager,
     private val authApi: AuthApi,
     private val signedInAuthApi: SignedInAuthApi,
     private val userApi: UserApi,
     private val eraser: LocalDataEraser,
+    private val syncPreparer: SyncSignInPreparer,
     @param:ApplicationScope private val scope: CoroutineScope,
 ) : AccountRepository {
     override val state: Flow<AccountState> = sessionManager.state.map { state ->
@@ -105,8 +110,15 @@ internal class SessionAccountRepository @Inject constructor(
 
     private suspend fun signIn(result: ApiResult<SessionTokens>): SignInResult = when (result) {
         is ApiResult.Success -> {
-            sessionManager.signedIn(result.value)
-            SignInResult.SignedIn(result.value.isNewUser)
+            val tokens = result.value
+            // The check-ins are made ready first (api-spec.md §8.5), so sync, which starts when
+            // the session appears, never sees this phone's check-ins before they're sorted out.
+            // Both finish even if the sign-in sheet closes in between.
+            runToEnd {
+                syncPreparer.beforeSignIn(tokens.userId, tokens.isNewUser)
+                sessionManager.signedIn(tokens)
+            }
+            SignInResult.SignedIn(tokens.isNewUser)
         }
 
         is ApiResult.Failure -> SignInResult.Failed(result.toProblem())

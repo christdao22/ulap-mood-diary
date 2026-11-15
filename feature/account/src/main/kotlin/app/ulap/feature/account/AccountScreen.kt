@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,6 +33,7 @@ import app.ulap.core.designsystem.component.UlapSettingsSwitchRow
 import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.domain.account.AccountState
+import app.ulap.core.domain.sync.SyncStatus
 import app.ulap.core.model.AppLanguage
 import app.ulap.core.ui.R
 import app.ulap.core.ui.nameRes
@@ -64,6 +66,7 @@ internal fun AccountScreen(
     val account by viewModel.account.collectAsStateWithLifecycle()
     val resend by viewModel.resend.collectAsStateWithLifecycle()
     val delete by viewModel.delete.collectAsStateWithLifecycle()
+    val sync by viewModel.sync.collectAsStateWithLifecycle()
     val signIn by signInViewModel.state.collectAsStateWithLifecycle()
     val currentOnClearSignInStep by rememberUpdatedState(onClearSignInStep)
     LaunchedEffect(openSignInStep) {
@@ -73,17 +76,7 @@ internal fun AccountScreen(
         }
     }
 
-    // Google's picker opens over this Activity (api-spec.md §6.1). The result goes to the
-    // ViewModel even if the sheet was closed meanwhile.
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val continueWithGoogle: () -> Unit = {
-        if (signInViewModel.onGoogleStarted()) {
-            scope.launch {
-                signInViewModel.onGoogleResult(requestGoogleIdToken(context, signInViewModel.googleWebClientId))
-            }
-        }
-    }
+    val continueWithGoogle = rememberContinueWithGoogle(signInViewModel)
 
     AccountContent(
         language = language,
@@ -101,6 +94,8 @@ internal fun AccountScreen(
         onResendVerification = viewModel::resendVerification,
         onSignOut = viewModel::signOut,
         onDeleteEverything = viewModel::deleteEverything,
+        sync = sync,
+        syncActions = SyncActions(viewModel::syncNow, viewModel::retryStuck, viewModel::answerAddCheckIns),
     )
 
     if (signIn.sheetOpen) {
@@ -122,10 +117,12 @@ internal fun AccountScreen(
 /**
  * The Account tab: the account card, then the settings list (design-spec.md §7.8). The card is
  * "Back up and sync" for a guest, "Sign in again" when the server ended the session, and the
- * profile once signed in. Sync and the hotline row join in their own PHASES.md tasks, in the
- * §7.8 order. "Delete account and all data" is always last.
+ * profile once signed in, with the sync row under it once the email is verified. The hotline row
+ * joins in its own PHASES.md task, in the §7.8 order. "Delete account and all data" is always last.
  *
  * @param account Null while the saved session is read: no card yet, so nothing flashes.
+ * @param sync Null until read. Shown only signed in, and it asks "Add this phone's check-ins?"
+ *   when [SyncStatus.askToAddCheckIns].
  */
 @Composable
 internal fun AccountContent(
@@ -144,6 +141,8 @@ internal fun AccountContent(
     onResendVerification: () -> Unit = {},
     onSignOut: () -> Unit = {},
     onDeleteEverything: (withBackup: Boolean) -> Unit = {},
+    sync: SyncStatus? = null,
+    syncActions: SyncActions = SyncActions(),
 ) {
     var confirmSignOut by rememberSaveable { mutableStateOf(false) }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
@@ -168,6 +167,7 @@ internal fun AccountContent(
             onOpenSignIn = onOpenSignIn,
             onResendVerification = onResendVerification,
         )
+        SyncSection(account = account, sync = sync, actions = syncActions)
         SettingsList(
             language = language,
             mascotEnabled = mascotEnabled,
@@ -199,6 +199,48 @@ internal fun AccountContent(
             },
             onDismiss = { confirmDelete = false },
         )
+    }
+}
+
+/**
+ * Google's picker opens over this Activity (api-spec.md §6.1). The result goes to the ViewModel
+ * even if the sheet was closed meanwhile.
+ */
+@Composable
+private fun rememberContinueWithGoogle(signInViewModel: SignInViewModel): () -> Unit {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    return {
+        if (signInViewModel.onGoogleStarted()) {
+            scope.launch {
+                signInViewModel.onGoogleResult(requestGoogleIdToken(context, signInViewModel.googleWebClientId))
+            }
+        }
+    }
+}
+
+/** What the sync row and the "Add this phone's check-ins?" question can ask for. */
+internal data class SyncActions(
+    val onSyncNow: () -> Unit = {},
+    val onTryAgain: () -> Unit = {},
+    val onAnswerAddCheckIns: (add: Boolean) -> Unit = {},
+)
+
+/**
+ * Signed in only. The sync row waits for the verified email, which the profile card asks for.
+ * The question shows until it's answered; closing it without an answer (not saved) puts it off
+ * until Account opens again, and nothing syncs meanwhile.
+ */
+@Composable
+private fun SyncSection(account: AccountState?, sync: SyncStatus?, actions: SyncActions) {
+    val signedIn = account as? AccountState.SignedIn ?: return
+    if (sync == null) return
+    var addLater by remember { mutableStateOf(false) }
+    if (signedIn.profile.emailVerified) {
+        SyncCard(status = sync, onSyncNow = actions.onSyncNow, onTryAgain = actions.onTryAgain)
+    }
+    if (sync.askToAddCheckIns && !addLater) {
+        AddCheckInsDialog(onAnswer = actions.onAnswerAddCheckIns, onLater = { addLater = true })
     }
 }
 

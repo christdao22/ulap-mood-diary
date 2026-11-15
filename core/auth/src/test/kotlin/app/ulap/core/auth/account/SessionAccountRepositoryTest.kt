@@ -8,6 +8,7 @@ import app.ulap.core.domain.account.AccountState
 import app.ulap.core.domain.account.AuthProblem
 import app.ulap.core.domain.account.SignInResult
 import app.ulap.core.domain.erase.LocalDataEraser
+import app.ulap.core.domain.sync.SyncSignInPreparer
 import app.ulap.core.network.ApiResult
 import app.ulap.core.network.auth.AuthApi
 import app.ulap.core.network.auth.SessionProfile
@@ -103,6 +104,9 @@ class SessionAccountRepositoryTest {
     private val eraser = FakeEraser()
     private lateinit var store: SessionStore
 
+    /** What each sign-in handed to sync, and whether the session was saved yet at that moment. */
+    private val prepared = mutableListOf<String>()
+
     @AfterTest
     fun tearDown() {
         dir.deleteRecursively()
@@ -113,12 +117,35 @@ class SessionAccountRepositoryTest {
             CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext.job))
         store = testSessionStore(File(dir, "session.enc"), backgroundScope)
         val manager = SessionManager(store, authApi, clock, scope)
-        return SessionAccountRepository(manager, authApi, signedInApi, userApi, eraser, scope)
+        val preparer = SyncSignInPreparer { userId, isNewUser ->
+            prepared += "$userId:new=$isNewUser:saved=${store.current() != null}"
+        }
+        return SessionAccountRepository(manager, authApi, signedInApi, userApi, eraser, preparer, scope)
     }
 
     private suspend fun SessionAccountRepository.signedIn() {
         authApi.next = ApiResult.Success(tokens)
         signInWithEmail("ana@example.com", "pw")
+    }
+
+    @Test
+    fun `sync gets the check-ins ready before the session is saved`() = runTest {
+        val repository = repository()
+        authApi.next = ApiResult.Success(tokens)
+
+        repository.signInWithEmail("ana@example.com", "pw")
+
+        assertEquals(listOf("user-1:new=true:saved=false"), prepared)
+    }
+
+    @Test
+    fun `a failed sign-in leaves sync alone`() = runTest {
+        val repository = repository()
+        authApi.next = ApiResult.Failure(401, ErrorCode.INVALID_CREDENTIALS)
+
+        repository.signInWithEmail("ana@example.com", "pw")
+
+        assertEquals(emptyList(), prepared)
     }
 
     @Test

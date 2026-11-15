@@ -160,7 +160,7 @@ private fun Avatar(initial: Char) {
 
 /** A standard card (design-spec.md §6.7): surface, 1dp line, radius 16, padding 16. */
 @Composable
-private fun AccountCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+internal fun AccountCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,

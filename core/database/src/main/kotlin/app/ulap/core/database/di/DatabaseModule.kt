@@ -3,6 +3,7 @@ package app.ulap.core.database.di
 import android.content.Context
 import app.ulap.core.database.UlapDatabase
 import app.ulap.core.database.dao.CheckInDao
+import app.ulap.core.database.dao.SyncDao
 import app.ulap.core.database.encryption.buildEncryptedDatabase
 import dagger.Module
 import dagger.Provides
@@ -24,4 +25,7 @@ internal object DatabaseModule {
 
     @Provides
     fun providesCheckInDao(database: UlapDatabase): CheckInDao = database.checkInDao()
+
+    @Provides
+    fun providesSyncDao(database: UlapDatabase): SyncDao = database.syncDao()
 }

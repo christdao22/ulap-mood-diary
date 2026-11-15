@@ -38,7 +38,8 @@ fun Route.syncRoutes(sync: SyncService) {
                     val limit =
                         call.queryLong("limit")?.coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong())?.toInt()
                             ?: SyncLimits.PULL_DEFAULT_LIMIT
-                    call.respond(sync.pull(call.userPrincipal().userId, since, limit))
+                    val full = call.queryBoolean("full") ?: false
+                    call.respond(sync.pull(call.userPrincipal().userId, since, limit, full))
                 }
             }
             get("/status") {
@@ -52,4 +53,10 @@ fun Route.syncRoutes(sync: SyncService) {
 private fun ApplicationCall.queryLong(name: String): Long? {
     val value = request.queryParameters[name] ?: return null
     return value.toLongOrNull() ?: throw ApiException.invalidField(name)
+}
+
+/** A query parameter that must be `true` or `false` when it's there. Anything else → `400 VALIDATION_FAILED`. */
+private fun ApplicationCall.queryBoolean(name: String): Boolean? {
+    val value = request.queryParameters[name] ?: return null
+    return value.toBooleanStrictOrNull() ?: throw ApiException.invalidField(name)
 }

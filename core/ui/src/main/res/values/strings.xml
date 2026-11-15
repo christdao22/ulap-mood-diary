@@ -54,6 +54,24 @@
     <string name="account_delete_error_too_many">Nothing was deleted. Let\'s pause for a moment and try again in a few minutes.</string>
     <string name="account_delete_error_update">Nothing was deleted. Update Ulap first, then you can delete your account.</string>
     <string name="account_delete_error_server">Ulap\'s server isn\'t answering, so nothing was deleted. Please try again in a bit.</string>
+    <!-- Account: the sync row under the profile card (design-spec.md §7.8). %1$s is a date and time, e.g. "Nov 15, 3:15 PM". -->
+    <string name="account_sync_last">Backed up %1$s</string>
+    <string name="account_sync_never">Not backed up yet</string>
+    <string name="account_sync_running">Backing up…</string>
+    <string name="account_sync_now">Sync now</string>
+    <!-- Offline, with check-ins that haven't backed up yet. -->
+    <string name="account_sync_offline">Saved on this phone. Will back up when you\'re online.</string>
+    <!-- Check-ins that stopped trying to upload (technical-plan.md §8). Say "saved", not "safe", and never how many tries. -->
+    <plurals name="account_sync_stuck">
+        <item quantity="one">%d check-in couldn\'t back up yet. It\'s still saved on this phone.</item>
+        <item quantity="other">%d check-ins couldn\'t back up yet. They\'re still saved on this phone.</item>
+    </plurals>
+    <string name="account_sync_try_again">Try again</string>
+    <!-- First sign-in to an account that already has check-ins (api-spec.md §8.5). -->
+    <string name="account_add_title">Add this phone\'s check-ins to your account?</string>
+    <string name="account_add_body">Your account already has check-ins. If you add this phone\'s too, you\'ll have them all in one place. If you don\'t, the check-ins and notes on this phone are deleted, and that can\'t be undone. Either way, your account\'s check-ins will show here.</string>
+    <string name="account_add_confirm">Add them</string>
+    <string name="account_add_dismiss">Don\'t add</string>
     <!-- Screens the account emails' links open (api-spec.md §6.5, §6.8) -->
     <string name="link_checking">Checking your link…</string>
     <string name="link_expired_title">This link doesn\'t work anymore</string>

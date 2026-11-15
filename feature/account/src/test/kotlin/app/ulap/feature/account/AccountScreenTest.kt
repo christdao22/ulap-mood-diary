@@ -17,6 +17,7 @@ import androidx.compose.ui.test.performScrollTo
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.domain.account.AccountProfile
 import app.ulap.core.domain.account.AccountState
+import app.ulap.core.domain.sync.SyncStatus
 import app.ulap.core.model.AppLanguage
 import app.ulap.feature.account.signin.SignInStep
 import app.ulap.feature.account.signin.SignInUiState
@@ -43,6 +44,9 @@ class AccountScreenTest {
     private var signOuts = 0
     private var resends = 0
     private val deletes = mutableListOf<Boolean>()
+    private var syncNows = 0
+    private var tryAgains = 0
+    private val addAnswers = mutableListOf<Boolean>()
 
     private val profile =
         AccountProfile("Christian", "christian@example.com", true, Instant.parse("2026-10-15T02:00:00Z"))
@@ -53,6 +57,7 @@ class AccountScreenTest {
         account: AccountState? = AccountState.Guest,
         googleAvailable: Boolean = true,
         delete: DeleteState = DeleteState.Idle,
+        sync: SyncStatus? = null,
     ) {
         compose.setContent {
             UlapTheme {
@@ -70,6 +75,12 @@ class AccountScreenTest {
                     onSignOut = { signOuts++ },
                     delete = delete,
                     onDeleteEverything = { deletes += it },
+                    sync = sync,
+                    syncActions = SyncActions(
+                        onSyncNow = { syncNows++ },
+                        onTryAgain = { tryAgains++ },
+                        onAnswerAddCheckIns = { addAnswers += it },
+                    ),
                 )
             }
         }
@@ -244,5 +255,54 @@ class AccountScreenTest {
         compose.onNodeWithText("Deleting…").performScrollTo().performClick()
 
         compose.onNodeWithText("Delete everything").assertDoesNotExist()
+    }
+
+    @Test
+    fun `signed in and verified, the sync row shows when it last backed up, and Sync now asks for a sync`() {
+        show(account = AccountState.SignedIn(profile), sync = SyncStatus())
+
+        compose.onNodeWithText("Not backed up yet").assertExists()
+        compose.onNodeWithText("Sync now").performClick()
+        assertEquals(1, syncNows)
+    }
+
+    @Test
+    fun `no sync row for a guest or before the email is verified`() {
+        show(account = AccountState.SignedIn(profile.copy(emailVerified = false)), sync = SyncStatus())
+
+        compose.onNodeWithText("Sync now").assertDoesNotExist()
+    }
+
+    @Test
+    fun `offline with check-ins waiting, it says they're saved here and will back up`() {
+        show(account = AccountState.SignedIn(profile), sync = SyncStatus(waitingCount = 2, online = false))
+
+        compose.onNodeWithText("Saved on this phone. Will back up when you're online.").assertExists()
+    }
+
+    @Test
+    fun `check-ins that stopped trying are counted, never their tries, with Try again`() {
+        show(account = AccountState.SignedIn(profile), sync = SyncStatus(stuckCount = 1))
+        compose.onNodeWithText("1 check-in couldn't back up yet. It's still saved on this phone.").assertExists()
+
+        compose.onNodeWithText("Try again").performClick()
+        assertEquals(1, tryAgains)
+    }
+
+    @Test
+    fun `the add question takes Add them as an answer`() {
+        show(account = AccountState.SignedIn(profile), sync = SyncStatus(askToAddCheckIns = true))
+
+        compose.onNodeWithText("Add this phone's check-ins to your account?").assertExists()
+        compose.onNode(hasText("Add them") and hasAnyAncestor(isDialog())).performClick()
+        assertEquals(listOf(true), addAnswers)
+    }
+
+    @Test
+    fun `don't add is an answer of its own`() {
+        show(account = AccountState.SignedIn(profile), sync = SyncStatus(askToAddCheckIns = true))
+
+        compose.onNode(hasText("Don't add") and hasAnyAncestor(isDialog())).performClick()
+        assertEquals(listOf(false), addAnswers)
     }
 }

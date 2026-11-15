@@ -68,8 +68,14 @@ suspend fun AuthTestContext.pull(token: String?, query: String = ""): HttpRespon
     client.get("/v1/sync/pull$query") { token?.let { bearerAuth(it) } }
 
 /** Pulls one page and returns the body, failing the test unless it was a 200. */
-suspend fun AuthTestContext.pulled(token: String, since: Long = 0, limit: Int? = null): PullResponse {
-    val response = pull(token, "?since=$since" + (limit?.let { "&limit=$it" } ?: ""))
+suspend fun AuthTestContext.pulled(
+    token: String,
+    since: Long = 0,
+    limit: Int? = null,
+    full: Boolean? = null,
+): PullResponse {
+    val response =
+        pull(token, "?since=$since" + (limit?.let { "&limit=$it" } ?: "") + (full?.let { "&full=$it" } ?: ""))
     assertEquals(HttpStatusCode.OK, response.status, response.bodyAsText())
     return Api.json.decodeFromString(response.bodyAsText())
 }

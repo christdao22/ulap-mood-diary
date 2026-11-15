@@ -56,6 +56,21 @@
     <string name="account_delete_error_too_many">Walay napapas. Hulat sa ta kadiyot, dayon sulayi pag-usab human sa pila ka minuto.</string>
     <string name="account_delete_error_update">Walay napapas. Palihug i-update una ang Ulap, dayon pwede na nimo mapapas ang imong account.</string>
     <string name="account_delete_error_server">Wala motubag ang server sa Ulap karon, mao nga walay napapas. Sulayi pag-usab unya-unya.</string>
+    <!-- Account: the sync row under the profile card (design-spec.md §7.8). %1$s is a date and time, e.g. "Nob 15, 3:15 PM". -->
+    <string name="account_sync_last">Na-back up niadtong %1$s</string>
+    <string name="account_sync_never">Wala pa ma-back up</string>
+    <string name="account_sync_running">Gina-back up…</string>
+    <string name="account_sync_now">I-sync karon</string>
+    <string name="account_sync_offline">Naka-save niining phone. Ma-back up inig online na nimo.</string>
+    <plurals name="account_sync_stuck">
+        <item quantity="one">%d ka check-in ang wala pa ma-back up. Naka-save gihapon kini niining phone.</item>
+        <item quantity="other">%d ka check-in ang wala pa ma-back up. Naka-save gihapon kini niining phone.</item>
+    </plurals>
+    <string name="account_sync_try_again">Sulayi pag-usab</string>
+    <string name="account_add_title">Idugang sa imong account ang mga check-in niining phone?</string>
+    <string name="account_add_body">Aduna nay mga check-in ang imong account. Kung idugang nimo ang naa niining phone, magkauban na ang tanan. Kung dili, mapapas ang mga check-in ug note niining phone, ug dili na kini mabalik. Bisan unsa imong pilion, makita gihapon nimo dinhi ang mga check-in sa imong account.</string>
+    <string name="account_add_confirm">Idugang</string>
+    <string name="account_add_dismiss">Ayaw idugang</string>
     <!-- Screens the account emails' links open (api-spec.md §6.5, §6.8) -->
     <string name="link_checking">Ginatan-aw ang imong link…</string>
     <string name="link_expired_title">Dili na mogana kining link</string>

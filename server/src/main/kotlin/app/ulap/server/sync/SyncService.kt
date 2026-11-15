@@ -71,8 +71,13 @@ class SyncService(private val db: Db, private val cipher: NoteCipher, private va
     /**
      * `GET /sync/pull` (api-spec.md §8.3): up to [limit] of the caller's changes after [since], in
      * ascending `serverSeq` order, or `resetRequired` when [since] can't be trusted (D6).
+     *
+     * [full] is the phone saying this page belongs to a download that started at `since = 0`. Its
+     * cursor then passes below `purged_through_seq` on the way up, so the purge line isn't checked:
+     * the phone removes what the server didn't send at the end, and can't miss a purged delete.
+     * A cursor above every issued `serverSeq` still needs a reset.
      */
-    suspend fun pull(userId: Uuid, since: Long, limit: Int): PullResponse {
+    suspend fun pull(userId: Uuid, since: Long, limit: Int, full: Boolean = false): PullResponse {
         if (since < 0) throw ApiException.invalidField("since", "OUT_OF_RANGE")
         if (limit !in SyncLimits.PULL_LIMIT_RANGE) throw ApiException.invalidField("limit", "OUT_OF_RANGE")
         val serverTime = clock.instant().toApiInstant()
@@ -84,7 +89,8 @@ class SyncService(private val db: Db, private val cipher: NoteCipher, private va
             // Read after the rows on purpose. If the purge job commits between the two reads, this
             // read sees its new purged_through_seq, so a tombstone missing from `rows` still
             // leads to a reset rather than a silently skipped delete.
-            if (since > 0 && (since < purgedThroughSeq() || since > lastIssuedSeq())) null else rows
+            val belowPurgeLine = !full && since < purgedThroughSeq()
+            if (since > 0 && (belowPurgeLine || since > lastIssuedSeq())) null else rows
         } ?: return PullResponse(
             changes = emptyList(),
             nextSince = 0,

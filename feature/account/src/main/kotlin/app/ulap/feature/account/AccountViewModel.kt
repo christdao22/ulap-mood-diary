@@ -6,6 +6,8 @@ import app.ulap.core.domain.account.AccountRepository
 import app.ulap.core.domain.account.AccountState
 import app.ulap.core.domain.account.AuthProblem
 import app.ulap.core.domain.settings.SettingsRepository
+import app.ulap.core.domain.sync.SyncRepository
+import app.ulap.core.domain.sync.SyncStatus
 import app.ulap.core.model.AppLanguage
 import app.ulap.core.model.UserSettings
 import app.ulap.feature.account.signin.SignInMessage
@@ -51,6 +53,7 @@ internal enum class DeleteMessage { OFFLINE, SIGN_IN_AGAIN, TOO_MANY_TRIES, UPDA
 class AccountViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val accounts: AccountRepository,
+    private val syncRepository: SyncRepository,
 ) : ViewModel() {
     /** The chosen language, shown on the Language row. Null if none was ever chosen. */
     val language: StateFlow<AppLanguage?> = settingsRepository.settings
@@ -70,6 +73,10 @@ class AccountViewModel @Inject constructor(
     val account: StateFlow<AccountState?> = accounts.state
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), null)
 
+    /** The sync row and its notices (design-spec.md §7.8). Null until first read. */
+    val sync: StateFlow<SyncStatus?> = syncRepository.status
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), null)
+
     private val _resend = MutableStateFlow<ResendState>(ResendState.Idle)
     internal val resend: StateFlow<ResendState> = _resend.asStateFlow()
 
@@ -78,6 +85,20 @@ class AccountViewModel @Inject constructor(
 
     fun setMascotEnabled(enabled: Boolean) {
         viewModelScope.launch { settingsRepository.setMascotEnabled(enabled) }
+    }
+
+    fun syncNow() {
+        viewModelScope.launch { syncRepository.syncNow() }
+    }
+
+    /** "Try again" on check-ins that stopped trying to upload. */
+    fun retryStuck() {
+        viewModelScope.launch { syncRepository.retryStuck() }
+    }
+
+    /** The answer to "Add this phone's check-ins to your account?" (api-spec.md §8.5). */
+    fun answerAddCheckIns(add: Boolean) {
+        viewModelScope.launch { syncRepository.answerAddCheckIns(add) }
     }
 
     fun resendVerification() {

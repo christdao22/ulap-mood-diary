@@ -129,6 +129,31 @@ class SyncPullTest {
     }
 
     @Test
+    fun aFullDownloadPagesPastThePurgeLine() = withAuthServer {
+        val token = syncUser()
+        val older = List(3) { checkIn() }
+        pushed(token, *older.toTypedArray())
+        pushed(token, deleteOf(Ids.newId(), at = now() - 100.days))
+        TombstonePurger(db, clock).purge()
+        val newer = checkIn()
+        pushed(token, newer)
+
+        // Page 1 ends below the purge line. Without `full`, page 2 would start the reset again.
+        val first = pulled(token, since = 0, limit = 2, full = true)
+        assertTrue(first.nextSince < db.tx { purgedThroughSeq() })
+        assertTrue(pulled(token, since = first.nextSince, limit = 2).resetRequired)
+
+        val second = pulled(token, since = first.nextSince, limit = 2, full = true)
+        assertFalse(second.resetRequired)
+        assertFalse(second.hasMore)
+        assertEquals((older + newer).map { it.id }, (first.changes + second.changes).map { it.id })
+
+        // A cursor from another database still needs a reset, full or not.
+        assertTrue(pulled(token, since = db.tx { lastIssuedSeq() } + 1_000, full = true).resetRequired)
+        assertEquals(HttpStatusCode.BadRequest, pull(token, "?since=1&full=yes").status)
+    }
+
+    @Test
     fun statusCountsLiveCheckIns() = withAuthServer {
         val token = syncUser()
         val empty = status(token)

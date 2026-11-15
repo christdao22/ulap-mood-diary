@@ -34,8 +34,16 @@ interface SyncApi {
      */
     suspend fun push(changes: List<CheckInChange>): ApiResult<PushOutcome>
 
-    /** `GET /sync/pull` (api-spec.md §8.3): the changes after [since], at most [limit] of them. */
-    suspend fun pull(since: Long, limit: Int = SyncLimits.PULL_DEFAULT_LIMIT): ApiResult<PullPage>
+    /**
+     * `GET /sync/pull` (api-spec.md §8.3): the changes after [since], at most [limit] of them.
+     * [full] says this page is part of a download that started at `since = 0`, so the server
+     * doesn't ask for a reset while the cursor is still below its purge line.
+     */
+    suspend fun pull(
+        since: Long,
+        limit: Int = SyncLimits.PULL_DEFAULT_LIMIT,
+        full: Boolean = false,
+    ): ApiResult<PullPage>
 
     /** `GET /sync/status` (api-spec.md §8.4). */
     suspend fun status(): ApiResult<ServerSyncStatus>
@@ -56,7 +64,7 @@ internal class KtorSyncApi @Inject constructor(@param:AuthorizedClient private v
             }.map { it.toPushOutcome() }
     }
 
-    override suspend fun pull(since: Long, limit: Int): ApiResult<PullPage> {
+    override suspend fun pull(since: Long, limit: Int, full: Boolean): ApiResult<PullPage> {
         require(since >= 0) { "since must be 0 or more, got $since" }
         require(limit in SyncLimits.PULL_LIMIT_RANGE) { "limit must be in ${SyncLimits.PULL_LIMIT_RANGE}, got $limit" }
         return client
@@ -64,6 +72,8 @@ internal class KtorSyncApi @Inject constructor(@param:AuthorizedClient private v
                 get("sync/pull") {
                     parameter("since", since)
                     parameter("limit", limit)
+                    // Left out when false, as the server's default.
+                    if (full) parameter("full", true)
                 }
             }.map { it.toPullPage() }
     }
