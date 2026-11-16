@@ -26,21 +26,24 @@ import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.ui.R
 
 /** One part of the notice: a heading and its paragraph. */
-private data class NoticeSection(val title: Int, val body: Int)
+private data class NoticeSection(val title: Int, val body: @Composable () -> String)
 
 private val Sections = listOf(
-    NoticeSection(R.string.privacy_collect_title, R.string.privacy_collect_body),
-    NoticeSection(R.string.privacy_why_title, R.string.privacy_why_body),
-    NoticeSection(R.string.privacy_where_title, R.string.privacy_where_body),
-    NoticeSection(R.string.privacy_never_title, R.string.privacy_never_body),
-    NoticeSection(R.string.privacy_delete_title, R.string.privacy_delete_body),
+    NoticeSection(R.string.privacy_collect_title) { stringResource(R.string.privacy_collect_body) },
+    NoticeSection(R.string.privacy_why_title) { stringResource(R.string.privacy_why_body) },
+    NoticeSection(R.string.privacy_where_title) { stringResource(R.string.privacy_where_body) },
+    NoticeSection(R.string.privacy_never_title) { stringResource(R.string.privacy_never_body) },
+    NoticeSection(R.string.privacy_keep_title) { stringResource(R.string.privacy_keep_body) },
+    NoticeSection(R.string.privacy_delete_title) { stringResource(R.string.privacy_delete_body) },
+    NoticeSection(R.string.privacy_contact_title) {
+        stringResource(R.string.privacy_contact_body, stringResource(R.string.privacy_contact_email))
+    },
 )
 
 /**
  * The privacy notice, opened from onboarding step 3 and later from Account (design-spec.md §7.1,
- * §7.8). The text is a plain first draft built from README §14; the written notice (what is
- * collected, why, how long, deletion, contact) replaces it in Phase 8. It's text only, so it
- * works offline.
+ * §7.8). It's the short version of docs/privacy-notice.md: what is kept, why, where, how long,
+ * deletion and contact. It's text only, so it works offline.
  */
 @Composable
 internal fun PrivacyNoticeScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
@@ -81,7 +84,7 @@ internal fun PrivacyNoticeScreen(onBack: () -> Unit, modifier: Modifier = Modifi
                     modifier = Modifier.semantics { heading() },
                 )
                 Text(
-                    text = stringResource(section.body),
+                    text = section.body(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = UlapTheme.colors.ink2,
                 )

@@ -8,6 +8,7 @@ import app.ulap.core.database.UlapDatabase
 import app.ulap.core.domain.checkin.SaveResult
 import app.ulap.core.domain.settings.SettingsRepository
 import app.ulap.core.model.AppLanguage
+import app.ulap.core.model.PrivacyConsent
 import app.ulap.core.model.UserSettings
 import app.ulap.shared.model.SupportType
 import app.ulap.shared.model.Trigger
@@ -43,7 +44,8 @@ class OnDeviceDataEraserTest {
 
         override suspend fun setMascotEnabled(enabled: Boolean) = settings.update { it.copy(mascotEnabled = enabled) }
 
-        override suspend fun setOnboardingDone() = settings.update { it.copy(onboardingDone = true) }
+        override suspend fun setOnboardingDone(consent: PrivacyConsent) =
+            settings.update { it.copy(onboardingDone = true, consent = consent) }
 
         override suspend fun deviceId(): String = "device-1"
 
@@ -70,7 +72,7 @@ class OnDeviceDataEraserTest {
         val settings = MemorySettings()
         settings.setLanguage(AppLanguage.BISAYA)
         settings.setMascotEnabled(false)
-        settings.setOnboardingDone()
+        settings.setOnboardingDone(PrivacyConsent(t0, PrivacyConsent.CURRENT_NOTICE_VERSION))
 
         OnDeviceDataEraser(database, settings, SyncLock(), Dispatchers.Unconfined).eraseAll()
 

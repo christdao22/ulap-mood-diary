@@ -148,19 +148,23 @@
     <string name="onboarding_start">Simulan ang una kong check-in</string>
     <string name="onboarding_read_privacy">Basahin ang privacy notice</string>
 
-    <!-- Privacy notice (README §14). First draft. -->
+    <!-- Privacy notice: maikling bersyon ng docs/privacy-notice.md (version 2026-11-16). First draft, needs native review. -->
     <string name="privacy_title">Privacy notice</string>
-    <string name="privacy_intro">Ang Ulap ay mood diary. Ganito pinapanatiling pribado ang diary mo.</string>
+    <string name="privacy_intro">Ang Ulap ay mood diary. Ito ang sine-save ng Ulap, kung bakit, at kung paano mo ito kontrolado.</string>
     <string name="privacy_collect_title">Ano ang sine-save ng Ulap</string>
-    <string name="privacy_collect_body">Ang mga check-in mo: mood, enerhiya, stress, kung tungkol saan ito, ang mga tala mo at ang oras. Kapag nag-sign in ka, pati ang email mo, ang pangalan mo kung maglalagay ka, at ang mga setting mo.</string>
+    <string name="privacy_collect_body">Ang mga check-in mo: mood, enerhiya, stress, kung tungkol saan ito, ang mga note mo at ang oras. Kapag nag-sign in ka para mag-back up, pati ang email mo, ang pangalan mo kung maglalagay ka, at ang mga setting mo.</string>
     <string name="privacy_why_title">Bakit</string>
-    <string name="privacy_why_body">Para lang maipakita sa iyo ang diary at mga ulat mo, at para i-back up ito kung gusto mo.</string>
+    <string name="privacy_why_body">Para maipakita sa iyo ang diary at mga ulat mo, at maayos ang mga crash. Kung mag-sign in ka, para rin ma-back up ito at mapanatiling ligtas ang account mo. Dahil tungkol sa kalusugan mo ang mga check-in, ginagamit lang ito ng Ulap nang may pahintulot mo.</string>
     <string name="privacy_where_title">Saan ito naka-save</string>
-    <string name="privacy_where_body">Sa phone na ito. Kapag nag-sign in ka para mag-back up, nasa server din ng Ulap, kung saan naka-encrypt ang mga tala mo. Sariling check-in lang ang nakikita ng bawat account.</string>
-    <string name="privacy_never_title">Ang hindi kailanman ginagawa ng Ulap</string>
-    <string name="privacy_never_body">Walang ads. Hindi kailanman ibinebenta ng Ulap ang data mo o ibinabahagi sa mga advertiser. Hindi kasama ang mga tala o email mo sa crash reports.</string>
+    <string name="privacy_where_body">Sa phone na ito, sa naka-encrypt na diary. Kapag nag-sign in ka para mag-back up, nasa server din ng Ulap, kung saan naka-encrypt ulit ang mga note mo. Sariling check-in lang ang nakikita ng bawat account.</string>
+    <string name="privacy_never_title">Hindi ginagawa ng Ulap</string>
+    <string name="privacy_never_body">Walang ads. Hindi kailanman ibinebenta ng Ulap ang data mo o ibinabahagi sa mga advertiser. Hindi kasama ang mga note o email mo sa crash reports.</string>
+    <string name="privacy_keep_title">Gaano katagal ito naka-save</string>
+    <string name="privacy_keep_body">Hanggang burahin mo. Kapag binura mo ang isang check-in, nabubura agad ang note nito at ang sarili mong mga salita. Naka-encrypt ang mga backup sa server at nabubura pagkalipas ng 30 araw, kaya sa loob ng 30 araw, wala na rin sa mga ito ang anumang binura mo.</string>
     <string name="privacy_delete_title">Pagbura ng data mo</string>
-    <string name="privacy_delete_body">Puwede mong burahin ang kahit anong check-in sa Talaan. Malapit nang maging posible na burahin ang buong account at lahat ng data mo sa Account.</string>
+    <string name="privacy_delete_body">Puwede mong i-edit o burahin ang kahit anong check-in sa Talaan. Para burahin ang lahat, pumunta sa Account, tapos Burahin ang account at lahat ng data. Puwede ka ring mag-request sa email, kahit na-uninstall mo na ang app.</string>
+    <string name="privacy_contact_title">Mga tanong at ang mga karapatan mo</string>
+    <string name="privacy_contact_body">Puwede mong hilingin na makita o maitama ang data mo, o humingi ng kopya nito. Puwede ka ring magtanong tungkol sa privacy mo. Mag-email sa %1$s. Puwede mo ring lapitan ang National Privacy Commission sa privacy.gov.ph.</string>
 
     <!-- Logs (design-spec.md §6.13, §7.6). The screen title is tab_logs. -->
     <string name="logs_today">Ngayon</string>

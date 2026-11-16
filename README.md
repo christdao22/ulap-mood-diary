@@ -135,6 +135,7 @@ ulap/
 ├── .claude/                           # shared agents, skills, settings.json (docs/ulap-reference.md §11)
 ├── LICENSE
 ├── CONTRIBUTING.md                    # short file that links to README §12
+├── SECURITY.md                        # how to report a vulnerability (§14)
 ├── .editorconfig · .gitattributes · .gitignore
 ├── .githooks/pre-commit               # runs spotlessApply on staged Kotlin (§6.2 turns it on)
 ├── .github/
@@ -158,6 +159,7 @@ ulap/
 │   ├── api-spec.md                    # every endpoint, request and response
 │   ├── ulap-reference.md              # reuse plan from macro-tracker, Claude Code setup, decision log
 │   ├── local-services.md              # local URLs, ports, dev logins
+│   ├── privacy-notice.md              # the privacy notice, retention, deletion steps, NPC notes
 │   └── runbooks/deploy.md             # VPS, tunnel, migrate → up → /ready, rollback
 │
 ├── shared/                            # Kotlin Multiplatform module (no DI, no Android)
@@ -208,6 +210,8 @@ ulap/
 ├── infra/
 │   ├── compose.yaml                   # postgres, migrate (one-off Flyway), server
 │   └── compose.dev.yaml               # dev host ports + mailpit
+│
+├── web/                               # static pages for ulap.app: privacy notice, account deletion, security.txt
 │
 └── server/
     ├── build.gradle.kts
@@ -634,7 +638,8 @@ Thank you for helping make Ulap kinder and better. 💙
 - **No ads, no analytics on journal content, no selling or sharing data.**
 - **Deletion:** Account → *Delete account and all data* deletes everything on the server and wipes the phone.
 - **Safety:** *Hopeless* shows the **NCMH Crisis Hotline 1553** (the call button opens the dialer). The hotline is hard-coded so it works offline.
-- Report security issues **privately** to `security@<your-domain>`. Please don't open public issues for vulnerabilities.
+- **Privacy notice:** [docs/privacy-notice.md](docs/privacy-notice.md) (what is kept, why, how long, deletion, contact). Consent is recorded at onboarding with the time and notice version. Backups expire after 30 days.
+- Report security issues **privately** to `security@ulap.app` (placeholder domain) or through GitHub's private vulnerability reporting. Please don't open public issues for vulnerabilities. See [SECURITY.md](SECURITY.md).
 
 ---
 
@@ -685,6 +690,8 @@ Each topic has **one owner document**. Other documents summarize it and link to 
 | [docs/technical-plan.md](docs/technical-plan.md) | Scope, architecture, domain model and response rules, database schemas, sync design, reports logic, languages, privacy, mood names and message keys (appendices) | You're designing or changing how something works |
 | [docs/api-spec.md](docs/api-spec.md) | Endpoints, headers, request and response shapes, errors, tokens, rate limits | You're building or calling the server |
 | [docs/design-spec.md](docs/design-spec.md) | Colors, type, components, screen layouts, the Ulap mascot, motion, voice and tone, accessibility | You're building UI or writing app text |
+| [docs/privacy-notice.md](docs/privacy-notice.md) | The privacy notice wording, retention periods, account deletion steps, NPC registration notes | You change what data Ulap keeps, for how long, or the notice itself |
+| [SECURITY.md](SECURITY.md) | How to report a vulnerability, and the disclosure policy | You found a security issue |
 | [docs/local-services.md](docs/local-services.md) | Local URLs, ports and dev logins | You need an address or a password for the local stack |
 | [docs/runbooks/deploy.md](docs/runbooks/deploy.md) | Getting the server onto the VPS, deploying and rolling back | You're deploying staging or production |
 | [docs/ulap-reference.md](docs/ulap-reference.md) | What Ulap reuses from macro-tracker, repo tooling, Claude Code setup, and the decision log (D1–D14, all accepted) | You're setting up the repo or tooling, or deciding a new change |
@@ -695,6 +702,7 @@ Each topic has **one owner document**. Other documents summarize it and link to 
 - Change a database column → `technical-plan.md` §6–§7, the field table in `api-spec.md` §5.3, and add a migration.
 - Change response behavior → `technical-plan.md` §5, then the screen in `design-spec.md` §7.
 - Change app text → `technical-plan.md` Appendix B (English keys), then all three `strings.xml` files.
+- Change what data is kept or for how long → `docs/privacy-notice.md` first, then the in-app `privacy_*` strings, `python web/build_privacy.py`, and `web/delete-account.html` if deletion changed.
 - Accept a decision in `ulap-reference.md` §13 → update the docs listed in its row in the same PR, then mark it **Accepted**.
 - Finish a task → tick it in `PHASES.md`.
 

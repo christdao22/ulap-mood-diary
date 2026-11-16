@@ -23,4 +23,6 @@ data class UserSettings(
     /** "Show Ulap the cloud." Messages still show without the character (design-spec.md §8.5). */
     val mascotEnabled: Boolean = true,
     val onboardingDone: Boolean = false,
+    /** Saved together with [onboardingDone], so a phone that finished onboarding always has one. */
+    val consent: PrivacyConsent? = null,
 )

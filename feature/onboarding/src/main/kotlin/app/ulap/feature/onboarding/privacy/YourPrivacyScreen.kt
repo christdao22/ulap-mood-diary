@@ -32,8 +32,8 @@ internal fun YourPrivacyScreen(
 
 /**
  * Where the diary lives, that Ulap isn't a medical or emergency service, and what starting
- * agrees to. No account screen here: signing in comes later, from Account (§7.1). Recording
- * consent with a timestamp is a Phase 8 task.
+ * agrees to. No account screen here: signing in comes later, from Account (§7.1). Tapping start
+ * records that consent with the time ([YourPrivacyViewModel.start]).
  */
 @Composable
 internal fun YourPrivacyContent(onStart: () -> Unit, onReadPrivacyNotice: () -> Unit, modifier: Modifier = Modifier) {

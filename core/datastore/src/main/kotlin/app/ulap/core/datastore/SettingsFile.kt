@@ -18,6 +18,10 @@ internal data class SettingsFile(
     val language: String? = null,
     val mascotEnabled: Boolean = true,
     val onboardingDone: Boolean = false,
+    /** When the privacy notice was agreed to, in epoch milliseconds; `null` until then. */
+    val consentAtEpochMs: Long? = null,
+    /** The notice version agreed to (PrivacyConsent.CURRENT_NOTICE_VERSION at the time). */
+    val consentNoticeVersion: String? = null,
     /** Made on first use, see [DataStoreSettingsRepository.deviceId]. */
     val deviceId: String? = null,
 )

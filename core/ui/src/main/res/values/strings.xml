@@ -149,21 +149,27 @@
     <string name="onboarding_start">Start my first check-in</string>
     <string name="onboarding_read_privacy">Read the privacy notice</string>
 
-    <!-- Privacy notice (README §14). A first draft; the written notice replaces it (PHASES.md Phase 8). -->
+    <!-- Privacy notice: the short in-app version of docs/privacy-notice.md (version 2026-11-16).
+         It covers what is kept, why, where, how long, deletion and contact, and works offline.
+         Change it together with the full notice. -->
     <string name="privacy_title">Privacy notice</string>
-    <string name="privacy_intro">Ulap is a mood diary. Here\'s how Ulap keeps your diary private.</string>
+    <string name="privacy_intro">Ulap is a mood diary. Here\'s what Ulap keeps, why, and how you stay in control of it.</string>
     <string name="privacy_collect_title">What Ulap keeps</string>
-    <string name="privacy_collect_body">Your check-ins: mood, energy, stress, what it was about, your notes and the time. If you sign in, also your email, your name if you add one, and your settings.</string>
+    <string name="privacy_collect_body">Your check-ins: mood, energy, stress, what it was about, your notes and the time. If you sign in to back up, also your email, your name if you add one, and your settings.</string>
     <string name="privacy_why_title">Why</string>
-    <string name="privacy_why_body">Only to show you your diary and reports, and to back it up if you choose to.</string>
+    <string name="privacy_why_body">To show you your diary and reports and to fix crashes. If you sign in, also to back it up and keep your account safe. Because your check-ins are about your health, Ulap uses them only with your OK.</string>
     <string name="privacy_where_title">Where it\'s kept</string>
-    <!-- Say the phone copy is encrypted only once SQLCipher ships (PHASES.md Phase 2). -->
-    <string name="privacy_where_body">On this phone. If you sign in to back up, also on Ulap\'s server, where your notes are encrypted. Each account sees only its own check-ins.</string>
+    <string name="privacy_where_body">On this phone, in an encrypted diary. If you sign in to back up, also on Ulap\'s server, where your notes are encrypted again. Each account sees only its own check-ins.</string>
     <string name="privacy_never_title">What Ulap never does</string>
     <string name="privacy_never_body">No ads. Ulap never sells your data or shares it with advertisers. Crash reports never include your notes or email.</string>
+    <string name="privacy_keep_title">How long it\'s kept</string>
+    <string name="privacy_keep_body">Until you delete it. When you delete a check-in, its note and your own words are erased right away. Server backups are encrypted and erased after 30 days, so within 30 days anything you delete is gone from them too.</string>
     <string name="privacy_delete_title">Deleting your data</string>
-    <!-- Promise account deletion only once DELETE /me and the Account screen ship (Phase 6). -->
-    <string name="privacy_delete_body">You can delete any check-in from Logs. Deleting your whole account and all your data from Account is coming soon.</string>
+    <string name="privacy_delete_body">You can edit or delete any check-in from Logs. To delete everything, go to Account, then Delete account and all data. You can also ask by email, even if you\'ve removed the app.</string>
+    <!-- The privacy contact. A placeholder domain until release (PHASES.md Phase 10). -->
+    <string name="privacy_contact_email" translatable="false">privacy@ulap.app</string>
+    <string name="privacy_contact_title">Questions and your rights</string>
+    <string name="privacy_contact_body">You can ask to see, correct or get a copy of your data, or ask anything about your privacy. Email %1$s. You can also reach the National Privacy Commission at privacy.gov.ph.</string>
     <!-- Each language named in itself, with a welcome in it, so it reads the same whatever the
          app shows now. Same in every language, so these live here only. -->
     <string name="language_english" translatable="false">English</string>

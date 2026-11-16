@@ -3,8 +3,10 @@ package app.ulap.core.datastore
 import androidx.datastore.core.DataStore
 import app.ulap.core.domain.settings.SettingsRepository
 import app.ulap.core.model.AppLanguage
+import app.ulap.core.model.PrivacyConsent
 import app.ulap.core.model.UserSettings
 import javax.inject.Inject
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +23,7 @@ internal class DataStoreSettingsRepository @Inject constructor(private val dataS
                 language = AppLanguage.fromTag(file.language),
                 mascotEnabled = file.mascotEnabled,
                 onboardingDone = file.onboardingDone,
+                consent = file.consent(),
             )
         }
         .distinctUntilChanged()
@@ -33,8 +36,14 @@ internal class DataStoreSettingsRepository @Inject constructor(private val dataS
         dataStore.updateData { it.copy(mascotEnabled = enabled) }
     }
 
-    override suspend fun setOnboardingDone() {
-        dataStore.updateData { it.copy(onboardingDone = true) }
+    override suspend fun setOnboardingDone(consent: PrivacyConsent) {
+        dataStore.updateData {
+            it.copy(
+                onboardingDone = true,
+                consentAtEpochMs = consent.acceptedAt.toEpochMilliseconds(),
+                consentNoticeVersion = consent.noticeVersion,
+            )
+        }
     }
 
     /**
@@ -52,4 +61,11 @@ internal class DataStoreSettingsRepository @Inject constructor(private val dataS
     override suspend fun clear() {
         dataStore.updateData { SettingsFile() }
     }
+}
+
+/** The consent record, or `null` if either half is missing (a file from before consent was kept). */
+private fun SettingsFile.consent(): PrivacyConsent? {
+    val at = consentAtEpochMs ?: return null
+    val version = consentNoticeVersion ?: return null
+    return PrivacyConsent(Instant.fromEpochMilliseconds(at), version)
 }

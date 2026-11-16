@@ -318,7 +318,7 @@ macro-tracker's rule: **"Run the migrations as their own step first"** on deploy
 ### 8.3 Backup **[adapt]**
 - Image: Alpine + `postgresql17-client`, `age`, `rclone`, `supercronic`, `tzdata`
 - Nightly **04:30 Asia/Manila** (after the purge jobs): `pg_dump | age (public key) | rclone` → `incoming/`, then moved to `postgres/<UTC time>.dump.age` on success. Optional heartbeat URL.
-- Bucket lifecycle: **30 days** (Ulap's privacy promise in [README §7.1](../README.md#71-server). macro-tracker used 35.)
+- Bucket lifecycle: **30 days** (Ulap's privacy promise in [README §7.1](../README.md#71-server) and [privacy notice §6](privacy-notice.md#6-how-long-ulap-keeps-it). macro-tracker used 35.) The notice also promises server logs are kept no more than 30 days, so rotate them to match.
 - The VPS holds only the age **public** key. The private key is in a password manager plus an offline copy.
 - Restore drill monthly and before risky migrations. Record the result in `docs/runbooks/restore-drill.md`.
 

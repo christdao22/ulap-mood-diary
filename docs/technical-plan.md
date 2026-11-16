@@ -72,7 +72,7 @@ Use the latest stable versions when you set up the project.
 - Room **2.8.x**, encrypted with **SQLCipher** (`net.zetetic:sqlcipher-android`). Stay on Room 2: Room 3 drops the `SupportSQLiteOpenHelper` hook that SQLCipher plugs into. Room supports KMP, but an iOS driver for an encrypted database is still an open question for later.
 - Tink (`tink-android`): wraps the database passphrase with an Android Keystore key (§6)
 - WorkManager: background sync, started by `SyncTriggers` (§8)
-- DataStore: settings (language, mascot on/off, last sync position)
+- DataStore: settings (language, mascot on/off, onboarding done, privacy consent, device ID). The sync position lives in Room (§6).
 - Credential Manager + Google ID library: Sign in with Google (the legacy Google Sign-In SDK is deprecated)
 - Ktor Client: API calls
 - Hilt: dependency injection in the Android modules. `shared` uses plain constructor injection and no DI library, so an iOS app can reuse it later ([ulap-reference §13](ulap-reference.md#13-decision-log), D2).
@@ -195,7 +195,7 @@ One row: where sync is. It lives in Room, not DataStore, so every sync step chan
 No row means every default.
 
 ### Settings (DataStore, not Room)
-`language` (`en` / `fil` / `ceb`), `mascot_enabled`, `onboarding_done`, `device_id` (UUID).
+`language` (`en` / `fil` / `ceb`), `mascot_enabled`, `onboarding_done`, `consent_at` (epoch ms) and `consent_notice_version`, `device_id` (UUID). Onboarding done and the consent are written in one update (§13). "Delete account and all data" clears them all, so onboarding asks for consent again.
 
 ### Tokens
 Store refresh tokens in **EncryptedSharedPreferences**, or in DataStore encrypted with an **Android Keystore** key. Never store them in plain text.
@@ -442,10 +442,14 @@ Full visual spec (shapes, expressions, sizes, motion): [Design spec §8](design-
 
 ### Privacy
 - Mood and journal data is health-related personal information. Treat it as **sensitive**.
-- The Philippine **Data Privacy Act of 2012 (RA 10173)** applies. Write a clear **privacy notice**, get **consent** at onboarding, and check the **National Privacy Commission** registration requirements for your setup.
+- The Philippine **Data Privacy Act of 2012 (RA 10173)** applies. The **privacy notice** is [privacy-notice.md](privacy-notice.md), which owns its wording, the retention periods and the account deletion steps. The app shows a short version of it in all three languages, and [web/privacy.html](../web/privacy.html) is the published copy.
+- **Consent** is given at onboarding step 3: "Start my first check-in" saves the time and the notice version (`PrivacyConsent.CURRENT_NOTICE_VERSION`) with `onboarding_done`, in one write (§6). Health data needs consent (RA 10173 §13(a)), and the record shows when it was given and to which notice. A later notice that changes how data is used bumps the version and asks again.
+- **NPC registration:** required at 1,000 people's sensitive data, so Ulap registers before the public release. See the [NPC notes](privacy-notice.md#npc-registration-maintainer-notes).
+- **Retention:** check-ins until the person deletes them, tombstones 90 days (§8), refresh tokens 60 days, server logs up to 30 days, crash reports up to 90 days, and **encrypted backups expire after 30 days**, so a deletion reaches every backup within 30 days. The full table is in [privacy notice §6](privacy-notice.md#6-how-long-ulap-keeps-it).
 - No ads, no selling data, no analytics on journal content.
 - Data minimization: only an email or Google ID is needed. A display name is optional.
-- **Delete account and all data** works from inside the app (Google Play also requires an account-deletion path for apps that let users create accounts).
+- **Delete account and all data** works from inside the app. Google Play also needs a web page to ask for it without the app: [web/delete-account.html](../web/delete-account.html), which follows [privacy notice §8](privacy-notice.md#8-deleting-your-account-and-data).
+- **Security reports** go to `security@ulap.app` ([SECURITY.md](../SECURITY.md), and `web/.well-known/security.txt`).
 
 ### Google Play
 - Fill in the **Data safety** form honestly (health-related data collected, encrypted in transit, deletion available).

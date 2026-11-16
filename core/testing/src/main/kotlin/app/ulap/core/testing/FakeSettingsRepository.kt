@@ -2,6 +2,7 @@ package app.ulap.core.testing
 
 import app.ulap.core.domain.settings.SettingsRepository
 import app.ulap.core.model.AppLanguage
+import app.ulap.core.model.PrivacyConsent
 import app.ulap.core.model.UserSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -17,7 +18,8 @@ class FakeSettingsRepository(initial: UserSettings = UserSettings()) : SettingsR
 
     override suspend fun setMascotEnabled(enabled: Boolean) = settings.update { it.copy(mascotEnabled = enabled) }
 
-    override suspend fun setOnboardingDone() = settings.update { it.copy(onboardingDone = true) }
+    override suspend fun setOnboardingDone(consent: PrivacyConsent) =
+        settings.update { it.copy(onboardingDone = true, consent = consent) }
 
     override suspend fun deviceId(): String = deviceId
 

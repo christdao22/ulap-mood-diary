@@ -1,6 +1,7 @@
 package app.ulap.core.domain.settings
 
 import app.ulap.core.model.AppLanguage
+import app.ulap.core.model.PrivacyConsent
 import app.ulap.core.model.UserSettings
 import kotlinx.coroutines.flow.Flow
 
@@ -13,7 +14,11 @@ interface SettingsRepository {
 
     suspend fun setMascotEnabled(enabled: Boolean)
 
-    suspend fun setOnboardingDone()
+    /**
+     * Marks onboarding done and records [consent] to the privacy notice, in one write, so
+     * onboarding is never done without a consent record (technical-plan.md §13).
+     */
+    suspend fun setOnboardingDone(consent: PrivacyConsent)
 
     /**
      * This install's ID: a random UUID made on first use, then never changed. Sent as
@@ -22,7 +27,8 @@ interface SettingsRepository {
     suspend fun deviceId(): String
 
     /**
-     * Back to a fresh install: no language, onboarding not done, a new device ID on next use. For
+     * Back to a fresh install: no language, onboarding not done, no consent (so it's asked again),
+     * a new device ID on next use. For
      * "Delete account and all data" (api-spec.md §7.3).
      */
     suspend fun clear()

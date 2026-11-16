@@ -390,7 +390,7 @@ Permanently deletes the account and **all** check-ins.
 1. Hard-delete every `check_ins` row for the user.
 2. Delete identities, email tokens, and refresh tokens.
 3. Delete the user row.
-4. Remove the user from future backups according to the retention policy (state this in the privacy notice, e.g. "backups expire within 30 days").
+4. Remove the user from future backups according to the retention policy: backups expire after 30 days, so the account is gone from every backup within 30 days ([privacy notice §6](privacy-notice.md#6-how-long-ulap-keeps-it)).
 
 **Responses** `204` · `400 BAD_REQUEST` (missing confirmation)
 

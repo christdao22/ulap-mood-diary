@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.core.okio.OkioStorage
 import app.ulap.core.model.AppLanguage
+import app.ulap.core.model.PrivacyConsent
 import app.ulap.core.model.UserSettings
 import java.io.File
 import kotlin.io.path.createTempDirectory
@@ -12,6 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -30,6 +32,8 @@ class DataStoreSettingsRepositoryTest {
     fun tearDown() {
         dir.deleteRecursively()
     }
+
+    private val consent = PrivacyConsent(Instant.parse("2026-11-16T02:30:00Z"), "2026-11-16")
 
     // The same storage as the app's DataStoreModule, on a temporary file.
     private fun repository(scope: CoroutineScope) = DataStoreSettingsRepository(
@@ -54,10 +58,10 @@ class DataStoreSettingsRepositoryTest {
 
         repository.setLanguage(AppLanguage.BISAYA)
         repository.setMascotEnabled(false)
-        repository.setOnboardingDone()
+        repository.setOnboardingDone(consent)
 
         assertEquals(
-            UserSettings(AppLanguage.BISAYA, mascotEnabled = false, onboardingDone = true),
+            UserSettings(AppLanguage.BISAYA, mascotEnabled = false, onboardingDone = true, consent = consent),
             repository.settings.first(),
         )
         assertTrue(file.readText().contains("\"ceb\""))
@@ -95,6 +99,27 @@ class DataStoreSettingsRepositoryTest {
 
         assertEquals(UserSettings(), repository.settings.first())
         assertNotEquals("", repository.deviceId())
+    }
+
+    @Test
+    fun `consent survives a restart and clear removes it`() = runTest {
+        val oldApp = Job()
+        val first = repository(CoroutineScope(backgroundScope.coroutineContext + oldApp))
+        first.setOnboardingDone(consent)
+        oldApp.cancelAndJoin()
+
+        val again = repository(backgroundScope)
+        assertEquals(consent, again.settings.first().consent)
+
+        again.clear()
+        assertEquals(null, again.settings.first().consent)
+    }
+
+    @Test
+    fun `a file with only half a consent record reads as no consent`() = runTest {
+        file.writeText("""{"onboardingDone":true,"consentAtEpochMs":1763260200000}""")
+
+        assertEquals(null, repository(backgroundScope).settings.first().consent)
     }
 
     @Test

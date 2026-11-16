@@ -8,7 +8,7 @@ Track progress by ticking boxes: change `- [ ]` to `- [x]` when a task is **done
 
 **Legend:** `- [x]` complete · `- [ ]` not started or in progress · 🔒 needs two-reviewer approval (auth, sync, encryption, safety) · ⏳ 🔒 task built and tested, waiting for the second reviewer before it can be ticked
 
-Last updated: November 12, 2026
+Last updated: November 16, 2026
 
 ---
 
@@ -24,9 +24,9 @@ Last updated: November 12, 2026
 | 5 | Languages and onboarding | 🟡 In progress | 12 / 15 |
 | 6 | Server and accounts | 🟡 In progress | 9 / 28 |
 | 7 | Sync | 🟡 In progress | 0 / 25 |
-| 8 | Privacy, safety and polish | ⬜ Not started | 0 / 23 |
+| 8 | Privacy, safety and polish | 🟡 In progress | 6 / 23 |
 | 9 | Testing and beta | ⬜ Not started | 0 / 15 |
-| 10 | Release v1.0 | ⬜ Not started | 0 / 15 |
+| 10 | Release v1.0 | ⬜ Not started | 0 / 18 |
 | 11 | After v1 (backlog) | ⬜ Planned | 0 / 13 |
 
 Update the **Done** column and **Status** (⬜ Not started · 🟡 In progress · ✅ Complete) whenever you tick boxes.
@@ -330,12 +330,12 @@ Spec: [API reference §8](docs/api-spec.md#8-sync-endpoints-) · [Technical plan
 Spec: [Technical plan §13](docs/technical-plan.md#13-safety-privacy-and-store-requirements) · [Design spec §11](docs/design-spec.md#11-accessibility) · [README §14](README.md#14-privacy-safety-and-data-handling)
 
 ### Privacy and legal
-- [ ] Written privacy notice (what is collected, why, how long, deletion, contact)
-- [ ] Consent recorded at onboarding (with a timestamp)
-- [ ] Check National Privacy Commission (NPC) registration requirements
-- [ ] Backup retention policy (encrypted backups expire within 30 days)
-- [ ] Account deletion also documented on a web page (for Google Play)
-- [ ] Security contact (`security@…`) and a responsible-disclosure note
+- [x] Written privacy notice (what is collected, why, how long, deletion, contact): [docs/privacy-notice.md](docs/privacy-notice.md), a short in-app version, and [web/privacy.html](web/privacy.html)
+- [x] Consent recorded at onboarding (with a timestamp and the notice version)
+- [x] Check National Privacy Commission (NPC) registration requirements ([notes](docs/privacy-notice.md#npc-registration-maintainer-notes): register before the public release)
+- [x] Backup retention policy (encrypted backups expire within 30 days; [privacy notice §6](docs/privacy-notice.md#6-how-long-ulap-keeps-it))
+- [x] Account deletion also documented on a web page (for Google Play): [web/delete-account.html](web/delete-account.html)
+- [x] Security contact (`security@…`) and a responsible-disclosure note: [SECURITY.md](SECURITY.md) and `web/.well-known/security.txt`
 
 ### Safety 🔒
 - [ ] Hotline card for Hopeless, tested on a real phone (opens the dialer with 1553)
@@ -358,7 +358,7 @@ Spec: [Technical plan §13](docs/technical-plan.md#13-safety-privacy-and-store-r
 - [ ] Polished Ulap illustration set for onboarding and the store
 - [ ] Performance: cold start < 2 seconds on a mid-range phone, smooth scrolling in Logs
 - [ ] Details shows an edited check-in's date and time on the clock it was logged on (`tz_offset_min`), as Logs rows do, so after a trip the two never disagree
-- [ ] Crash reporting with Sentry on Android and the server (D11): `sendDefaultPii = false`, a `beforeSend` that drops request bodies and any field named `note` or `triggerOther`, no emails
+- [ ] Crash reporting with Sentry on Android and the server (D11): `sendDefaultPii = false`, a `beforeSend` that drops request bodies and any field named `note` or `triggerOther`, no emails, data kept no more than 90 days (privacy notice §6)
 
 **Phase 8 complete when:** an accessibility and safety review passes with no blocking issues.
 
@@ -403,11 +403,14 @@ Spec: [README §7](README.md#7-running-in-production) · [Design spec §14](docs
 - [ ] Feature graphic and app icon in final sizes
 - [ ] Google Play **Data safety** form
 - [ ] Health app declaration (if Play asks for it)
+- [ ] Privacy notice final: the real domain and its `privacy@` and `security@` mailboxes working, hosting and email providers named in §5 ([docs/privacy-notice.md](docs/privacy-notice.md))
 - [ ] Content rating questionnaire
 
 ### Production
 - [ ] Production server deployed (HTTPS, HSTS, secrets in a secret manager)
-- [ ] Production database with encrypted daily backups and a tested restore
+- [ ] Production database with encrypted daily backups (bucket lifecycle 30 days) and a tested restore; server logs rotated so none is older than 30 days
+- [ ] `web/` hosted at the real domain (privacy notice, account deletion page, `security.txt`, later `assetlinks.json`), with both links entered in Play Console
+- [ ] NPC: Data Protection Officer and data processing system registered, with a short Privacy Impact Assessment and a breach plan ([NPC notes](docs/privacy-notice.md#npc-registration-maintainer-notes))
 - [ ] Monitoring and alerts (error rate, latency, database connections)
 - [ ] Release keystore stored safely, Play App Signing turned on, release SHA-1 registered with Google OAuth
 - [ ] Signed release bundle (`bundleRelease`) uploaded and a staged rollout started (e.g. 20%)

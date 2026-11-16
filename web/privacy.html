@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy notice · Ulap: Mood Diary</title>
+<!-- Generated from docs/privacy-notice.md. Edit that file, then run python web/build_privacy.py. -->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<p class="brand">Ulap: Mood Diary</p>
+<h1>Privacy notice</h1>
+<p><strong>Effective date:</strong> 16 November 2026 (version <code>2026-11-16</code>)</p>
+<p>Ulap is a mood diary. You check in with how you feel, and Ulap keeps your diary private to you. This notice explains what Ulap keeps, why, where, for how long, and how to delete it. It follows the Philippine <strong>Data Privacy Act of 2012 (Republic Act No. 10173)</strong>.</p>
+<p>Ulap is a self-care diary, not a medical or emergency service. If you need to talk to someone now, call the <strong>NCMH Crisis Hotline at 1553</strong>, open 24/7.</p>
+<h2 id="1-who-is-responsible">1. Who is responsible</h2>
+<p>Ulap is made by <strong>Christian Daohog</strong>, who is the personal information controller for Ulap and acts as its Data Protection Officer.</p>
+<ul>
+<li>Privacy questions and requests: <strong>privacy@ulap.app</strong></li>
+<li>Security issues: <strong>security@ulap.app</strong></li>
+</ul>
+<h2 id="2-what-ulap-keeps">2. What Ulap keeps</h2>
+<p><strong>If you use Ulap without an account,</strong> everything stays on your phone. Nothing about your check-ins is sent to Ulap's server. The only thing that can leave your phone is a crash report (see below).</p>
+<p><strong>On your phone:</strong>
+- Your check-ins: the mood you picked, energy (1–10), stress (1–10), stress after a calming exercise, what it was about (a trigger, or your own words), your journal note, which support you used, whether you saved it as a good moment, and the date, time and time zone.
+- Your settings: language, whether Ulap the cloud is shown, and when you agreed to this notice.
+- A random ID for this install. It doesn't identify you or your phone outside Ulap.</p>
+<p><strong>If you sign in to back up and sync,</strong> Ulap's server also keeps:
+- Your sign-in details: your email address; for Google sign-in, Google's ID for your account; for email sign-in, a scrambled form (hash) of your password, never the password itself.
+- Your name, only if you add one, plus your language and Ulap the cloud setting.
+- Copies of your check-ins, as listed above.
+- Sign-in sessions, stored in scrambled form, with the install ID they belong to.</p>
+<p><strong>Crash reports.</strong> When the app or server crashes, a report goes to our crash-reporting service. It holds technical details: the app version, Android version, phone model and where in the code the crash happened. Crash reports never include your journal notes, your own trigger words, your email, your name or sign-in tokens.</p>
+<p><strong>Server logs</strong> record which part of the server was called, the result, and how long it took. They never include your check-ins, notes, passwords or tokens. To stop misuse, the server briefly uses your network (IP) address to limit how many requests come in. It keeps that only in memory and doesn't save it.</p>
+<p>Ulap doesn't use your contacts, location, camera, microphone or advertising ID.</p>
+<h2 id="3-why-ulap-keeps-it">3. Why Ulap keeps it</h2>
+<p>Ulap uses your information only to:
+- show you your diary, logs and reports,
+- back up and sync your diary between your phones, if you sign in,
+- send emails you asked for: confirming your email address and resetting your password,
+- keep your account secure and stop misuse, and
+- find and fix crashes.</p>
+<p>Your check-ins are health-related, so the law treats them as <strong>sensitive personal information</strong>. Ulap keeps and uses them because you agreed to it (RA 10173, Section 13(a)). You agree when you tap <strong>Start my first check-in</strong>, and the app records when you agreed and to which version of this notice.</p>
+<p>Reports and "Ulap noticed" insights are worked out on your phone. Ulap makes no decisions about you on its own and doesn't build a profile of you.</p>
+<h2 id="4-what-ulap-never-does">4. What Ulap never does</h2>
+<ul>
+<li>No ads.</li>
+<li>No selling your data, and no sharing it with advertisers or data brokers.</li>
+<li>No reading or analyzing your journal notes for anything other than showing them to you. Search in Logs happens on your phone.</li>
+</ul>
+<h2 id="5-where-its-kept-and-who-else-handles-it">5. Where it's kept, and who else handles it</h2>
+<p><strong>On your phone,</strong> your diary is stored in an encrypted database. Its key is protected by your phone's secure hardware (Android Keystore). Ulap turns off Android's cloud backup for the diary.</p>
+<p><strong>On Ulap's server,</strong> everything travels over an encrypted connection (HTTPS). The server's disk and its backups are encrypted, and your journal notes and own trigger words are encrypted again on top of that, with a key kept separate from the database. Each account can only reach its own check-ins.</p>
+<p>Ulap uses a few service providers to run. They handle data only on Ulap's behalf and only as needed:</p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>What it does</th>
+<th>What it sees</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Server hosting</td>
+<td>Runs Ulap's server and database</td>
+<td>Everything stored on the server, encrypted at rest</td>
+</tr>
+<tr>
+<td>Cloudflare</td>
+<td>Carries traffic to the server, and stores the encrypted backups</td>
+<td>Encrypted traffic; backups it can't read</td>
+</tr>
+<tr>
+<td>Google</td>
+<td>Signs you in, only if you choose "Continue with Google"</td>
+<td>Your Google account, as with any Google sign-in</td>
+</tr>
+<tr>
+<td>Email service</td>
+<td>Sends confirmation and password reset emails</td>
+<td>Your email address and the email</td>
+</tr>
+<tr>
+<td>Sentry</td>
+<td>Collects crash reports</td>
+<td>Crash details as described in §2, never notes or emails</td>
+</tr>
+</tbody>
+</table>
+<p>Some of these providers keep data outside the Philippines. Ulap stays responsible for your data wherever it's kept, and uses only providers that agree to protect it at least as well as Philippine law requires.</p>
+<h2 id="6-how-long-ulap-keeps-it">6. How long Ulap keeps it</h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>How long</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Check-ins on your phone</td>
+<td>Until you delete them, delete your account, or remove the app or its data</td>
+</tr>
+<tr>
+<td>Check-ins on the server</td>
+<td>Until you delete them or your account</td>
+</tr>
+<tr>
+<td>A deleted check-in</td>
+<td>Its note and own trigger words are erased right away. The rest is erased after 90 days (it's kept that long only so your other phones also delete it).</td>
+</tr>
+<tr>
+<td>Your account</td>
+<td>Until you delete it</td>
+</tr>
+<tr>
+<td>Sign-in sessions</td>
+<td>Up to 60 days after last use</td>
+</tr>
+<tr>
+<td>Email confirmation links</td>
+<td>24 hours, then they stop working</td>
+</tr>
+<tr>
+<td>Password reset links</td>
+<td>30 minutes, then they stop working</td>
+</tr>
+<tr>
+<td>Server logs</td>
+<td>Up to 30 days</td>
+</tr>
+<tr>
+<td>Crash reports</td>
+<td>Up to 90 days</td>
+</tr>
+<tr>
+<td><strong>Backups</strong></td>
+<td><strong>Each daily backup is encrypted and deleted after 30 days.</strong> So anything you delete is gone from every backup within 30 days.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-your-rights">7. Your rights</h2>
+<p>Under the Data Privacy Act you have the right to:
+- <strong>be informed</strong> about how your data is used (this notice),
+- <strong>access</strong> your data: your whole diary is in the app; for a copy of what the server keeps, email us,
+- <strong>correct</strong> it: edit any check-in in Logs,
+- <strong>delete</strong> it: delete any check-in in Logs, or your whole account (<a href="#8-deleting-your-account-and-data">§8</a>),
+- <strong>object</strong> and <strong>withdraw consent</strong>: delete your account, or remove the app and its data. You don't need to give a reason,
+- <strong>data portability</strong>: ask us by email for a copy in a common format (an in-app export is planned),
+- <strong>complain</strong> to the National Privacy Commission at <a href="https://privacy.gov.ph">privacy.gov.ph</a>, and claim damages where the law allows.</p>
+<p>Email <strong>privacy@ulap.app</strong> for any of these. We'll reply within 15 days, and may ask you to confirm the request from the email on your account, so no one else can ask for your data.</p>
+<h2 id="8-deleting-your-account-and-data">8. Deleting your account and data</h2>
+<p><strong>In the app:</strong> open <strong>Account</strong> → <strong>Delete account and all data</strong>, then confirm. This permanently erases your account and every check-in on the server, then clears Ulap on your phone. It happens right away, and needs an internet connection. If you have no account, the same option deletes the diary on your phone. If Ulap asks you to sign in again first, that's so it knows it's you. Until you do, it can only delete the diary on this phone, and your backup stays on the server.</p>
+<p><strong>Without the app:</strong> email <strong>privacy@ulap.app</strong> from the email address on your Ulap account, with the subject <strong>"Delete my Ulap account"</strong>. We'll confirm it's you, delete your account and all its data within 7 days, and reply when it's done.</p>
+<p><strong>What's deleted:</strong> your account, sign-in details, sessions, settings and every check-in, notes included.</p>
+<p><strong>What's kept, and for how long:</strong> nothing stays in Ulap's working database. Encrypted backups made before the deletion expire within 30 days. Crash reports, which never hold your notes or email, expire within 90 days.</p>
+<p><strong>No account?</strong> Your diary is only on your phone. To delete it, use <strong>Account</strong> → <strong>Delete account and all data</strong>, or remove the app or clear its data in Android settings.</p>
+<h2 id="9-keeping-your-data-safe">9. Keeping your data safe</h2>
+<p>Ulap protects your data with encryption on your phone and on the server, scrambled passwords, short-lived sign-in tokens, and access only for the people who run Ulap. If a breach ever puts your data at risk, we'll tell you and the National Privacy Commission within 72 hours of finding out, as the law requires.</p>
+<h2 id="10-changes-to-this-notice">10. Changes to this notice</h2>
+<p>When this notice changes, the effective date above changes too. If a change affects how your data is used, the app will show you the new notice and ask you to agree again before anything new happens with your data.</p>
+<h2 id="11-contact">11. Contact</h2>
+<p><strong>Christian Daohog</strong>, Ulap: Mood Diary
+Privacy and Data Protection Officer: <strong>privacy@ulap.app</strong></p>
+<p class="links"><a href="delete-account.html">Delete your account</a></p>
+</main>
+</body>
+</html>

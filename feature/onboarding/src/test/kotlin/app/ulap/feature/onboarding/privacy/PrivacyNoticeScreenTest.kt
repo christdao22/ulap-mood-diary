@@ -20,10 +20,23 @@ class PrivacyNoticeScreenTest {
     val compose = createComposeRule()
 
     @Test
-    fun `it covers what is kept, why, where, what never happens and deleting`() {
+    fun `it covers what is kept, why, where, never, how long, deleting and contact`() {
         compose.setContent { UlapTheme { PrivacyNoticeScreen(onBack = {}) } }
-        listOf("What Ulap keeps", "Why", "Where it's kept", "What Ulap never does", "Deleting your data")
-            .forEach { compose.onNodeWithText(it).performScrollTo().assertExists() }
+        listOf(
+            "What Ulap keeps",
+            "Why",
+            "Where it's kept",
+            "What Ulap never does",
+            "How long it's kept",
+            "Deleting your data",
+            "Questions and your rights",
+        ).forEach { compose.onNodeWithText(it).performScrollTo().assertExists() }
+    }
+
+    @Test
+    fun `the contact section shows the privacy email`() {
+        compose.setContent { UlapTheme { PrivacyNoticeScreen(onBack = {}) } }
+        compose.onNodeWithText("privacy@ulap.app", substring = true).performScrollTo().assertExists()
     }
 
     @Test
