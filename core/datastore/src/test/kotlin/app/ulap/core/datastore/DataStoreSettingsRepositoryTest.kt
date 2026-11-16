@@ -116,6 +116,19 @@ class DataStoreSettingsRepositoryTest {
     }
 
     @Test
+    fun `a hotline number from meta is saved and stays through clear`() = runTest {
+        val repository = repository(backgroundScope)
+        assertEquals(null, repository.settings.first().hotlineNumber)
+
+        repository.setHotlineNumber("1554")
+        repository.clear()
+
+        assertEquals("1554", repository.settings.first().hotlineNumber)
+        repository.setHotlineNumber(null)
+        assertEquals(null, repository.settings.first().hotlineNumber)
+    }
+
+    @Test
     fun `a file with only half a consent record reads as no consent`() = runTest {
         file.writeText("""{"onboardingDone":true,"consentAtEpochMs":1763260200000}""")
 

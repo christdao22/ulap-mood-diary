@@ -144,7 +144,7 @@
     <!-- Onboarding step 3: your privacy (design-spec.md §7.1) -->
     <string name="onboarding_privacy_title">Your privacy</string>
     <string name="onboarding_privacy_phone">Your diary stays on this phone. You can back it up later.</string>
-    <string name="onboarding_privacy_disclaimer">Ulap is a self-care diary, not a medical or emergency service.</string>
+    <string name="app_disclaimer">Ulap is a self-care diary, not a medical or emergency service.</string>
     <string name="onboarding_privacy_consent">By starting, you agree to the privacy notice.</string>
     <string name="onboarding_start">Start my first check-in</string>
     <string name="onboarding_read_privacy">Read the privacy notice</string>
@@ -321,7 +321,8 @@
     <string name="after_same">Still at %1$d, and that\'s okay.</string>
     <string name="after_same_sub">Feelings take time to shift. Be gentle with yourself today.</string>
     <string name="after_higher">It went up to %1$d.</string>
-    <string name="after_higher_sub">Thank you for checking honestly. If it keeps rising, reach out to someone you trust or call NCMH at 1553.</string>
+    <!-- %1$s is the hotline number (1553 built in, api-spec.md §9.3). -->
+    <string name="after_higher_sub">Thank you for checking honestly. If it keeps rising, reach out to someone you trust or call NCMH at %1$s.</string>
     <!-- Hopeless only: the hotline card is right below, so no "if it keeps rising" and no "remember what helped" (design-spec.md §10.4) -->
     <string name="after_lower_sub_hopeless">I\'m glad something eased a little. Help is still here whenever you need it.</string>
     <string name="after_higher_sub_hopeless">Thank you for checking honestly. This sounds really heavy. Talking to someone can help, even right now.</string>
@@ -329,13 +330,13 @@
 
     <!-- The NCMH crisis hotline card (design-spec.md §6.8, technical-plan.md §13 and Appendix B, hotline_*). Safety 🔒 -->
     <string name="hotline_title">NCMH Crisis Hotline · available 24/7</string>
-    <!-- The same number in every language, so it lives here only. -->
-    <string name="hotline_number" translatable="false">1553</string>
-    <!-- %1$s is hotline_number. -->
+    <!-- %1$s is the hotline number: HotlineRules.BUILT_IN_NUMBER (1553), or a newer one from /meta. -->
     <string name="hotline_call">Call %1$s</string>
     <string name="hotline_helper">This opens your phone app. You choose when to call.</string>
-    <!-- %1$s is hotline_number. Shown when the device has no phone app (design-spec.md §6.8). -->
+    <!-- %1$s is the hotline number. Shown when the device has no phone app (design-spec.md §6.8). -->
     <string name="hotline_no_phone">This device can\'t make calls. You can dial %1$s from any phone.</string>
+    <!-- Account settings row, always shown (technical-plan.md §13, design-spec.md §7.8). %1$s is the hotline number. -->
+    <string name="account_hotline">Need to talk to someone? NCMH %1$s</string>
 
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Energy</string>

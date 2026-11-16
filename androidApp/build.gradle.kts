@@ -114,6 +114,8 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     // The NavHost and the tab bar's back stack. Features add their own screens to it.
     implementation(libs.androidx.navigation.compose)
+    // Crash reports (D11), started by CrashReporting only when the build has a DSN.
+    implementation(libs.sentry.android.core)
 
     testImplementation(projects.core.testing)
     testImplementation(libs.androidx.test.core)

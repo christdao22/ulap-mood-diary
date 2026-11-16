@@ -1,9 +1,12 @@
 package app.ulap.feature.account
 
+import android.content.Intent
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
@@ -11,6 +14,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -19,14 +23,18 @@ import app.ulap.core.domain.account.AccountProfile
 import app.ulap.core.domain.account.AccountState
 import app.ulap.core.domain.sync.SyncStatus
 import app.ulap.core.model.AppLanguage
+import app.ulap.core.ui.LocalHotlineNumber
 import app.ulap.feature.account.signin.SignInStep
 import app.ulap.feature.account.signin.SignInUiState
+import app.ulap.shared.rules.HotlineRules
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Instant
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -58,32 +66,69 @@ class AccountScreenTest {
         googleAvailable: Boolean = true,
         delete: DeleteState = DeleteState.Idle,
         sync: SyncStatus? = null,
+        hotlineNumber: String = HotlineRules.BUILT_IN_NUMBER,
     ) {
         compose.setContent {
             UlapTheme {
-                AccountContent(
-                    language = language,
-                    mascotEnabled = mascotEnabled,
-                    onMascotEnabledChange = { mascotChanges += it },
-                    onOpenLanguage = { languageOpens++ },
-                    onOpenPrivacyNotice = { privacyOpens++ },
-                    account = account,
-                    signIn = SignInUiState(googleAvailable = googleAvailable),
-                    onContinueWithGoogle = { googleTaps++ },
-                    onOpenSignIn = { signInOpens += it },
-                    onResendVerification = { resends++ },
-                    onSignOut = { signOuts++ },
-                    delete = delete,
-                    onDeleteEverything = { deletes += it },
-                    sync = sync,
-                    syncActions = SyncActions(
-                        onSyncNow = { syncNows++ },
-                        onTryAgain = { tryAgains++ },
-                        onAnswerAddCheckIns = { addAnswers += it },
-                    ),
-                )
+                CompositionLocalProvider(LocalHotlineNumber provides hotlineNumber) {
+                    AccountContent(
+                        language = language,
+                        mascotEnabled = mascotEnabled,
+                        onMascotEnabledChange = { mascotChanges += it },
+                        onOpenLanguage = { languageOpens++ },
+                        onOpenPrivacyNotice = { privacyOpens++ },
+                        account = account,
+                        signIn = SignInUiState(googleAvailable = googleAvailable),
+                        onContinueWithGoogle = { googleTaps++ },
+                        onOpenSignIn = { signInOpens += it },
+                        onResendVerification = { resends++ },
+                        onSignOut = { signOuts++ },
+                        delete = delete,
+                        onDeleteEverything = { deletes += it },
+                        sync = sync,
+                        syncActions = SyncActions(
+                            onSyncNow = { syncNows++ },
+                            onTryAgain = { tryAgains++ },
+                            onAnswerAddCheckIns = { addAnswers += it },
+                        ),
+                    )
+                }
             }
         }
+    }
+
+    @Test
+    fun `the hotline row is always there and opens the dialer with 1553`() {
+        show(account = null)
+        compose.onNodeWithText("Need to talk to someone? NCMH 1553").performScrollTo().performClick()
+
+        // ACTION_DIAL: the dialer opens with the number typed in and never places the call.
+        val intent = checkNotNull(shadowOf(RuntimeEnvironment.getApplication()).nextStartedActivity)
+        assertEquals(Intent.ACTION_DIAL, intent.action)
+        assertEquals("tel:1553", intent.dataString)
+    }
+
+    @Test
+    fun `TalkBack reads the hotline row's number digit by digit`() {
+        show()
+        compose.onNodeWithContentDescription("Need to talk to someone? NCMH 1 5 5 3").assertHasClickAction()
+    }
+
+    @Test
+    fun `a newer hotline number from meta shows and dials`() {
+        show(hotlineNumber = "1554")
+        compose.onNodeWithText("Need to talk to someone? NCMH 1554").performScrollTo().performClick()
+
+        val intent = checkNotNull(shadowOf(RuntimeEnvironment.getApplication()).nextStartedActivity)
+        assertEquals("tel:1554", intent.dataString)
+    }
+
+    @Test
+    fun `the self-care disclaimer is under the list`() {
+        show(account = AccountState.SignedIn(profile))
+        compose.onNodeWithText("Ulap is a self-care diary, not a medical or emergency service.")
+            .performScrollTo()
+            .assertExists()
     }
 
     @Test

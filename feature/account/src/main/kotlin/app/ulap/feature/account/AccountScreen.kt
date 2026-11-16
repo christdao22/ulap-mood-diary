@@ -35,6 +35,7 @@ import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.domain.account.AccountState
 import app.ulap.core.domain.sync.SyncStatus
 import app.ulap.core.model.AppLanguage
+import app.ulap.core.ui.HotlineSettingsRow
 import app.ulap.core.ui.R
 import app.ulap.core.ui.nameRes
 import app.ulap.feature.account.signin.SignInActions
@@ -117,8 +118,9 @@ internal fun AccountScreen(
 /**
  * The Account tab: the account card, then the settings list (design-spec.md §7.8). The card is
  * "Back up and sync" for a guest, "Sign in again" when the server ended the session, and the
- * profile once signed in, with the sync row under it once the email is verified. The hotline row
- * joins in its own PHASES.md task, in the §7.8 order. "Delete account and all data" is always last.
+ * profile once signed in, with the sync row under it once the email is verified. The NCMH hotline
+ * row is always there (technical-plan.md §13), and "Delete account and all data" is always last.
+ * Under the list, the self-care disclaimer (technical-plan.md §13).
  *
  * @param account Null while the saved session is read: no card yet, so nothing flashes.
  * @param sync Null until read. Shown only signed in, and it asks "Add this phone's check-ins?"
@@ -180,6 +182,7 @@ internal fun AccountContent(
             onDelete = { confirmDelete = true },
         )
         DeleteFailedNotice(delete)
+        DisclaimerFooter()
     }
     if (confirmSignOut) {
         SignOutDialog(
@@ -244,6 +247,17 @@ private fun SyncSection(account: AccountState?, sync: SyncStatus?, actions: Sync
     }
 }
 
+/** "Ulap is a self-care diary, not a medical or emergency service." (technical-plan.md §13) */
+@Composable
+private fun DisclaimerFooter() {
+    Text(
+        text = stringResource(R.string.app_disclaimer),
+        modifier = Modifier.padding(horizontal = UlapSpacing.S),
+        style = MaterialTheme.typography.bodySmall,
+        color = UlapTheme.colors.ink2,
+    )
+}
+
 /** Check-ins stay on this phone, and the dialog says so (design-spec.md §7.8). */
 @Composable
 private fun SignOutDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
@@ -287,6 +301,8 @@ private fun SettingsList(
         )
         UlapSettingsDivider()
         UlapSettingsRow(title = stringResource(R.string.privacy_title), onClick = onOpenPrivacyNotice)
+        UlapSettingsDivider()
+        HotlineSettingsRow()
         if (signedIn) {
             UlapSettingsDivider()
             UlapSettingsRow(title = stringResource(R.string.account_sign_out), onClick = onSignOut)

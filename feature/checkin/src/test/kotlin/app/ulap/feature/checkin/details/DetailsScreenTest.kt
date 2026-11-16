@@ -46,7 +46,7 @@ class DetailsScreenTest {
     fun restoreTimeZone() = TimeZone.setDefault(systemZone)
 
     /** Shows Details with a tiny in-test state holder, so taps change what's on screen. */
-    private fun show(moodCode: String = "worried", showUlap: Boolean = true) {
+    private fun show(moodCode: String = "worried", showUlap: Boolean = true, tzOffsetMin: Int = MANILA) {
         compose.setContent {
             var form by remember {
                 mutableStateOf(
@@ -54,6 +54,7 @@ class DetailsScreenTest {
                         mood = checkNotNull(MoodCatalog.byCode(moodCode)),
                         // 08:49 UTC is 4:49 PM in Manila.
                         loggedAt = Instant.parse("2026-11-04T08:49:00Z"),
+                        tzOffsetMin = tzOffsetMin,
                     ),
                 )
             }
@@ -94,6 +95,14 @@ class DetailsScreenTest {
                 )
             }
         }
+    }
+
+    @Test
+    fun `an edit after a trip shows the time on the clock it was logged on, as Logs does`() {
+        // The phone is in Tokyo now (UTC+9); the check-in was logged in Manila (UTC+8).
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Tokyo"))
+        show(tzOffsetMin = MANILA)
+        compose.onNodeWithText("Wednesday, Nov 4 · 4:49 PM").assertExists()
     }
 
     @Test
@@ -165,3 +174,6 @@ class DetailsScreenTest {
     private fun hasStateDescription(value: String) =
         SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, value)
 }
+
+/** UTC+8 in minutes, the `tz_offset_min` of a check-in logged in Manila. */
+private const val MANILA = 480

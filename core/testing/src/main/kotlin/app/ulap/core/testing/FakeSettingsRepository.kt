@@ -23,7 +23,9 @@ class FakeSettingsRepository(initial: UserSettings = UserSettings()) : SettingsR
 
     override suspend fun deviceId(): String = deviceId
 
+    override suspend fun setHotlineNumber(number: String?) = settings.update { it.copy(hotlineNumber = number) }
+
     override suspend fun clear() {
-        settings.value = UserSettings()
+        settings.value = UserSettings(hotlineNumber = settings.value.hotlineNumber)
     }
 }

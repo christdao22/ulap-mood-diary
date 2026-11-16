@@ -24,7 +24,7 @@ Last updated: November 16, 2026
 | 5 | Languages and onboarding | 🟡 In progress | 12 / 15 |
 | 6 | Server and accounts | 🟡 In progress | 9 / 28 |
 | 7 | Sync | 🟡 In progress | 0 / 25 |
-| 8 | Privacy, safety and polish | 🟡 In progress | 6 / 23 |
+| 8 | Privacy, safety and polish | 🟡 In progress | 9 / 23 |
 | 9 | Testing and beta | ⬜ Not started | 0 / 15 |
 | 10 | Release v1.0 | ⬜ Not started | 0 / 18 |
 | 11 | After v1 (backlog) | ⬜ Planned | 0 / 13 |
@@ -339,10 +339,10 @@ Spec: [Technical plan §13](docs/technical-plan.md#13-safety-privacy-and-store-r
 
 ### Safety 🔒
 - [ ] Hotline card for Hopeless, tested on a real phone (opens the dialer with 1553)
-- [ ] Account: "Need to talk to someone? NCMH 1553" row
-- [ ] Hotline works fully offline (hard-coded, `/meta` only updates it)
-- [ ] In-app disclaimer: "Ulap is a self-care diary, not a medical or emergency service."
-- [ ] Review every message against the voice guide (no guilt, no judgment)
+- [ ] Account: "Need to talk to someone? NCMH 1553" row ⏳
+- [ ] Hotline works fully offline (hard-coded, `/meta` only updates it) ⏳
+- [ ] In-app disclaimer: "Ulap is a self-care diary, not a medical or emergency service." ⏳
+- [ ] Review every message against the voice guide (no guilt, no judgment) ⏳
 
 ### Accessibility
 - [ ] Every touch target ≥ 48dp
@@ -352,12 +352,12 @@ Spec: [Technical plan §13](docs/technical-plan.md#13-safety-privacy-and-store-r
 - [ ] Reduced motion: Ulap float and the breathing animation turned off
 
 ### Polish
-- [ ] Loading, error and empty states on every screen
-- [ ] Screen transitions (fade plus slide, slower for Red and Blue)
+- [x] Loading, error and empty states on every screen
+- [x] Screen transitions (fade plus slide, slower for Red and Blue)
 - [ ] App icon (Ulap) tested at 48dp
 - [ ] Polished Ulap illustration set for onboarding and the store
 - [ ] Performance: cold start < 2 seconds on a mid-range phone, smooth scrolling in Logs
-- [ ] Details shows an edited check-in's date and time on the clock it was logged on (`tz_offset_min`), as Logs rows do, so after a trip the two never disagree
+- [x] Details shows an edited check-in's date and time on the clock it was logged on (`tz_offset_min`), as Logs rows do, so after a trip the two never disagree
 - [ ] Crash reporting with Sentry on Android and the server (D11): `sendDefaultPii = false`, a `beforeSend` that drops request bodies and any field named `note` or `triggerOther`, no emails, data kept no more than 90 days (privacy notice §6)
 
 **Phase 8 complete when:** an accessibility and safety review passes with no blocking issues.

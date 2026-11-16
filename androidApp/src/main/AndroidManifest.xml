@@ -48,6 +48,12 @@
             </intent-filter>
         </activity>
 
+        <!-- Sentry starts only from CrashReporting, with personal data off and the scrubbing
+             hook (D11), never on its own from the manifest. -->
+        <meta-data
+            android:name="io.sentry.auto-init"
+            android:value="false" />
+
         <!-- WorkManager starts on first use with UlapApp's configuration (Hilt's worker
              factory), not with its own default at app start. -->
         <provider

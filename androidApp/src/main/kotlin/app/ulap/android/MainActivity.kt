@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -11,8 +12,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.domain.settings.SettingsRepository
+import app.ulap.core.ui.LocalHotlineNumber
 import app.ulap.core.ui.applyAppLanguage
 import app.ulap.core.ui.chosenAppLanguage
+import app.ulap.shared.rules.HotlineRules
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -39,7 +42,12 @@ class MainActivity : AppCompatActivity() {
             // returning person never sees onboarding flash and a new one never sees Check in.
             val settings by settingsRepository.settings.collectAsStateWithLifecycle(initialValue = null)
             UlapTheme {
-                settings?.let { UlapAppRoot(onboardingDone = it.onboardingDone) }
+                settings?.let {
+                    // The hotline number /meta last sent, or the built-in 1553 (api-spec.md §9.3).
+                    CompositionLocalProvider(LocalHotlineNumber provides HotlineRules.numberToShow(it.hotlineNumber)) {
+                        UlapAppRoot(onboardingDone = it.onboardingDone)
+                    }
+                }
             }
         }
     }

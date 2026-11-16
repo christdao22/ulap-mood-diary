@@ -30,9 +30,13 @@ spotless {
         targetExclude("**/build/**")
         ktlint(ktlintVersion)
             .customRuleSets(listOf(composeRules))
-            // The only CompositionLocal allowed: theme values Material has no slot for
-            // (core:designsystem). Set here because Spotless doesn't pass this .editorconfig key on.
-            .editorConfigOverride(mapOf("compose_allowed_composition_locals" to "LocalUlapColors"))
+            // The only CompositionLocals allowed: theme values Material has no slot for
+            // (core:designsystem), and the hotline number (core:ui), which defaults to the built-in
+            // 1553 so no screen can show the hotline without a number (api-spec.md §9.3). Set here
+            // because Spotless doesn't pass this .editorconfig key on.
+            .editorConfigOverride(
+                mapOf("compose_allowed_composition_locals" to "LocalUlapColors,LocalHotlineNumber"),
+            )
     }
     kotlinGradle {
         target("**/*.kts")

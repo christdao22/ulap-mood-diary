@@ -46,7 +46,8 @@ class AfterViewModelTest {
     }
 
     private fun viewModel(checkInId: String) = AfterViewModel(
-        savedStateHandle = SavedStateHandle(mapOf("checkInId" to checkInId)),
+        // moodCode only picks the screen transition; the ViewModel reads the saved check-in.
+        savedStateHandle = SavedStateHandle(mapOf("checkInId" to checkInId, "moodCode" to "worried")),
         settingsRepository = FakeSettingsRepository(),
         checkInRepository = checkIns,
     )

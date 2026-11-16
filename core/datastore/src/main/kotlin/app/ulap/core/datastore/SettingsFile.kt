@@ -24,6 +24,8 @@ internal data class SettingsFile(
     val consentNoticeVersion: String? = null,
     /** Made on first use, see [DataStoreSettingsRepository.deviceId]. */
     val deviceId: String? = null,
+    /** From `GET /meta` when it differs from the built-in hotline; `null` = the built-in one. */
+    val hotlineNumber: String? = null,
 )
 
 /** DataStore reads and writes the whole file through this, as JSON. */

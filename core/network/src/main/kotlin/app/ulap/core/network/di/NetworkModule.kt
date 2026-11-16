@@ -7,6 +7,8 @@ import app.ulap.core.network.auth.AuthApi
 import app.ulap.core.network.auth.KtorAuthApi
 import app.ulap.core.network.auth.KtorSignedInAuthApi
 import app.ulap.core.network.auth.SignedInAuthApi
+import app.ulap.core.network.meta.KtorMetaApi
+import app.ulap.core.network.meta.MetaApi
 import app.ulap.core.network.sync.KtorSyncApi
 import app.ulap.core.network.sync.SyncApi
 import app.ulap.core.network.ulapHttpClient
@@ -64,4 +66,7 @@ internal interface NetworkBindsModule {
 
     @Binds
     fun bindsSyncApi(api: KtorSyncApi): SyncApi
+
+    @Binds
+    fun bindsMetaApi(api: KtorMetaApi): MetaApi
 }

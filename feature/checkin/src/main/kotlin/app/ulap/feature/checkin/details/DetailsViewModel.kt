@@ -44,6 +44,12 @@ data class DetailsForm(
      * the time it was first logged. An edit never moves a check-in to another day.
      */
     val loggedAt: Instant,
+    /**
+     * The clock [loggedAt] is shown on: the phone's offset for a new check-in, the saved
+     * `tz_offset_min` for an edit, so after a trip Details and Logs show the same time
+     * (technical-plan.md §10).
+     */
+    val tzOffsetMin: Int,
     val energy: Int = mood.defaultEnergy,
     val stress: Int = mood.defaultStress,
     val trigger: Trigger? = null,
@@ -116,10 +122,14 @@ class DetailsViewModel @Inject constructor(
         editingId?.let { id -> viewModelScope.launch { load(id) } }
     }
 
-    private fun newForm(moodCode: String) = DetailsForm(
-        mood = checkNotNull(MoodCatalog.byCode(moodCode)) { "Details opened for an unknown mood" },
-        loggedAt = clock.now(),
-    )
+    private fun newForm(moodCode: String): DetailsForm {
+        val now = clock.now()
+        return DetailsForm(
+            mood = checkNotNull(MoodCatalog.byCode(moodCode)) { "Details opened for an unknown mood" },
+            loggedAt = now,
+            tzOffsetMin = ZoneId.systemDefault().rules.getOffset(now.toJavaInstant()).totalSeconds / SECONDS_PER_MINUTE,
+        )
+    }
 
     private suspend fun load(id: String) {
         val checkIn = checkInRepository.get(id)
@@ -132,6 +142,7 @@ class DetailsViewModel @Inject constructor(
         form = DetailsForm(
             mood = mood,
             loggedAt = checkIn.loggedAt,
+            tzOffsetMin = checkIn.tzOffsetMin,
             energy = checkIn.energy,
             stress = checkIn.stress,
             trigger = checkIn.trigger,
@@ -215,9 +226,7 @@ class DetailsViewModel @Inject constructor(
         supportUsed = SupportType.NONE,
         isGoodMoment = false,
         loggedAt = loggedAt,
-        tzOffsetMin = ZoneId.systemDefault().rules.getOffset(
-            loggedAt.toJavaInstant(),
-        ).totalSeconds / SECONDS_PER_MINUTE,
+        tzOffsetMin = tzOffsetMin,
     )
 
     private companion object {

@@ -3,6 +3,7 @@ package app.ulap.server
 import app.ulap.server.auth.authRoutes
 import app.ulap.server.auth.installAccessTokenAuth
 import app.ulap.server.common.AppVersionGate
+import app.ulap.server.common.CrashReporting
 import app.ulap.server.common.RateLimits
 import app.ulap.server.common.RequestBodyLimit
 import app.ulap.server.common.RequestIds
@@ -43,6 +44,8 @@ fun main() {
         log.error(e.message)
         exitProcess(1)
     }
+    // Before anything else can fail. Without SENTRY_DSN it does nothing (D11).
+    CrashReporting.start(config.sentryDsn, config.env)
     val dataSource = Database.createDataSource(config.database)
     if (config.env == AppEnv.DEVELOPMENT) {
         val applied = Database.migrate(dataSource)

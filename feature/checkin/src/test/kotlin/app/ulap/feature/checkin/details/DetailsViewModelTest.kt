@@ -194,6 +194,15 @@ class DetailsViewModelTest {
     }
 
     @Test
+    fun `after a trip, Edit shows the check-in on the clock it was logged on`() = runTest {
+        val id = saveEarlier()
+        // The phone is in Tokyo (UTC+9) now; the check-in was logged in Manila (UTC+8).
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Tokyo"))
+
+        assertEquals(480, editViewModel(id).loaded.tzOffsetMin)
+    }
+
+    @Test
     fun `saving an edit changes the same check-in and updates updatedAt`() = runTest {
         val id = saveEarlier()
         val viewModel = editViewModel(id)

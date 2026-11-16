@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.core.util.Consumer
+import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -24,6 +25,7 @@ import app.ulap.android.navigation.TopLevelDestination
 import app.ulap.android.navigation.navigateToTab
 import app.ulap.core.designsystem.component.UlapTabBar
 import app.ulap.core.designsystem.component.UlapTabItem
+import app.ulap.core.designsystem.motion.rememberScreenTransitions
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.feature.account.navigation.accountGraph
 import app.ulap.feature.checkin.navigation.CheckInGraph
@@ -57,26 +59,15 @@ fun UlapAppRoot(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
     val startDestination: Any = remember { if (onboardingDone) CheckInGraph else OnboardingGraph }
+    // Fade plus an 8dp slide up, or a fade only with "Remove animations" on (design-spec.md §9).
+    val transitions = rememberScreenTransitions()
     BackToOnboardingWhenErased(onboardingDone, navController)
     OpenLinksWhileRunning(navController)
 
     Scaffold(
         modifier = modifier,
         containerColor = UlapTheme.colors.bg,
-        bottomBar = {
-            if (onboardingDone) {
-                UlapTabBar {
-                    TopLevelDestination.entries.forEach { destination ->
-                        UlapTabItem(
-                            selected = destination.isSelected(currentDestination),
-                            onClick = { navController.navigateToTab(destination) },
-                            label = stringResource(destination.labelRes),
-                            icon = destination.icon,
-                        )
-                    }
-                }
-            }
-        },
+        bottomBar = { if (onboardingDone) TabBar(currentDestination, navController) },
     ) { padding ->
         NavHost(
             navController = navController,
@@ -84,9 +75,14 @@ fun UlapAppRoot(
             modifier = Modifier
                 .padding(padding)
                 .consumeWindowInsets(padding),
+            enterTransition = { transitions.enter() },
+            exitTransition = { transitions.exit() },
+            popEnterTransition = { transitions.enter() },
+            popExitTransition = { transitions.exit() },
         ) {
             checkInGraph(
                 navController = navController,
+                transitions = transitions,
                 onSeeMyWeek = { navController.navigateToTab(TopLevelDestination.REPORTS) },
             )
             // Edit opens Check in's Details screen, filled in, inside the Logs tab (design-spec.md §7.6).
@@ -111,6 +107,21 @@ fun UlapAppRoot(
                         popUpTo(OnboardingGraph) { inclusive = true }
                     }
                 },
+            )
+        }
+    }
+}
+
+/** The fixed tab bar: Check in, Logs, Reports, Account (design-spec.md §6.10). */
+@Composable
+private fun TabBar(currentDestination: NavDestination?, navController: NavHostController) {
+    UlapTabBar {
+        TopLevelDestination.entries.forEach { destination ->
+            UlapTabItem(
+                selected = destination.isSelected(currentDestination),
+                onClick = { navController.navigateToTab(destination) },
+                label = stringResource(destination.labelRes),
+                icon = destination.icon,
             )
         }
     }

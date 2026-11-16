@@ -24,6 +24,7 @@ internal class DataStoreSettingsRepository @Inject constructor(private val dataS
                 mascotEnabled = file.mascotEnabled,
                 onboardingDone = file.onboardingDone,
                 consent = file.consent(),
+                hotlineNumber = file.hotlineNumber,
             )
         }
         .distinctUntilChanged()
@@ -58,14 +59,18 @@ internal class DataStoreSettingsRepository @Inject constructor(private val dataS
         return checkNotNull(file.deviceId)
     }
 
+    override suspend fun setHotlineNumber(number: String?) {
+        dataStore.updateData { it.copy(hotlineNumber = number) }
+    }
+
     override suspend fun clear() {
-        dataStore.updateData { SettingsFile() }
+        dataStore.updateData { SettingsFile(hotlineNumber = it.hotlineNumber) }
     }
 }
 
 /** The consent record, or `null` if either half is missing (a file from before consent was kept). */
 private fun SettingsFile.consent(): PrivacyConsent? {
-    val at = consentAtEpochMs ?: return null
-    val version = consentNoticeVersion ?: return null
-    return PrivacyConsent(Instant.fromEpochMilliseconds(at), version)
+    val at = consentAtEpochMs
+    val version = consentNoticeVersion
+    return if (at == null || version == null) null else PrivacyConsent(Instant.fromEpochMilliseconds(at), version)
 }

@@ -83,6 +83,8 @@ dependencies {
     implementation(libs.flyway.core)
     implementation(libs.flyway.postgresql)
     implementation(libs.logback.classic)
+    // Crash reports (D11), only when SENTRY_DSN is set. CrashReporting scrubs every event.
+    implementation(libs.sentry)
 
     testImplementation(libs.ktor.server.test.host)
     // The test client sends and reads the shared DTOs as JSON.

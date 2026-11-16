@@ -17,11 +17,14 @@ import io.ktor.server.plugins.callid.callId
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
+import io.sentry.Sentry
 
 /**
  * Maps every failure to the standard error body (api-spec.md §4). Unexpected exceptions become
  * `500 INTERNAL` and are logged [redacted]: class names and stack frames only, because a message
- * can quote the request body, which may hold a journal note (CLAUDE.md rules).
+ * can quote the request body, which may hold a journal note (CLAUDE.md rules). They also go to
+ * Sentry when it's on, with the request ID to find the log line; CrashReporting removes the
+ * message there too (D11).
  */
 fun Application.installErrorHandling() {
     install(StatusPages) {
@@ -44,6 +47,12 @@ fun Application.installErrorHandling() {
         }
         exception<Throwable> { call, e ->
             call.application.log.error("Unhandled exception (requestId=${call.callId})", e.redacted())
+            Sentry.withScope { scope ->
+                call.callId?.let { scope.setTag("requestId", it) }
+                // The original, so Sentry groups by the real exception class. CrashReporting's
+                // beforeSend clears every message before it leaves (CrashReportingTest).
+                Sentry.captureException(e)
+            }
             call.respondError(ErrorCode.INTERNAL, "Internal server error")
         }
         status(HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed) { call, _ ->

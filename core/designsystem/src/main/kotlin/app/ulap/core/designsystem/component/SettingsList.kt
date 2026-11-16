@@ -21,6 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import app.ulap.core.designsystem.icon.UlapIcons
@@ -47,16 +49,30 @@ fun UlapSettingsCard(modifier: Modifier = Modifier, content: @Composable ColumnS
 /**
  * One row in a settings list that opens another screen: a [title], the current [value] if it has
  * one (e.g. the chosen language), and a chevron. At least 56dp tall, above the 48dp minimum
- * (§11). TalkBack reads the title and value as one button.
+ * (§11). TalkBack reads the title and value as one button, or [contentDescription] instead when
+ * the words should be read differently (a phone number digit by digit).
  */
 @Composable
-fun UlapSettingsRow(title: String, onClick: () -> Unit, modifier: Modifier = Modifier, value: String? = null) {
+fun UlapSettingsRow(
+    title: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    value: String? = null,
+    contentDescription: String? = null,
+) {
     val colors = UlapTheme.colors
     Row(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = MinRowHeight)
             .clickable(role = Role.Button, onClick = onClick)
+            .then(
+                if (contentDescription == null) {
+                    Modifier
+                } else {
+                    Modifier.semantics { this.contentDescription = contentDescription }
+                },
+            )
             .padding(horizontal = UlapSpacing.CardPadding, vertical = UlapSpacing.S),
         horizontalArrangement = Arrangement.spacedBy(UlapSpacing.S),
         verticalAlignment = Alignment.CenterVertically,

@@ -25,4 +25,9 @@ data class UserSettings(
     val onboardingDone: Boolean = false,
     /** Saved together with [onboardingDone], so a phone that finished onboarding always has one. */
     val consent: PrivacyConsent? = null,
+    /**
+     * A hotline number `GET /meta` sent that differs from the built-in NCMH 1553, or `null` for
+     * the built-in one (api-spec.md §9.3). Screens show `HotlineRules.numberToShow(hotlineNumber)`.
+     */
+    val hotlineNumber: String? = null,
 )

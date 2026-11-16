@@ -550,8 +550,8 @@ This is the source for app text. Tone rules: [Design spec §10](design-spec.md#1
 
 | Key | English |
 |---|---|
-| `pick_greeting` | How are you feeling right now? |
-| `pick_sub` | Any answer is okay. |
+| `pick_mood_question` | How are you feeling right now? |
+| `pick_mood_reassurance` | Any answer is okay. |
 | `pre_red` | That can feel intense. I'm right here. |
 | `pre_blue` | Thanks for telling me. Take your time. |
 | `pre_yellow` | Ooh, tell me more! |
@@ -597,7 +597,7 @@ This is the source for app text. Tone rules: [Design spec §10](design-spec.md#1
 | `after_lower_sub_hopeless` | I'm glad something eased a little. Help is still here whenever you need it. (Hopeless only, in place of `after_lower_sub`) |
 | `after_same_sub` | Feelings take time to shift. Be gentle with yourself today. |
 | `after_higher` | It went up to %1$d. |
-| `after_higher_sub` | Thank you for checking honestly. If it keeps rising, reach out to someone you trust or call NCMH at 1553. |
+| `after_higher_sub` | Thank you for checking honestly. If it keeps rising, reach out to someone you trust or call NCMH at %1$s. (`%1$s` is the hotline number) |
 | `after_higher_sub_hopeless` | Thank you for checking honestly. This sounds really heavy. Talking to someone can help, even right now. (Hopeless only, in place of `after_higher_sub`: the hotline card is right below it) |
 | `after_before` / `after_now` | Before %1$d / Now %1$d (the two pills at the top of the After screen) |
 | `after_action_week` | See my week (the After screen's secondary button; it opens Reports. Its primary button reuses `resp_action_done`) |
@@ -606,8 +606,8 @@ This is the source for app text. Tone rules: [Design spec §10](design-spec.md#1
 | `prompt_yellow` | What made this moment good? |
 | `prompt_green` | What's helping you feel this way? |
 | `hotline_title` | NCMH Crisis Hotline · available 24/7 |
-| `hotline_number` | 1553 (not translated, so it's only in `values/strings.xml`) |
-| `hotline_call` | Call %1$s (`%1$s` is `hotline_number`) |
+| `hotline_call` | Call %1$s (`%1$s` is the hotline number: `HotlineRules.BUILT_IN_NUMBER`, 1553, or a newer one from `/meta`, api-spec §9.3) |
 | `hotline_helper` | This opens your phone app. You choose when to call. |
-| `hotline_no_phone` | This device can't make calls. You can dial %1$s from any phone. (`%1$s` is `hotline_number`; shown when no phone app can open the number) |
-| `disclaimer` | Ulap is a self-care diary, not a medical or emergency service. |
+| `hotline_no_phone` | This device can't make calls. You can dial %1$s from any phone. (`%1$s` is the hotline number; shown when no phone app can open the number) |
+| `account_hotline` | Need to talk to someone? NCMH %1$s (the Account row; `%1$s` is the hotline number) |
+| `app_disclaimer` | Ulap is a self-care diary, not a medical or emergency service. (Onboarding step 3 and the Account footer) |

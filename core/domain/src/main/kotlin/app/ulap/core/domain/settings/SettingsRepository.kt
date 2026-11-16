@@ -27,9 +27,16 @@ interface SettingsRepository {
     suspend fun deviceId(): String
 
     /**
+     * Saves the hotline number from `GET /meta`, or `null` to go back to the built-in NCMH 1553
+     * (api-spec.md §9.3). Only `HotlineRules.savedAfter` decides what to pass.
+     */
+    suspend fun setHotlineNumber(number: String?)
+
+    /**
      * Back to a fresh install: no language, onboarding not done, no consent (so it's asked again),
-     * a new device ID on next use. For
-     * "Delete account and all data" (api-spec.md §7.3).
+     * a new device ID on next use. For "Delete account and all data" (api-spec.md §7.3). The
+     * hotline number from `/meta` stays: it isn't personal data, and a person who just erased
+     * their diary should still see the current number.
      */
     suspend fun clear()
 }

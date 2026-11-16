@@ -38,7 +38,7 @@
     <string name="account_sign_out_title">Mag-sign out?</string>
     <string name="account_sign_out_body">Mananatili sa phone na ito ang iyong mga check-in. Puwede kang mag-sign in ulit anumang oras para tuloy ang backup.</string>
     <string name="account_sign_out_confirm">Mag-sign out</string>
-    <string name="account_sign_out_cancel">Huwag muna</string>
+    <string name="account_sign_out_cancel">Manatiling naka-sign in</string>
     <!-- Delete account and all data (design-spec.md §7.8, api-spec.md §7.3) -->
     <string name="account_delete">Burahin ang account at lahat ng data</string>
     <string name="account_deleting">Binubura…</string>
@@ -143,7 +143,7 @@
     <!-- Onboarding step 3 (design-spec.md §7.1) -->
     <string name="onboarding_privacy_title">Ang privacy mo</string>
     <string name="onboarding_privacy_phone">Nananatili sa phone na ito ang diary mo. Puwede mo itong i-back up mamaya.</string>
-    <string name="onboarding_privacy_disclaimer">Ang Ulap ay diary para sa pag-aalaga sa sarili, hindi serbisyong medikal o pang-emergency.</string>
+    <string name="app_disclaimer">Ang Ulap ay diary para sa pag-aalaga sa sarili, hindi serbisyong medikal o pang-emergency.</string>
     <string name="onboarding_privacy_consent">Kapag nagsimula ka, sumasang-ayon ka sa privacy notice.</string>
     <string name="onboarding_start">Simulan ang una kong check-in</string>
     <string name="onboarding_read_privacy">Basahin ang privacy notice</string>
@@ -306,16 +306,17 @@
     <string name="after_same">Nasa %1$d pa rin, at okay lang iyan.</string>
     <string name="after_same_sub">Kailangan ng panahon para magbago ang nararamdaman. Maging mabait ka sa sarili mo ngayong araw.</string>
     <string name="after_higher">Tumaas ito sa %1$d.</string>
-    <string name="after_higher_sub">Salamat sa tapat mong pagsagot. Kung patuloy itong tumataas, kausapin ang taong pinagkakatiwalaan mo o tumawag sa NCMH sa 1553.</string>
+    <string name="after_higher_sub">Salamat sa tapat mong pagsagot. Kung patuloy itong tumataas, kausapin ang taong pinagkakatiwalaan mo o tumawag sa NCMH sa %1$s.</string>
     <string name="after_lower_sub_hopeless">Mabuti at gumaan nang kaunti. Nandito pa rin ang tulong kahit kailan mo kailanganin.</string>
     <string name="after_higher_sub_hopeless">Salamat sa tapat mong pagsagot. Mukhang sobrang bigat nito. Makakatulong ang makipag-usap sa isang tao, kahit ngayon mismo.</string>
-    <string name="after_action_week">Ang linggo ko</string>
+    <string name="after_action_week">Tingnan ang linggo ko</string>
 
     <!-- The NCMH crisis hotline card (design-spec.md §6.8, hotline_*). Safety 🔒 -->
     <string name="hotline_title">NCMH Crisis Hotline · bukas 24/7</string>
     <string name="hotline_call">Tumawag sa %1$s</string>
     <string name="hotline_helper">Bubuksan nito ang phone app mo. Ikaw ang bahala kung kailan tatawag.</string>
     <string name="hotline_no_phone">Hindi makatawag ang device na ito. Puwede mong i-dial ang %1$s sa kahit anong phone.</string>
+    <string name="account_hotline">Kailangan mo ba ng makakausap? NCMH %1$s</string>
 
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Enerhiya</string>
@@ -404,14 +405,14 @@
     <string name="insight_time_night">Kadalasang mas mabigat ang pakiramdam mo kapag gabing-gabi na.</string>
 
     <!-- Reports screen (design-spec.md §7.7). Drafts for native review (Phase 5). -->
-    <string name="reports_daily">Araw-araw</string>
-    <string name="reports_weekly">Lingguhan</string>
-    <string name="reports_monthly">Buwanan</string>
+    <string name="reports_daily">Araw</string>
+    <string name="reports_weekly">Linggo</string>
+    <string name="reports_monthly">Buwan</string>
     <string name="reports_previous">Nakaraang panahon</string>
     <string name="reports_next">Susunod na panahon</string>
     <string name="reports_today">Ngayon</string>
     <string name="reports_noticed">Napansin ni Ulap:</string>
-    <string name="reports_noticed_none">Walang kakaibang lumitaw ngayon. Patuloy akong magmamasid kasama mo.</string>
+    <string name="reports_noticed_none">Walang namumukod-tangi ngayon. Patuloy akong magmamasid kasama mo.</string>
     <string name="reports_not_enough">Ilan pang check-in at magsisimula na tayong makakita ng mga pattern nang magkasama.</string>
     <string name="reports_tile_check_ins">Mga check-in</string>
     <string name="reports_tile_stress">Karaniwang stress</string>

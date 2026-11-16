@@ -38,7 +38,7 @@
     <string name="account_sign_out_title">Mag-sign out?</string>
     <string name="account_sign_out_body">Magpabilin niining phone ang imong mga check-in. Pwede ka mag-sign in usab bisan kanus-a aron magpadayon ang backup.</string>
     <string name="account_sign_out_confirm">Pag-sign out</string>
-    <string name="account_sign_out_cancel">Ayaw sa</string>
+    <string name="account_sign_out_cancel">Magpabilin nga naka-sign in</string>
     <!-- Delete account and all data (design-spec.md §7.8, api-spec.md §7.3) -->
     <string name="account_delete">Papasa ang account ug tanang data</string>
     <string name="account_deleting">Ginapapas…</string>
@@ -50,7 +50,7 @@
     <string name="account_delete_body_phone">Mapapas ang matag check-in ug note dinhi sa phone. Dili na kini mabalik.</string>
     <string name="account_delete_body_sign_in_again">Mapapas ang matag check-in ug note dinhi sa phone. Dili na kini mabalik. Magpabilin ang imong backup sa server sa Ulap. Aron mapapas usab kini, pag-sign in usab una.</string>
     <string name="account_delete_confirm">Papasa tanan</string>
-    <string name="account_delete_cancel">Itago ang akong diary</string>
+    <string name="account_delete_cancel">Ayaw papasa</string>
     <string name="account_delete_error_offline">Offline ka karon, mao nga walay napapas. Sulayi pag-usab inig online na nimo.</string>
     <string name="account_delete_error_sign_in">Walay napapas. Aron mapapas usab ang imong backup, pag-sign in usab una.</string>
     <string name="account_delete_error_too_many">Walay napapas. Hulat sa ta kadiyot, dayon sulayi pag-usab human sa pila ka minuto.</string>
@@ -143,7 +143,7 @@
     <!-- Onboarding step 3 (design-spec.md §7.1) -->
     <string name="onboarding_privacy_title">Imong privacy</string>
     <string name="onboarding_privacy_phone">Ang imong diary magpabilin niining phone. Mahimo nimo kining i-back up unya.</string>
-    <string name="onboarding_privacy_disclaimer">Ang Ulap usa ka diary para sa pag-atiman sa kaugalingon, dili serbisyong medikal o pang-emergency.</string>
+    <string name="app_disclaimer">Ang Ulap usa ka diary para sa pag-atiman sa kaugalingon, dili serbisyong medikal o pang-emergency.</string>
     <string name="onboarding_privacy_consent">Kung magsugod ka, nag-uyon ka sa privacy notice.</string>
     <string name="onboarding_start">Sugdi ang akong unang check-in</string>
     <string name="onboarding_read_privacy">Basaha ang privacy notice</string>
@@ -234,7 +234,7 @@
 
     <!-- Ulap's soft-mirror line on the Details header (technical-plan.md Appendix B, pre_*) -->
     <string name="pre_red">Bug-at gyud na. Ania ra ko.</string>
-    <string name="pre_blue">Salamat kay gisultihan ko nimo. Ayaw kadali.</string>
+    <string name="pre_blue">Salamat kay gisultihan ko nimo. Hinay-hinay lang.</string>
     <string name="pre_yellow">Uy, sultihi pa ko!</string>
     <string name="pre_green">Murag malinawon kana.</string>
 
@@ -274,9 +274,9 @@
     <string name="help_breathe_steps">Sulod 4 · pugngi 2 · gawas 6</string>
     <string name="help_breathe_sub">Sunda ang lingin. Igo na ang lima ka hinay nga ginhawa.</string>
     <!-- The word inside the breathing circle for this part of the breath -->
-    <string name="help_breathe_in">Ginhawa pasulod</string>
+    <string name="help_breathe_in">Sulod</string>
     <string name="help_breathe_hold">Pugngi</string>
-    <string name="help_breathe_out">Ginhawa pagawas</string>
+    <string name="help_breathe_out">Gawas</string>
     <string name="help_small_title">Gusto ka mosulay og usa?</string>
     <string name="help_small_water">Inom og usa ka basong tubig</string>
     <string name="help_small_song">Pamati og kanta nga ganahan nimo</string>
@@ -306,16 +306,17 @@
     <string name="after_same">Naa gihapon sa %1$d, ug okay ra kana.</string>
     <string name="after_same_sub">Nagkinahanglan og panahon ang pagbag-o sa gibati. Pagmalumo sa imong kaugalingon karong adlawa.</string>
     <string name="after_higher">Misaka kini ngadto %1$d.</string>
-    <string name="after_higher_sub">Salamat sa imong tinuod nga tubag. Kung magpadayon kini sa pagsaka, pakigsulti sa tawo nga imong gisaligan o tawag sa NCMH sa 1553.</string>
+    <string name="after_higher_sub">Salamat sa imong tinuod nga tubag. Kung magpadayon kini sa pagsaka, pakigsulti sa tawo nga imong gisaligan o tawag sa NCMH sa %1$s.</string>
     <string name="after_lower_sub_hopeless">Maayo nga migaan og gamay. Ania gihapon ang tabang bisan kanus-a nimo kinahanglan.</string>
     <string name="after_higher_sub_hopeless">Salamat sa imong tinuod nga tubag. Morag bug-at kaayo kini. Makatabang ang pakigsulti sa usa ka tawo, bisan karon.</string>
-    <string name="after_action_week">Akong semana</string>
+    <string name="after_action_week">Tan-awa ang akong semana</string>
 
     <!-- The NCMH crisis hotline card (design-spec.md §6.8, hotline_*). Safety 🔒 -->
     <string name="hotline_title">NCMH Crisis Hotline · abli 24/7</string>
     <string name="hotline_call">Tawagi ang %1$s</string>
     <string name="hotline_helper">Moabli kini sa imong phone app. Ikaw ra ang magbuot kanus-a ka motawag.</string>
     <string name="hotline_no_phone">Dili makatawag kining device. Pwede nimo i-dial ang %1$s bisan asang phone.</string>
+    <string name="account_hotline">Kinahanglan ka og makaistorya? NCMH %1$s</string>
 
     <!-- Energy and stress sliders (design-spec.md §6.4) -->
     <string name="slider_energy">Enerhiya</string>
@@ -358,8 +359,8 @@
     <string name="zone_yellow_short">Dilaw</string>
     <string name="zone_green_short">Berde</string>
 
-    <!-- Moods, by code (technical-plan.md Appendix A draft). Frustrated and Disappointed are both
-         "Nasagmuyo" in the draft; PHASES.md Phase 5 picks two different words. -->
+    <!-- Moods, by code (technical-plan.md Appendix A draft). Frustrated is "Nabudlayan" and
+         Disappointed "Nasagmuyo", so the two differ (PHASES.md Phase 5). -->
     <string name="mood_panicked">Nataranta</string>
     <string name="mood_overwhelmed">Nabug-atan kaayo</string>
     <string name="mood_anxious">Kulbaan</string>
@@ -405,9 +406,9 @@
     <string name="insight_time_night">Kasagaran mas bug-at ang imong gibati kon lawom na ang gabii.</string>
 
     <!-- Reports screen (design-spec.md §7.7). Drafts for native review (Phase 5). -->
-    <string name="reports_daily">Matag adlaw</string>
-    <string name="reports_weekly">Matag semana</string>
-    <string name="reports_monthly">Matag bulan</string>
+    <string name="reports_daily">Adlaw</string>
+    <string name="reports_weekly">Semana</string>
+    <string name="reports_monthly">Bulan</string>
     <string name="reports_previous">Miaging yugto</string>
     <string name="reports_next">Sunod nga yugto</string>
     <string name="reports_today">Karon</string>

@@ -39,6 +39,7 @@ import app.ulap.core.designsystem.theme.UlapSpacing
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.ui.HotlineCard
 import app.ulap.core.ui.R
+import app.ulap.core.ui.hotlineNumber
 import app.ulap.core.ui.toMascot
 import app.ulap.shared.catalog.MoodCatalog
 import app.ulap.shared.model.Zone
@@ -205,7 +206,7 @@ private fun afterSub(state: AfterUiState.Ready): String {
 
         StressChange.HIGHER if hopeless -> stringResource(R.string.after_higher_sub_hopeless)
 
-        StressChange.HIGHER -> stringResource(R.string.after_higher_sub)
+        StressChange.HIGHER -> stringResource(R.string.after_higher_sub, hotlineNumber())
     }
 }
 

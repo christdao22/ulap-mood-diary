@@ -57,7 +57,7 @@ import app.ulap.shared.rules.EnergyLabels
 import app.ulap.shared.rules.LEVEL_RANGE
 import app.ulap.shared.rules.ResponseRules
 import app.ulap.shared.rules.StressLabels
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.time.Instant
 import kotlin.time.toJavaInstant
@@ -116,7 +116,7 @@ internal fun DetailsContent(
             .padding(UlapSpacing.ScreenPadding),
         verticalArrangement = Arrangement.spacedBy(UlapSpacing.CardGap),
     ) {
-        TopRow(loggedAt = form.loggedAt, isEditing = form.isEditing, onBack = onBack)
+        TopRow(loggedAt = form.loggedAt, tzOffsetMin = form.tzOffsetMin, isEditing = form.isEditing, onBack = onBack)
         MoodHeader(form = form, showUlap = showUlap)
         Levels(form = form, actions = actions)
         Triggers(form = form, actions = actions)
@@ -131,7 +131,7 @@ internal fun DetailsContent(
 }
 
 @Composable
-private fun TopRow(loggedAt: Instant, isEditing: Boolean, onBack: () -> Unit) {
+private fun TopRow(loggedAt: Instant, tzOffsetMin: Int, isEditing: Boolean, onBack: () -> Unit) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(UlapSpacing.S),
         verticalAlignment = Alignment.CenterVertically,
@@ -142,7 +142,7 @@ private fun TopRow(loggedAt: Instant, isEditing: Boolean, onBack: () -> Unit) {
             Icon(imageVector = UlapIcons.Back, contentDescription = null)
         }
         Text(
-            text = rememberLoggedAtText(loggedAt),
+            text = rememberLoggedAtText(loggedAt, tzOffsetMin),
             style = MaterialTheme.typography.bodyMedium,
             color = UlapTheme.colors.ink2,
         )
@@ -150,15 +150,16 @@ private fun TopRow(loggedAt: Instant, isEditing: Boolean, onBack: () -> Unit) {
 }
 
 /**
- * "Wednesday, Nov 4 · 4:49 PM" in the app's language, on the phone's clock: 12- or 24-hour as the
- * person set it. The patterns come from the locale, so Filipino and Bisaya get their own order.
+ * "Wednesday, Nov 4 · 4:49 PM" in the app's language, on the clock it was logged on
+ * ([tzOffsetMin]), as Logs rows show it: 12- or 24-hour as the person set it. The patterns come
+ * from the locale, so Filipino and Bisaya get their own order.
  */
 @Composable
-private fun rememberLoggedAtText(loggedAt: Instant): String {
+private fun rememberLoggedAtText(loggedAt: Instant, tzOffsetMin: Int): String {
     val locale = LocalConfiguration.current.locales[0]
     val is24Hour = DateFormat.is24HourFormat(LocalContext.current)
-    val (date, time) = remember(loggedAt, locale, is24Hour) {
-        val local = loggedAt.toJavaInstant().atZone(ZoneId.systemDefault())
+    val (date, time) = remember(loggedAt, tzOffsetMin, locale, is24Hour) {
+        val local = loggedAt.toJavaInstant().atOffset(ZoneOffset.ofTotalSeconds(tzOffsetMin * SECONDS_PER_MINUTE))
         val datePattern = DateFormat.getBestDateTimePattern(locale, "EEEEMMMd")
         val timePattern = DateFormat.getBestDateTimePattern(locale, if (is24Hour) "Hm" else "hma")
         DateTimeFormatter.ofPattern(datePattern, locale).format(local) to
@@ -329,6 +330,7 @@ private fun DetailsContentPreview() {
             form = DetailsForm(
                 mood = checkNotNull(MoodCatalog.byCode("worried")),
                 loggedAt = Instant.parse("2026-11-04T08:49:00Z"),
+                tzOffsetMin = MANILA_OFFSET_MIN,
                 stress = 9,
                 trigger = Trigger.WORK,
             ),
@@ -354,3 +356,8 @@ private object NoDetailsActions : DetailsActions {
 
     override fun save() = Unit
 }
+
+private const val SECONDS_PER_MINUTE = 60
+
+/** UTC+8, for the preview. */
+private const val MANILA_OFFSET_MIN = 480

@@ -51,7 +51,7 @@ internal fun YourPrivacyContent(onStart: () -> Unit, onReadPrivacyNotice: () -> 
         OnboardingTitle(stringResource(R.string.onboarding_privacy_title))
         listOf(
             R.string.onboarding_privacy_phone,
-            R.string.onboarding_privacy_disclaimer,
+            R.string.app_disclaimer,
             R.string.onboarding_privacy_consent,
         ).forEach { line ->
             Text(

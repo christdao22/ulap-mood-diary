@@ -615,7 +615,7 @@ No auth. Lets the app check its compatibility.
   "hotline": { "name": "NCMH Crisis Hotline", "number": "1553" }
 }
 ```
-The hotline is also hard-coded in the app, so it works offline. `/meta` only allows updating it without an app release.
+The hotline is also hard-coded in the app, so it works offline. `/meta` only allows updating it without an app release. The app asks once per start and saves a changed `hotline.number` on the phone; every hotline surface then shows it. Only the number updates: the card's name stays the app's own translated text. A number that isn't dialable (digits with an optional leading `+`, 3 to 15 digits) is ignored, and sending `1553` again goes back to the built-in number (`HotlineRules` in `shared`).
 `minAppVersion.android` and `latestAppVersion.android` come from `MIN_ANDROID_VERSION_CODE` and `LATEST_ANDROID_VERSION_CODE` ([README §8](../README.md#8-configuration-reference)). There's no iOS app yet, so `ios` is left out (the same as `null`, §2).
 
 ---
