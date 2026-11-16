@@ -7,6 +7,7 @@ import app.ulap.core.network.meta.MetaApi
 import app.ulap.shared.rules.HotlineRules
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -30,7 +31,19 @@ class HotlineUpdater @Inject internal constructor(
 
     /** One `/meta` call. Any failure is ignored: the next app start tries again. */
     internal suspend fun update() {
-        val answer = meta.meta() as? ApiResult.Success ?: return
+        val answer = try {
+            meta.meta()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (
+            // apiCall throws when a 2xx body isn't a MetaResponse (a captive-portal or login page,
+            // a renamed field). Uncaught, that crashes the app on every start and takes the hotline
+            // with it, so any failure here just keeps the saved number.
+            @Suppress("TooGenericExceptionCaught") _: Exception,
+        ) {
+            return
+        }
+        if (answer !is ApiResult.Success) return
         val saved = settings.settings.first().hotlineNumber
         val next = HotlineRules.savedAfter(answer.value.hotline, saved)
         if (next != saved) settings.setHotlineNumber(next)

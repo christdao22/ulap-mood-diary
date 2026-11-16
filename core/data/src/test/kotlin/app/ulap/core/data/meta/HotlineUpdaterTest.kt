@@ -10,8 +10,10 @@ import app.ulap.shared.api.HotlineInfo
 import app.ulap.shared.api.MetaResponse
 import app.ulap.shared.api.PlatformVersions
 import java.io.IOException
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.runTest
@@ -19,6 +21,11 @@ import kotlinx.coroutines.test.runTest
 class HotlineUpdaterTest {
     private class FixedMeta(var answer: ApiResult<MetaResponse>) : MetaApi {
         override suspend fun meta(): ApiResult<MetaResponse> = answer
+    }
+
+    /** Stands in for apiCall throwing on a 2xx body that isn't a MetaResponse. */
+    private class ThrowingMeta(private val error: Exception) : MetaApi {
+        override suspend fun meta(): ApiResult<MetaResponse> = throw error
     }
 
     /** Settings in memory. core:testing's fake isn't a dependency of core:data. */
@@ -93,5 +100,24 @@ class HotlineUpdaterTest {
 
         assertEquals("1554", settings.settings.value.hotlineNumber)
         assertEquals(0, settings.writes)
+    }
+
+    @Test
+    fun `a 2xx body that isn't meta keeps the saved number instead of crashing`() = runTest {
+        val settings = MemorySettings(hotlineNumber = "1554")
+        val updater = HotlineUpdater(ThrowingMeta(IllegalStateException("not JSON")), settings, backgroundScope)
+
+        updater.update()
+
+        assertEquals("1554", settings.settings.value.hotlineNumber)
+        assertEquals(0, settings.writes)
+    }
+
+    @Test
+    fun `cancelling still stops the update`() = runTest {
+        val updater =
+            HotlineUpdater(ThrowingMeta(CancellationException("app closed")), MemorySettings(), backgroundScope)
+
+        assertFailsWith<CancellationException> { updater.update() }
     }
 }
