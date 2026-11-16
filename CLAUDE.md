@@ -38,6 +38,13 @@ From README §6 (D4, D10 and D13 are accepted).
 - `mobile-app-developer`: app-wide concerns (performance, accessibility, permissions, hotline flow, Play Console)
 - `wellbeing-reviewer`: read-only review of app text and flows against the voice guide and safety rules
 - `phase-work` skill: "next task" / "go" in PHASES.md
+- `security-audit` skill (third-party, from cloudflare/security-audit-skill): security questions and reviews. It runs a full audit and writes report files only when one is asked for.
+
+## AI tools setup (new devs)
+README §6.9 owns this. A fresh clone already has `CLAUDE.md`, `.claude/agents/`, `.claude/skills/` and `.claude/settings.json`. A new dev only installs Claude Code.
+- Third-party skills are plain copies in `.claude/skills/`, tracked in `skills-lock.json`. Update: `npx skills update -p -y`. Add: `npx skills add <github-url> --skill <name> --agent claude-code --copy -y`.
+- Never commit `.agents/` or a skill symlink (git has symlinks off on Windows, and the link holds an absolute path). Read a new skill's files before it's committed.
+- graphify is optional and installed per machine (README §6.8).
 
 ## Git
 - Conventional Commits (README §12; scopes in ulap-reference §10). The user runs the commit. Don't commit unless asked.

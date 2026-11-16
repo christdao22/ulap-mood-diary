@@ -36,6 +36,8 @@ Thumbs.db
 .claude/settings.local.json
 .claude/hooks/
 .mcp.json
+# Made by `npx skills add` without --agent claude-code --copy; skills live in .claude/skills/ (README §6.9)
+.agents/
 
 # graphify output (rebuilt locally)
 graphify-out/

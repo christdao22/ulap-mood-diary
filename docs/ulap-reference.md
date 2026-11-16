@@ -391,6 +391,9 @@ macro-tracker gitignored all of `.claude/`, so a fresh clone had no agents or sk
 | `CLAUDE.md` | ✅ | Project rules for every session |
 | `.claude/agents/*.md` | ✅ | Shared, no secrets |
 | `.claude/skills/*/SKILL.md` | ✅ | Shared, no secrets |
+| `.claude/skills/security-audit/` (whole folder) | ✅ | Third-party skill, committed as a plain copy so clones need no install step (§11.3) |
+| `skills-lock.json` | ✅ | Source and hash of each third-party skill, used by `npx skills update` |
+| `.agents/` | ❌ (gitignore) | Made only by `npx skills add` without `--agent claude-code --copy` (§11.3) |
 | `.claude/settings.json` | ✅ | Shared permissions (§11.6) |
 | `.claude/settings.local.json` | ❌ (gitignore) | Personal hooks and paths |
 | `.claude/hooks/*.ps1` | ❌ (gitignore) | Windows paths (none are used now, §11.4) |
@@ -452,6 +455,12 @@ All agents: read the owning doc section first, keep changes small, run the full 
 5. Stop. Output a paste-ready Conventional Commit message and a short recap: What changed (with links), Why (doc section), New concepts, Try it yourself, Left open, Next.
 6. Tick the box and update the phase's count and status in PHASES.md **only when the Definition of Done is met**. The user commits.
 7. Overwrite the `phase-work-style` memory (Status / Next / Open, under ~1.5 KB), then suggest `/clear`.
+
+**`security-audit`** (third-party, from [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill), added Nov 2026): security guidance by default, and a full six-phase audit with report files only when one is asked for. Install rules for this and any later third-party skill:
+- Install with `npx skills add <url> --skill <name> --agent claude-code --copy -y`. This writes a plain copy to `.claude/skills/<name>/` and an entry in `skills-lock.json`, and both are committed.
+- No symlinks and no `.agents/` folder. Without `--copy` the CLI symlinks to `.agents/skills/` with an absolute path, and git here has `core.symlinks=false`, so the link would break on every other clone.
+- Update with `npx skills update -p -y`, then review the diff like any other code change. Skills run with Claude's permissions.
+- New devs install only Claude Code (README §6.9).
 
 **`reference-coding`**: dropped together with XERJ to cut token usage. The attribution rule in §10 still applies to any code adapted from another repo.
 

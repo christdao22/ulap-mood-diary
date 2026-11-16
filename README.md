@@ -133,6 +133,7 @@ ulap/
 ├── PHASES.md                          # progress tracker (checkboxes)
 ├── CLAUDE.md                          # rules for Claude Code sessions
 ├── .claude/                           # shared agents, skills, settings.json (docs/ulap-reference.md §11)
+├── skills-lock.json                   # source and hash of third-party Claude Code skills (§6.9)
 ├── LICENSE
 ├── CONTRIBUTING.md                    # short file that links to README §12
 ├── SECURITY.md                        # how to report a vulnerability (§14)
@@ -357,6 +358,40 @@ graphify update .                                # re-extract code files into gr
 - `graphify install` rewrites `~/.claude/skills/graphify/SKILL.md`. Afterwards, add `disable-model-invocation: true` back to its frontmatter.
 - `graphify --help` prints a warning when another tool's copy of the skill is older than the package. Run the `graphify install --platform <name>` command it shows.
 - After doc changes, run `/graphify . --update` inside Claude Code, because only that re-reads docs.
+
+### 6.9 AI tools (Claude Code)
+
+The repo comes with its Claude Code setup, so a fresh clone already has it. You only install Claude Code itself:
+
+```bash
+npm install -g @anthropic-ai/claude-code   # or use the desktop app or the VS Code extension
+claude                                     # run from the repo root; it reads CLAUDE.md and .claude/
+```
+
+What the clone brings ([ulap-reference §11](docs/ulap-reference.md#11-claude-code-setup-for-ulap)):
+
+| Path | What it is |
+|---|---|
+| `CLAUDE.md` | Project rules for every session |
+| `.claude/agents/` | `kotlin-specialist`, `ktor-backend`, `mobile-app-developer`, `wellbeing-reviewer` |
+| `.claude/skills/phase-work/` | Ours: works through PHASES.md one task at a time ("next task", "go") |
+| `.claude/skills/security-audit/` | Third-party, from [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill): security reviews and audits (`/security-audit`) |
+| `.claude/settings.json` | Shared permissions |
+| `skills-lock.json` | Where each third-party skill came from, plus a hash of its files |
+
+Third-party skills are committed as plain copies, not symlinks, so they work on every clone without Node. You need Node.js (for `npx`) only to add or update one:
+
+```bash
+# Update the third-party skills, then review the diff before committing
+npx skills update -p -y
+
+# Add another one (always for Claude Code only, as a copy)
+npx skills add <github-url> --skill <name> --agent claude-code --copy -y
+```
+
+- Read a new skill's files before committing it. Skills run with the same permissions as Claude.
+- Don't commit the `.agents/` folder or symlinks. They appear if you run `npx skills add` without `--agent claude-code --copy`.
+- graphify is optional and installed per machine ([§6.8](#68-optional-graphify)).
 
 ---
 
