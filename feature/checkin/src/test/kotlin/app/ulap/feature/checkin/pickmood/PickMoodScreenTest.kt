@@ -8,6 +8,10 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import app.ulap.core.composetesting.LargestFontScale
+import app.ulap.core.composetesting.assertNoTextCutOff
+import app.ulap.core.composetesting.assertTouchTargetsAtLeast48dp
+import app.ulap.core.composetesting.assertTouchTargetsHaveNames
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.ui.R
 import app.ulap.core.ui.nameRes
@@ -20,6 +24,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 // A phone-width screen tall enough that all four zone cards are on screen at once.
@@ -31,14 +36,17 @@ class PickMoodScreenTest {
     private val context = RuntimeEnvironment.getApplication()
     private val picked = mutableListOf<String>()
 
-    private fun show(timeOfDay: TimeOfDay = TimeOfDay.AFTERNOON, showUlap: Boolean = true) = compose.setContent {
-        UlapTheme {
-            PickMoodContent(
-                uiState = PickMoodUiState(timeOfDay = timeOfDay, showUlap = showUlap),
-                onMoodClick = { picked += it },
-            )
+    private fun show(timeOfDay: TimeOfDay = TimeOfDay.AFTERNOON, showUlap: Boolean = true, largeText: Boolean = false) =
+        compose.setContent {
+            LargestFontScale(enabled = largeText) {
+                UlapTheme {
+                    PickMoodContent(
+                        uiState = PickMoodUiState(timeOfDay = timeOfDay, showUlap = showUlap),
+                        onMoodClick = { picked += it },
+                    )
+                }
+            }
         }
-    }
 
     @Test
     fun `Ulap greets for the time of day and says any answer is okay`() {
@@ -112,5 +120,40 @@ class PickMoodScreenTest {
         compose.onNodeWithContentDescription("$name.", substring = true).performClick()
         compose.onNodeWithContentDescription("Calm.", substring = true).performClick()
         assertEquals(listOf("burned_out", "calm"), picked)
+    }
+
+    // Accessibility (design-spec.md §11). Native graphics measure real fonts.
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+h3000dp")
+    fun `every touch target is at least 48dp and has a name`() {
+        show()
+        compose.assertTouchTargetsAtLeast48dp()
+        compose.assertTouchTargetsHaveNames()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+en")
+    fun `nothing is cut off at 200 percent text in English`() {
+        show(largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+fil")
+    fun `nothing is cut off at 200 percent text in Filipino`() {
+        show(largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+b+ceb")
+    fun `nothing is cut off at 200 percent text in Bisaya`() {
+        show(largeText = true)
+        compose.assertNoTextCutOff()
     }
 }

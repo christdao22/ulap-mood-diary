@@ -37,6 +37,12 @@ object UlapSpacing {
     /** Between tiles in the mood grid. */
     val MoodGridGap = Xs
 
+    /**
+     * The smallest touch target on Android (design-spec.md §11). Compose stretches most small
+     * targets to this on its own; give it as a minimum size where it doesn't, e.g. a slider.
+     */
+    val MinTouchTarget = 48.dp
+
     /** The 1dp `line` border that separates surfaces instead of a shadow. */
     val Border = 1.dp
 }

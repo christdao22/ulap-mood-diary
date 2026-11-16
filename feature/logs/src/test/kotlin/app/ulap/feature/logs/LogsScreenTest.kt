@@ -16,6 +16,10 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import app.ulap.core.composetesting.LargestFontScale
+import app.ulap.core.composetesting.assertNoTextCutOff
+import app.ulap.core.composetesting.assertTouchTargetsAtLeast48dp
+import app.ulap.core.composetesting.assertTouchTargetsHaveNames
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.shared.model.CheckIn
 import app.ulap.shared.model.SupportType
@@ -31,6 +35,7 @@ import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w360dp-h2000dp")
@@ -62,8 +67,8 @@ class LogsScreenTest {
         updatedAt = Instant.parse("2026-11-05T01:15:00Z"),
     )
 
-    private fun show(vararg days: LogDay) = compose.setContent {
-        UlapTheme { LogsContent(uiState = LogsUiState.Loaded(days.toList())) }
+    private fun show(vararg days: LogDay, largeText: Boolean = false) = compose.setContent {
+        LargestFontScale(enabled = largeText) { UlapTheme { LogsContent(uiState = LogsUiState.Loaded(days.toList())) } }
     }
 
     @Test
@@ -308,4 +313,59 @@ class LogsScreenTest {
         compose.setContent { UlapTheme { LogsContent(uiState = oneDay) } }
         compose.onNodeWithText("Delete this check-in?").assertDoesNotExist()
     }
+
+    private val busyDays = arrayOf(
+        LogDay(
+            DayLabel.Today,
+            CheckInDay(
+                1,
+                listOf(
+                    checkIn("a", stress = 8, note = LONG_NOTE),
+                    checkIn("b", moodCode = "calm", stress = 3, trigger = Trigger.OTHER, triggerOther = "Rain"),
+                ),
+            ),
+        ),
+        LogDay(DayLabel.Yesterday, CheckInDay(0, listOf(checkIn("c", moodCode = "sad", stress = 6)))),
+    )
+
+    // Accessibility (design-spec.md §11). Native graphics measure real fonts.
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+h3000dp")
+    fun `every touch target is at least 48dp and has a name`() {
+        show(*busyDays)
+        compose.assertTouchTargetsAtLeast48dp()
+        compose.assertTouchTargetsHaveNames()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+en")
+    fun `nothing is cut off at 200 percent text in English`() {
+        show(*busyDays, largeText = true)
+        // The note preview stops at two lines on purpose (design-spec.md §6.13); TalkBack reads it all.
+        compose.assertNoTextCutOff(cutOnPurpose = setOf(LONG_NOTE))
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+fil")
+    fun `nothing is cut off at 200 percent text in Filipino`() {
+        show(*busyDays, largeText = true)
+        // The note preview stops at two lines on purpose (design-spec.md §6.13); TalkBack reads it all.
+        compose.assertNoTextCutOff(cutOnPurpose = setOf(LONG_NOTE))
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+b+ceb")
+    fun `nothing is cut off at 200 percent text in Bisaya`() {
+        show(*busyDays, largeText = true)
+        // The note preview stops at two lines on purpose (design-spec.md §6.13); TalkBack reads it all.
+        compose.assertNoTextCutOff(cutOnPurpose = setOf(LONG_NOTE))
+    }
 }
+
+/** Longer than the two-line preview at 200% text, so the row has to shorten it. */
+private const val LONG_NOTE = "Long day at the office, too many meetings, and the jeepney ride home took two hours."

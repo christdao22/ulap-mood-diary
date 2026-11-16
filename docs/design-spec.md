@@ -168,7 +168,7 @@ Flat. Separate surfaces with a **1dp `line` border**, not shadows. The only "sha
 - Line 1: context (`small`, muted). Line 2: message (`displayS` or `body` 600).
 
 ### 6.4 Slider (Energy, Stress)
-- Material 3 Slider, steps 1–10 (9 steps), height 32dp touch area.
+- Material 3 Slider, steps 1–10 (9 steps), a 48dp-high touch area (§11). The thumb stays Material's 44dp handle.
 - Active track and thumb: selected mood's zone **strong** color.
 - Header row: label (600) on the left, value "**8** / 10 · high" on the right.
 - End labels under the track: Energy "Drained … Energized", Stress "Very low … Very high".

@@ -3,6 +3,10 @@ package app.ulap.feature.checkin.after
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import app.ulap.core.composetesting.LargestFontScale
+import app.ulap.core.composetesting.assertNoTextCutOff
+import app.ulap.core.composetesting.assertTouchTargetsAtLeast48dp
+import app.ulap.core.composetesting.assertTouchTargetsHaveNames
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.shared.catalog.MoodCatalog
 import app.ulap.shared.rules.ResponseRules
@@ -12,6 +16,7 @@ import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w360dp-h2000dp")
@@ -21,21 +26,23 @@ class AfterScreenTest {
 
     private val events = mutableListOf<String>()
 
-    private fun show(before: Int, now: Int, moodCode: String = "worried") {
+    private fun show(before: Int, now: Int, moodCode: String = "worried", largeText: Boolean = false) {
         val mood = checkNotNull(MoodCatalog.byCode(moodCode))
         compose.setContent {
-            UlapTheme {
-                AfterContent(
-                    state = AfterUiState.Ready(
-                        zone = mood.zone,
-                        before = before,
-                        now = now,
-                        result = ResponseRules.afterCheck(mood, before, now),
-                    ),
-                    showUlap = true,
-                    onDone = { events += "done" },
-                    onSeeMyWeek = { events += "week" },
-                )
+            LargestFontScale(enabled = largeText) {
+                UlapTheme {
+                    AfterContent(
+                        state = AfterUiState.Ready(
+                            zone = mood.zone,
+                            before = before,
+                            now = now,
+                            result = ResponseRules.afterCheck(mood, before, now),
+                        ),
+                        showUlap = true,
+                        onDone = { events += "done" },
+                        onSeeMyWeek = { events += "week" },
+                    )
+                }
             }
         }
     }
@@ -110,5 +117,40 @@ class AfterScreenTest {
             "Thank you for checking honestly. This sounds really heavy. Talking to someone can help, even right now.",
         ).assertExists()
         compose.onNodeWithText("If it keeps rising", substring = true).assertDoesNotExist()
+    }
+
+    // Accessibility (design-spec.md §11). Native graphics measure real fonts.
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+h2000dp")
+    fun `every touch target is at least 48dp and has a name`() {
+        show(before = 8, now = 4)
+        compose.assertTouchTargetsAtLeast48dp()
+        compose.assertTouchTargetsHaveNames()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+en")
+    fun `nothing is cut off at 200 percent text in English`() {
+        show(before = 8, now = 4, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+fil")
+    fun `nothing is cut off at 200 percent text in Filipino`() {
+        show(before = 8, now = 4, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+b+ceb")
+    fun `nothing is cut off at 200 percent text in Bisaya`() {
+        show(before = 8, now = 4, largeText = true)
+        compose.assertNoTextCutOff()
     }
 }

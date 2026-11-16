@@ -198,7 +198,8 @@ ulap/
 │   ├── auth/                          # session and token store, AccountRepository
 │   ├── data/                          # repositories (CheckInRepository, SettingsRepository), LocalDataEraser
 │   ├── sync/                          # SyncEngine, SyncWorker, SyncTriggers
-│   └── testing/                       # fakes, MainDispatcherRule
+│   ├── testing/                       # fakes, MainDispatcherRule
+│   └── compose-testing/               # accessibility checks for screen tests: 48dp, TalkBack names, 200% font
 │
 ├── feature/                           # one module per area, app.ulap.feature.<name>
 │   ├── onboarding/
@@ -550,7 +551,7 @@ git push -u origin feat/logs-date-filter
 |---|---|---|
 | `shared` | Mood catalog, ResponseRules, validation, insight text | `kotlin.test` |
 | Android data | Room DAOs, report queries (local day across midnight), SyncEngine merge, full resync, FAILED after 10 errors | JUnit, Room in-memory, Turbine, MockK |
-| Android UI | Check-in flow, language switch, mascot off, TalkBack labels | Compose UI Test |
+| Android UI | Check-in flow, language switch, mascot off, TalkBack labels. Every screen test also runs the `core:compose-testing` checks: touch targets ≥ 48dp with a name for TalkBack, and no text cut off at 200% font in all three languages. | Compose UI Test, Robolectric |
 | Server | Auth flows, push/pull merge, rate limits, delete account | Ktor `testApplication`, Testcontainers (Postgres) |
 | End-to-end | Two emulators editing the same entry offline, then syncing | Manual checklist (`docs/technical-plan.md` §15) |
 
@@ -598,7 +599,7 @@ Thank you for helping make Ulap kinder and better. 💙
 - [ ] `./gradlew build` passes
 - [ ] New strings added to `values/`, `values-fil/` and `values-b+ceb/`
 - [ ] TalkBack labels for new interactive elements
-- [ ] Touch targets ≥ 48dp
+- [ ] Touch targets ≥ 48dp, and no text cut off at 200% font (a new screen's tests call the `core:compose-testing` checks)
 - [ ] Tone follows the voice guide (validate → offer, no judgment words)
 - [ ] No sensitive data in logs
 - [ ] Docs updated if needed (follow the rules in [§17](#17-documentation))

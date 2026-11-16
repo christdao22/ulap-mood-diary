@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -15,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -152,11 +154,14 @@ private fun PeriodNavigator(label: String, hasNext: Boolean, onPrevious: () -> U
             color = colors.ink,
             textAlign = TextAlign.Center,
         )
-        // Hidden past today rather than greyed out: there's nothing ahead to show.
-        IconButton(onClick = onNext, enabled = hasNext) {
-            if (hasNext) {
+        // Gone past today rather than greyed out: there's nothing ahead to show. An empty space the
+        // button's size keeps the label centred, and TalkBack doesn't land on a nameless button.
+        if (hasNext) {
+            IconButton(onClick = onNext) {
                 Icon(UlapIcons.Forward, contentDescription = stringResource(R.string.reports_next), tint = colors.ink3)
             }
+        } else {
+            Spacer(Modifier.minimumInteractiveComponentSize())
         }
     }
 }

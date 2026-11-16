@@ -9,7 +9,8 @@ import kotlin.test.assertTrue
 
 /**
  * Checks the text color pairs in design-spec.md §2.5 against WCAG 2.x, so a token change that
- * breaks readability fails the build instead of shipping.
+ * breaks readability fails the build instead of shipping. Every text color a screen draws on a
+ * background is listed here; add the pair when a screen starts using a new one.
  */
 class ColorContrastTest {
     private val c = LightUlapColors
@@ -44,7 +45,11 @@ class ColorContrastTest {
             Triple("white on ink", c.onInk, c.ink),
             Triple("info on surface", c.info, c.surface),
             Triple("info on infoBg", c.info, c.infoBg),
+            // Text links on the onboarding background, e.g. "Read the full privacy notice".
+            Triple("info on bg", c.info, c.bg),
             Triple("positiveText on positiveBg", c.positiveText, c.positiveBg),
+            // A report stat tile's "0.5 lower than last week".
+            Triple("positiveText on surface", c.positiveText, c.surface),
             Triple("sampleText on sampleBg", c.sampleText, c.sampleBg),
             Triple("high stress chip", c.stressHigh.chipText, c.stressHigh.chipBackground),
             Triple("moderate stress chip", c.stressModerate.chipText, c.stressModerate.chipBackground),
@@ -53,6 +58,8 @@ class ColorContrastTest {
             listOf(
                 Triple("$name text on $name tint", zone.text, zone.tint),
                 Triple("ink2 on $name tint", c.ink2, zone.tint),
+                // The response screen's body text.
+                Triple("ink3 on $name tint", c.ink3, zone.tint),
                 Triple("mutedOnTint on $name tint", c.mutedOnTint, zone.tint),
             )
         }

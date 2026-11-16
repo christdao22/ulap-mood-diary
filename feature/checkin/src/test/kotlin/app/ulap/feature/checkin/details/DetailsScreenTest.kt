@@ -15,6 +15,10 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import app.ulap.core.composetesting.LargestFontScale
+import app.ulap.core.composetesting.assertNoTextCutOff
+import app.ulap.core.composetesting.assertTouchTargetsAtLeast48dp
+import app.ulap.core.composetesting.assertTouchTargetsHaveNames
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.shared.catalog.MoodCatalog
 import app.ulap.shared.model.Trigger
@@ -28,6 +32,7 @@ import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 // A phone-width screen tall enough that the whole form is on screen at once.
@@ -46,7 +51,12 @@ class DetailsScreenTest {
     fun restoreTimeZone() = TimeZone.setDefault(systemZone)
 
     /** Shows Details with a tiny in-test state holder, so taps change what's on screen. */
-    private fun show(moodCode: String = "worried", showUlap: Boolean = true, tzOffsetMin: Int = MANILA) {
+    private fun show(
+        moodCode: String = "worried",
+        showUlap: Boolean = true,
+        tzOffsetMin: Int = MANILA,
+        largeText: Boolean = false,
+    ) {
         compose.setContent {
             var form by remember {
                 mutableStateOf(
@@ -58,41 +68,43 @@ class DetailsScreenTest {
                     ),
                 )
             }
-            UlapTheme {
-                DetailsContent(
-                    form = form,
-                    showUlap = showUlap,
-                    onBack = { events += "back" },
-                    actions = object : DetailsActions {
-                        override fun setEnergy(energy: Int) {
-                            form = form.copy(energy = energy)
-                        }
+            LargestFontScale(enabled = largeText) {
+                UlapTheme {
+                    DetailsContent(
+                        form = form,
+                        showUlap = showUlap,
+                        onBack = { events += "back" },
+                        actions = object : DetailsActions {
+                            override fun setEnergy(energy: Int) {
+                                form = form.copy(energy = energy)
+                            }
 
-                        override fun setStress(stress: Int) {
-                            form = form.copy(stress = stress)
-                        }
+                            override fun setStress(stress: Int) {
+                                form = form.copy(stress = stress)
+                            }
 
-                        override fun resetToDefaults() {
-                            form = form.copy(energy = form.mood.defaultEnergy, stress = form.mood.defaultStress)
-                        }
+                            override fun resetToDefaults() {
+                                form = form.copy(energy = form.mood.defaultEnergy, stress = form.mood.defaultStress)
+                            }
 
-                        override fun toggleTrigger(trigger: Trigger) {
-                            form = form.copy(trigger = trigger.takeUnless { it == form.trigger })
-                        }
+                            override fun toggleTrigger(trigger: Trigger) {
+                                form = form.copy(trigger = trigger.takeUnless { it == form.trigger })
+                            }
 
-                        override fun setTriggerOther(text: String) {
-                            form = form.copy(triggerOther = text)
-                        }
+                            override fun setTriggerOther(text: String) {
+                                form = form.copy(triggerOther = text)
+                            }
 
-                        override fun setNote(text: String) {
-                            form = form.copy(note = text)
-                        }
+                            override fun setNote(text: String) {
+                                form = form.copy(note = text)
+                            }
 
-                        override fun save() {
-                            events += "save"
-                        }
-                    },
-                )
+                            override fun save() {
+                                events += "save"
+                            }
+                        },
+                    )
+                }
             }
         }
     }
@@ -173,6 +185,41 @@ class DetailsScreenTest {
 
     private fun hasStateDescription(value: String) =
         SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, value)
+
+    // Accessibility (design-spec.md §11). Native graphics measure real fonts.
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+h3000dp")
+    fun `every touch target is at least 48dp and has a name`() {
+        show()
+        compose.assertTouchTargetsAtLeast48dp()
+        compose.assertTouchTargetsHaveNames()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+en")
+    fun `nothing is cut off at 200 percent text in English`() {
+        show(largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+fil")
+    fun `nothing is cut off at 200 percent text in Filipino`() {
+        show(largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+b+ceb")
+    fun `nothing is cut off at 200 percent text in Bisaya`() {
+        show(largeText = true)
+        compose.assertNoTextCutOff()
+    }
 }
 
 /** UTC+8 in minutes, the `tz_offset_min` of a check-in logged in Manila. */

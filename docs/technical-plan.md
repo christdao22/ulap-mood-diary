@@ -489,7 +489,7 @@ Test cases per area. Test tasks and their status are tracked in [PHASES.md](../P
 | Room | Insert, edit, soft delete, report queries per local day across midnight and time zones |
 | Sync | Push accepted and rejected changes. Pull pagination. Last write wins. Tombstones. Retry after failure. |
 | Auth | Expired access token → refresh. Reused refresh token → refused. Invalid Google token → 401. |
-| UI | Check-in flow, language switch, mascot off, TalkBack labels, touch targets ≥ 48dp |
+| UI | Check-in flow, language switch, mascot off, TalkBack labels, touch targets ≥ 48dp, no text cut off at 200% font |
 | Privacy | Account deletion removes server data and local data. No notes in logs. |
 
 ---

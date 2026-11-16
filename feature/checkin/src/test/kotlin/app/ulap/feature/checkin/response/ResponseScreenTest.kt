@@ -11,6 +11,10 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import app.ulap.core.composetesting.LargestFontScale
+import app.ulap.core.composetesting.assertNoTextCutOff
+import app.ulap.core.composetesting.assertTouchTargetsAtLeast48dp
+import app.ulap.core.composetesting.assertTouchTargetsHaveNames
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.shared.catalog.MoodCatalog
 import app.ulap.shared.model.SupportType
@@ -24,6 +28,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowToast
 
 @RunWith(RobolectricTestRunner::class)
@@ -34,25 +39,33 @@ class ResponseScreenTest {
 
     private val events = mutableListOf<String>()
 
-    private fun show(moodCode: String, stress: Int, trigger: Trigger? = null, startedSupport: SupportType? = null) {
+    private fun show(
+        moodCode: String,
+        stress: Int,
+        trigger: Trigger? = null,
+        startedSupport: SupportType? = null,
+        largeText: Boolean = false,
+    ) {
         val mood = checkNotNull(MoodCatalog.byCode(moodCode))
         compose.setContent {
-            UlapTheme {
-                ResponseContent(
-                    state = ResponseUiState.Ready(
-                        mood = mood,
-                        response = ResponseRules.respond(mood, stress, trigger),
-                        startedSupport = startedSupport,
-                        stressNow = stress,
-                    ),
-                    showUlap = true,
-                    actions = ResponseScreenActions(
-                        onStartSupport = { events += "support" },
-                        onFinish = { events += "finish" },
-                        onStressNowChange = { events += "stress $it" },
-                        onStressCheckSave = { events += "check in" },
-                    ),
-                )
+            LargestFontScale(enabled = largeText) {
+                UlapTheme {
+                    ResponseContent(
+                        state = ResponseUiState.Ready(
+                            mood = mood,
+                            response = ResponseRules.respond(mood, stress, trigger),
+                            startedSupport = startedSupport,
+                            stressNow = stress,
+                        ),
+                        showUlap = true,
+                        actions = ResponseScreenActions(
+                            onStartSupport = { events += "support" },
+                            onFinish = { events += "finish" },
+                            onStressNowChange = { events += "stress $it" },
+                            onStressCheckSave = { events += "check in" },
+                        ),
+                    )
+                }
             }
         }
     }
@@ -273,5 +286,106 @@ class ResponseScreenTest {
     fun `Green has no stress check`() {
         show("calm", stress = 2)
         compose.onNodeWithText("How stressed do you feel now?").assertDoesNotExist()
+    }
+
+    // Accessibility (design-spec.md §11). Native graphics measure real fonts.
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+h3000dp")
+    fun `every touch target is at least 48dp and has a name with the stress check`() {
+        show("worried", stress = 6, trigger = Trigger.WORK)
+        compose.assertTouchTargetsAtLeast48dp()
+        compose.assertTouchTargetsHaveNames()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+h3000dp")
+    fun `every touch target is at least 48dp and has a name with the hotline`() {
+        show("hopeless", stress = 9)
+        compose.assertTouchTargetsAtLeast48dp()
+        compose.assertTouchTargetsHaveNames()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+h3000dp")
+    fun `every touch target is at least 48dp and has a name while breathing`() {
+        show("worried", stress = 6, startedSupport = SupportType.BREATHE)
+        compose.assertTouchTargetsAtLeast48dp()
+        compose.assertTouchTargetsHaveNames()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+en")
+    fun `nothing is cut off at 200 percent text in English with the stress check`() {
+        show("worried", stress = 6, trigger = Trigger.WORK, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+fil")
+    fun `nothing is cut off at 200 percent text in Filipino with the stress check`() {
+        show("worried", stress = 6, trigger = Trigger.WORK, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+b+ceb")
+    fun `nothing is cut off at 200 percent text in Bisaya with the stress check`() {
+        show("worried", stress = 6, trigger = Trigger.WORK, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+en")
+    fun `nothing is cut off at 200 percent text in English with the hotline`() {
+        show("hopeless", stress = 9, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+fil")
+    fun `nothing is cut off at 200 percent text in Filipino with the hotline`() {
+        show("hopeless", stress = 9, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+b+ceb")
+    fun `nothing is cut off at 200 percent text in Bisaya with the hotline`() {
+        show("hopeless", stress = 9, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+en")
+    fun `nothing is cut off at 200 percent text in English while breathing`() {
+        show("worried", stress = 6, startedSupport = SupportType.BREATHE, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+fil")
+    fun `nothing is cut off at 200 percent text in Filipino while breathing`() {
+        show("worried", stress = 6, startedSupport = SupportType.BREATHE, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+b+ceb")
+    fun `nothing is cut off at 200 percent text in Bisaya while breathing`() {
+        show("worried", stress = 6, startedSupport = SupportType.BREATHE, largeText = true)
+        compose.assertNoTextCutOff()
     }
 }

@@ -4,6 +4,10 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import app.ulap.core.composetesting.LargestFontScale
+import app.ulap.core.composetesting.assertNoTextCutOff
+import app.ulap.core.composetesting.assertTouchTargetsAtLeast48dp
+import app.ulap.core.composetesting.assertTouchTargetsHaveNames
 import app.ulap.core.designsystem.theme.UlapTheme
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,6 +15,7 @@ import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w360dp-h800dp")
@@ -22,21 +27,23 @@ class SignInSheetTest {
     private var submits = 0
     private var googleTaps = 0
 
-    private fun show(state: SignInUiState, mascotEnabled: Boolean = true) {
+    private fun show(state: SignInUiState, mascotEnabled: Boolean = true, largeText: Boolean = false) {
         compose.setContent {
-            UlapTheme {
-                SignInSheetContent(
-                    state = state,
-                    mascotEnabled = mascotEnabled,
-                    actions = SignInActions(
-                        onDismiss = {},
-                        onContinueWithGoogle = { googleTaps++ },
-                        onShowStep = { steps += it },
-                        onEmailChange = {},
-                        onPasswordChange = {},
-                        onSubmit = { submits++ },
-                    ),
-                )
+            LargestFontScale(enabled = largeText) {
+                UlapTheme {
+                    SignInSheetContent(
+                        state = state,
+                        mascotEnabled = mascotEnabled,
+                        actions = SignInActions(
+                            onDismiss = {},
+                            onContinueWithGoogle = { googleTaps++ },
+                            onShowStep = { steps += it },
+                            onEmailChange = {},
+                            onPasswordChange = {},
+                            onSubmit = { submits++ },
+                        ),
+                    )
+                }
             }
         }
     }
@@ -110,5 +117,73 @@ class SignInSheetTest {
     fun `the sheet speaks Filipino once Filipino is the app language`() {
         show(SignInUiState(googleAvailable = true))
         compose.onNodeWithText("Magpatuloy gamit ang Google").assertExists()
+    }
+
+    // Accessibility (design-spec.md §11). Native graphics measure real fonts.
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+h3000dp")
+    fun `every touch target is at least 48dp and has a name on the first step`() {
+        show(SignInUiState(googleAvailable = true))
+        compose.assertTouchTargetsAtLeast48dp()
+        compose.assertTouchTargetsHaveNames()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+h3000dp")
+    fun `every touch target is at least 48dp and has a name on create account`() {
+        show(SignInUiState(googleAvailable = true, step = SignInStep.CREATE_ACCOUNT))
+        compose.assertTouchTargetsAtLeast48dp()
+        compose.assertTouchTargetsHaveNames()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+en")
+    fun `nothing is cut off at 200 percent text in English on the first step`() {
+        show(SignInUiState(googleAvailable = true), largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+fil")
+    fun `nothing is cut off at 200 percent text in Filipino on the first step`() {
+        show(SignInUiState(googleAvailable = true), largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+b+ceb")
+    fun `nothing is cut off at 200 percent text in Bisaya on the first step`() {
+        show(SignInUiState(googleAvailable = true), largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+en")
+    fun `nothing is cut off at 200 percent text in English on create account`() {
+        show(SignInUiState(googleAvailable = true, step = SignInStep.CREATE_ACCOUNT), largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+fil")
+    fun `nothing is cut off at 200 percent text in Filipino on create account`() {
+        show(SignInUiState(googleAvailable = true, step = SignInStep.CREATE_ACCOUNT), largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+b+ceb")
+    fun `nothing is cut off at 200 percent text in Bisaya on create account`() {
+        show(SignInUiState(googleAvailable = true, step = SignInStep.CREATE_ACCOUNT), largeText = true)
+        compose.assertNoTextCutOff()
     }
 }

@@ -12,6 +12,10 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import app.ulap.core.composetesting.LargestFontScale
+import app.ulap.core.composetesting.assertNoTextCutOff
+import app.ulap.core.composetesting.assertTouchTargetsAtLeast48dp
+import app.ulap.core.composetesting.assertTouchTargetsHaveNames
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.model.AppLanguage
 import kotlin.test.Test
@@ -20,6 +24,7 @@ import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w360dp-h800dp")
@@ -29,11 +34,13 @@ class LanguageScreenTest {
 
     private var backs = 0
 
-    private fun show(initial: AppLanguage?) {
+    private fun show(initial: AppLanguage?, largeText: Boolean = false) {
         compose.setContent {
             var chosen by remember { mutableStateOf(initial) }
-            UlapTheme {
-                LanguageContent(chosen = chosen, onChoose = { chosen = it }, onBack = { backs++ })
+            LargestFontScale(enabled = largeText) {
+                UlapTheme {
+                    LanguageContent(chosen = chosen, onChoose = { chosen = it }, onBack = { backs++ })
+                }
             }
         }
     }
@@ -67,5 +74,40 @@ class LanguageScreenTest {
         show(AppLanguage.FILIPINO)
         compose.onNodeWithText("Wika").assertExists()
         compose.onNodeWithContentDescription("Bumalik").assertExists()
+    }
+
+    // Accessibility (design-spec.md §11). Native graphics measure real fonts.
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+h3000dp")
+    fun `every touch target is at least 48dp and has a name`() {
+        show(AppLanguage.FILIPINO)
+        compose.assertTouchTargetsAtLeast48dp()
+        compose.assertTouchTargetsHaveNames()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+en")
+    fun `nothing is cut off at 200 percent text in English`() {
+        show(AppLanguage.FILIPINO, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+fil")
+    fun `nothing is cut off at 200 percent text in Filipino`() {
+        show(AppLanguage.FILIPINO, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+b+ceb")
+    fun `nothing is cut off at 200 percent text in Bisaya`() {
+        show(AppLanguage.FILIPINO, largeText = true)
+        compose.assertNoTextCutOff()
     }
 }

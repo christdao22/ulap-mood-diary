@@ -60,9 +60,9 @@ fun ZoneFilterChip(label: String, zone: Zone?, selected: Boolean, onClick: () ->
 }
 
 /**
- * The Logs search field (design-spec.md §7.6): 46dp high, `radiusL` corners, a search icon in
- * front and a clear button once there's text. Filtering happens as the person types, so the
- * keyboard's search key only closes the keyboard.
+ * The Logs search field (design-spec.md §7.6): 46dp high (taller when large text wraps),
+ * `radiusL` corners, a search icon in front and a clear button once there's text. Filtering
+ * happens as the person types, so the keyboard's search key only closes the keyboard.
  *
  * @param placeholder Shown while empty, and TalkBack's name for the field.
  * @param clearLabel TalkBack's name for the clear button, e.g. "Clear search".
@@ -105,7 +105,9 @@ fun SearchField(
                     Icon(imageVector = UlapIcons.Search, contentDescription = null, tint = colors.muted)
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                         if (value.isEmpty()) {
-                            Text(text = placeholder, style = textStyle, color = colors.placeholder, maxLines = 1)
+                            // Wraps instead of cutting off at large font sizes (design-spec.md §11);
+                            // the field grows to fit.
+                            Text(text = placeholder, style = textStyle, color = colors.placeholder)
                         }
                         innerTextField()
                     }

@@ -3,6 +3,8 @@ package app.ulap.core.designsystem.mascot
 import android.content.Context
 import android.provider.Settings
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -91,5 +93,40 @@ class UlapTest {
         compose.setContent { reduced = rememberReducedMotion() }
         compose.waitForIdle()
         assertTrue(reduced!!)
+    }
+
+    @Test
+    fun `with animations on, Ulap floats`() {
+        val (start, halfway) = framesHalfACycleApart()
+        assertFalse(start.samePixels(halfway), "Ulap should have moved")
+    }
+
+    @Test
+    fun `with Remove animations on, Ulap stays still (design-spec md 9)`() {
+        val resolver = ApplicationProvider.getApplicationContext<Context>().contentResolver
+        Settings.Global.putFloat(resolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
+        val (start, halfway) = framesHalfACycleApart()
+        assertTrue(start.samePixels(halfway), "Ulap moved with animations off")
+    }
+
+    /** Ulap at the start of a float and half a cycle (1.8s) later, at the top of the lift. */
+    private fun framesHalfACycleApart(): Pair<ImageBitmap, ImageBitmap> {
+        compose.mainClock.autoAdvance = false
+        compose.setContent { UlapTheme { Ulap(UlapExpression.NEUTRAL, contentDescription = "Ulap") } }
+        compose.mainClock.advanceTimeByFrame()
+        val start = compose.onNodeWithContentDescription("Ulap").captureToImage()
+        compose.mainClock.advanceTimeBy(HALF_FLOAT_CYCLE_MILLIS)
+        val halfway = compose.onNodeWithContentDescription("Ulap").captureToImage()
+        return start to halfway
+    }
+
+    private fun ImageBitmap.samePixels(other: ImageBitmap): Boolean {
+        val a = toPixelMap()
+        val b = other.toPixelMap()
+        return (0 until width).all { x -> (0 until height).all { y -> a[x, y] == b[x, y] } }
+    }
+
+    private companion object {
+        const val HALF_FLOAT_CYCLE_MILLIS = 1_800L
     }
 }

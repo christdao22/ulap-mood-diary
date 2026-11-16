@@ -92,6 +92,8 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 "implementation"(libs.findLibrary("androidx-navigation-compose").get())
 
                 "testImplementation"(project(":core:testing"))
+                // Touch target and 200% font checks for every screen test (design-spec.md §11).
+                "testImplementation"(project(":core:compose-testing"))
                 "testImplementation"(libs.findLibrary("androidx-compose-ui-test-junit4").get())
                 "testImplementation"(libs.findLibrary("kotlinx-coroutines-test").get())
                 "testImplementation"(libs.findLibrary("robolectric").get())

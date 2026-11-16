@@ -18,6 +18,10 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import app.ulap.core.composetesting.LargestFontScale
+import app.ulap.core.composetesting.assertNoTextCutOff
+import app.ulap.core.composetesting.assertTouchTargetsAtLeast48dp
+import app.ulap.core.composetesting.assertTouchTargetsHaveNames
 import app.ulap.core.designsystem.theme.UlapTheme
 import app.ulap.core.domain.account.AccountProfile
 import app.ulap.core.domain.account.AccountState
@@ -36,6 +40,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w360dp-h800dp")
@@ -67,31 +72,34 @@ class AccountScreenTest {
         delete: DeleteState = DeleteState.Idle,
         sync: SyncStatus? = null,
         hotlineNumber: String = HotlineRules.BUILT_IN_NUMBER,
+        largeText: Boolean = false,
     ) {
         compose.setContent {
-            UlapTheme {
-                CompositionLocalProvider(LocalHotlineNumber provides hotlineNumber) {
-                    AccountContent(
-                        language = language,
-                        mascotEnabled = mascotEnabled,
-                        onMascotEnabledChange = { mascotChanges += it },
-                        onOpenLanguage = { languageOpens++ },
-                        onOpenPrivacyNotice = { privacyOpens++ },
-                        account = account,
-                        signIn = SignInUiState(googleAvailable = googleAvailable),
-                        onContinueWithGoogle = { googleTaps++ },
-                        onOpenSignIn = { signInOpens += it },
-                        onResendVerification = { resends++ },
-                        onSignOut = { signOuts++ },
-                        delete = delete,
-                        onDeleteEverything = { deletes += it },
-                        sync = sync,
-                        syncActions = SyncActions(
-                            onSyncNow = { syncNows++ },
-                            onTryAgain = { tryAgains++ },
-                            onAnswerAddCheckIns = { addAnswers += it },
-                        ),
-                    )
+            LargestFontScale(enabled = largeText) {
+                UlapTheme {
+                    CompositionLocalProvider(LocalHotlineNumber provides hotlineNumber) {
+                        AccountContent(
+                            language = language,
+                            mascotEnabled = mascotEnabled,
+                            onMascotEnabledChange = { mascotChanges += it },
+                            onOpenLanguage = { languageOpens++ },
+                            onOpenPrivacyNotice = { privacyOpens++ },
+                            account = account,
+                            signIn = SignInUiState(googleAvailable = googleAvailable),
+                            onContinueWithGoogle = { googleTaps++ },
+                            onOpenSignIn = { signInOpens += it },
+                            onResendVerification = { resends++ },
+                            onSignOut = { signOuts++ },
+                            delete = delete,
+                            onDeleteEverything = { deletes += it },
+                            sync = sync,
+                            syncActions = SyncActions(
+                                onSyncNow = { syncNows++ },
+                                onTryAgain = { tryAgains++ },
+                                onAnswerAddCheckIns = { addAnswers += it },
+                            ),
+                        )
+                    }
                 }
             }
         }
@@ -349,5 +357,52 @@ class AccountScreenTest {
 
         compose.onNode(hasText("Don't add") and hasAnyAncestor(isDialog())).performClick()
         assertEquals(listOf(false), addAnswers)
+    }
+
+    // Accessibility (design-spec.md §11). Native graphics measure real fonts, and the window is
+    // tall enough that every row is on screen at once.
+    private val busyAccount = AccountState.SignedIn(profile.copy(emailVerified = false))
+    private val busySync = SyncStatus(waitingCount = 2, stuckCount = 1, online = false)
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+h2000dp")
+    fun `every touch target is at least 48dp and has a name for a guest`() {
+        show(account = AccountState.Guest)
+        compose.assertTouchTargetsAtLeast48dp()
+        compose.assertTouchTargetsHaveNames()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+h2000dp")
+    fun `every touch target is at least 48dp and has a name when signed in`() {
+        show(account = busyAccount, sync = busySync)
+        compose.assertTouchTargetsAtLeast48dp()
+        compose.assertTouchTargetsHaveNames()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+en")
+    fun `nothing is cut off at 200 percent text in English`() {
+        show(language = AppLanguage.FILIPINO, account = busyAccount, sync = busySync, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+fil")
+    fun `nothing is cut off at 200 percent text in Filipino`() {
+        show(language = AppLanguage.FILIPINO, account = busyAccount, sync = busySync, largeText = true)
+        compose.assertNoTextCutOff()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "+b+ceb")
+    fun `nothing is cut off at 200 percent text in Bisaya`() {
+        show(language = AppLanguage.BISAYA, account = AccountState.Guest, largeText = true)
+        compose.assertNoTextCutOff()
     }
 }

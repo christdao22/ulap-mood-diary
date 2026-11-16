@@ -38,6 +38,7 @@ include(":server")
 // Android modules (D1 in docs/ulap-reference.md §13, README §5).
 include(":core:auth")
 include(":core:common")
+include(":core:compose-testing")
 include(":core:data")
 include(":core:database")
 include(":core:datastore")

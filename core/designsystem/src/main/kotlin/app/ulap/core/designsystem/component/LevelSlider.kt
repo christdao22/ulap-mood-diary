@@ -1,10 +1,14 @@
 package app.ulap.core.designsystem.component
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -42,6 +46,8 @@ import kotlin.math.roundToInt
  * @param levelWord The word for [value] from StressLabels or EnergyLabels, e.g. "high".
  * @param startLabel "Very low" or "Drained". [endLabel] is "Very high" or "Energized".
  */
+// The thumb slot is still experimental in Material 3; it's the only way to set the slider's height.
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LevelSlider(
     label: String,
@@ -57,24 +63,16 @@ fun LevelSlider(
     val colors = UlapTheme.colors
     val accent = colors.zone(zone).strong
     val typography = MaterialTheme.typography
+    val sliderColors = SliderDefaults.colors(
+        thumbColor = accent,
+        activeTrackColor = accent,
+        activeTickColor = colors.onInk,
+        inactiveTrackColor = colors.lineSoft,
+        inactiveTickColor = colors.lineStrong,
+    )
+    val interactionSource = remember { MutableInteractionSource() }
     Column(modifier) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clearAndSetSemantics {},
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(text = label, style = typography.labelLarge, color = colors.ink)
-            Text(
-                text = buildAnnotatedString {
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(value.toString()) }
-                    append(" / ${LEVEL_RANGE.last} · $levelWord")
-                },
-                style = typography.bodyMedium.withTabularNumbers(),
-                color = colors.ink2,
-            )
-        }
+        LevelHeader(label = label, value = value, levelWord = levelWord)
         Slider(
             value = value.toFloat(),
             onValueChange = { raw ->
@@ -90,13 +88,16 @@ fun LevelSlider(
             valueRange = LEVEL_RANGE.first.toFloat()..LEVEL_RANGE.last.toFloat(),
             // Material counts the stops between the two ends: 2..9 for a 1..10 scale.
             steps = LEVEL_RANGE.last - LEVEL_RANGE.first - 1,
-            colors = SliderDefaults.colors(
-                thumbColor = accent,
-                activeTrackColor = accent,
-                activeTickColor = colors.onInk,
-                inactiveTrackColor = colors.lineSoft,
-                inactiveTickColor = colors.lineStrong,
-            ),
+            colors = sliderColors,
+            interactionSource = interactionSource,
+            // The slider is as tall as its thumb, and Material's is 44dp. A 48dp slot around the
+            // same thumb gives the whole slider a 48dp touch area (design-spec.md §11), and
+            // Compose doesn't stretch sliders to 48dp the way it does buttons.
+            thumb = {
+                Box(Modifier.height(UlapSpacing.MinTouchTarget), contentAlignment = Alignment.Center) {
+                    SliderDefaults.Thumb(interactionSource = interactionSource, colors = sliderColors)
+                }
+            },
         )
         Row(
             modifier = Modifier
@@ -107,6 +108,30 @@ fun LevelSlider(
             Text(text = startLabel, style = typography.labelSmall, color = colors.muted)
             Text(text = endLabel, style = typography.labelSmall, color = colors.muted)
         }
+    }
+}
+
+/** "Stress" on the left, "**8** / 10 · high" on the right. Hidden from TalkBack: the slider says it. */
+@Composable
+private fun LevelHeader(label: String, value: Int, levelWord: String) {
+    val colors = UlapTheme.colors
+    val typography = MaterialTheme.typography
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clearAndSetSemantics {},
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text = label, style = typography.labelLarge, color = colors.ink)
+        Text(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(value.toString()) }
+                append(" / ${LEVEL_RANGE.last} · $levelWord")
+            },
+            style = typography.bodyMedium.withTabularNumbers(),
+            color = colors.ink2,
+        )
     }
 }
 

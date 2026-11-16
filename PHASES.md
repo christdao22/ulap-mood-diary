@@ -24,7 +24,7 @@ Last updated: November 16, 2026
 | 5 | Languages and onboarding | 🟡 In progress | 12 / 15 |
 | 6 | Server and accounts | 🟡 In progress | 9 / 28 |
 | 7 | Sync | 🟡 In progress | 0 / 25 |
-| 8 | Privacy, safety and polish | 🟡 In progress | 9 / 23 |
+| 8 | Privacy, safety and polish | 🟡 In progress | 12 / 23 |
 | 9 | Testing and beta | ⬜ Not started | 0 / 15 |
 | 10 | Release v1.0 | ⬜ Not started | 0 / 18 |
 | 11 | After v1 (backlog) | ⬜ Planned | 0 / 13 |
@@ -345,11 +345,11 @@ Spec: [Technical plan §13](docs/technical-plan.md#13-safety-privacy-and-store-r
 - [ ] Review every message against the voice guide (no guilt, no judgment) ⏳
 
 ### Accessibility
-- [ ] Every touch target ≥ 48dp
-- [ ] Contrast check of every color pair (≥ 4.5:1)
+- [x] Every touch target ≥ 48dp
+- [x] Contrast check of every color pair (≥ 4.5:1)
 - [ ] Full TalkBack pass through every screen
 - [ ] Font scaling at 200% without clipping
-- [ ] Reduced motion: Ulap float and the breathing animation turned off
+- [x] Reduced motion: Ulap float and the breathing animation turned off
 
 ### Polish
 - [x] Loading, error and empty states on every screen

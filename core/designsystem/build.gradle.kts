@@ -20,6 +20,7 @@ dependencies {
 
     // Component tests drive real composables on the JVM through Robolectric.
     testImplementation(libs.androidx.compose.ui.test.junit4)
+    testImplementation(projects.core.composeTesting)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.robolectric)
     // The empty activity the Compose test rule launches.
