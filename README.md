@@ -592,6 +592,8 @@ git push -u origin feat/logs-date-filter
 
 **Rule:** every bug fix comes with a test that fails before the fix.
 
+**Coverage:** `shared` must keep at least 80% line coverage. Kover checks it in `./gradlew build` and in server CI (`:shared:koverVerify`). To see which lines are missed, run `./gradlew :shared:koverHtmlReport` and open `shared/build/reports/kover/html/index.html`.
+
 Test tasks and their status are tracked in [PHASES.md](PHASES.md). Full test case lists: [Technical plan §15](docs/technical-plan.md#15-testing-checklist) and [API reference §15](docs/api-spec.md#15-testing-checklist).
 
 ---

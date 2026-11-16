@@ -4,6 +4,19 @@
 plugins {
     alias(libs.plugins.ulap.kmp.library)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kover)
+}
+
+// Line coverage from the jvm() tests (PHASES.md Phase 9). `./gradlew check` runs
+// koverVerify, so the build fails if shared drops below 80%. Report: koverHtmlReport.
+kover {
+    reports {
+        verify {
+            rule {
+                minBound(80)
+            }
+        }
+    }
 }
 
 kotlin {

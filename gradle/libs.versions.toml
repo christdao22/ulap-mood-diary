@@ -44,6 +44,8 @@ javaJwt = "4.6.2"
 junit4 = "4.13.2"
 # The Kotlin compiler, the Compose compiler plugin and kotlin-metadata-jvm share this.
 kotlin = "2.4.21"
+# Coverage for shared (PHASES.md Phase 9: shared ≥ 80%).
+kover = "0.9.9"
 kotlinxCoroutines = "1.11.0"
 kotlinxDatetime = "0.8.0"
 kotlinxSerialization = "1.12.0"
@@ -171,6 +173,7 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 # buildFatJar for the server image (README §7.1).
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }

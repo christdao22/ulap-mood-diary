@@ -1,7 +1,7 @@
 # Server CI (ulap-reference.md §9): the shared module's tests on every target, the server's tests
 # against a real PostgreSQL (Testcontainers, on the runner's Docker), formatting and detekt.
 # The same command runs locally (Docker must be running):
-#   ./gradlew :shared:allTests :server:test spotlessCheck detekt -PwarningsAsErrors=true
+#   ./gradlew :shared:allTests :shared:koverVerify :server:test spotlessCheck detekt -PwarningsAsErrors=true
 name: ci-server
 
 # Every push and pull request: the `main` ruleset requires this check, so it must always report.
@@ -65,7 +65,7 @@ jobs:
 
       - name: Test and check
         if: steps.changes.outputs.run == 'true'
-        run: ./gradlew :shared:allTests :server:test spotlessCheck detekt -PwarningsAsErrors=true
+        run: ./gradlew :shared:allTests :shared:koverVerify :server:test spotlessCheck detekt -PwarningsAsErrors=true
 
       # The image the deploy runbook pushes must still build (docs/runbooks/deploy.md).
       - name: Server image builds

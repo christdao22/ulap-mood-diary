@@ -25,7 +25,7 @@ Last updated: November 16, 2026
 | 6 | Server and accounts | 🟡 In progress | 9 / 28 |
 | 7 | Sync | 🟡 In progress | 0 / 25 |
 | 8 | Privacy, safety and polish | 🟡 In progress | 12 / 23 |
-| 9 | Testing and beta | ⬜ Not started | 0 / 15 |
+| 9 | Testing and beta | 🟡 In progress | 1 / 15 |
 | 10 | Release v1.0 | ⬜ Not started | 0 / 18 |
 | 11 | After v1 (backlog) | ⬜ Planned | 0 / 13 |
 
@@ -369,7 +369,7 @@ Spec: [Technical plan §13](docs/technical-plan.md#13-safety-privacy-and-store-r
 **Goal:** real people try it, and we fix what hurts.
 Spec: [Technical plan §15](docs/technical-plan.md#15-testing-checklist) · [API reference §15](docs/api-spec.md#15-testing-checklist) · [README §11](README.md#11-testing)
 
-- [ ] Unit test coverage for `shared` ≥ 80%
+- [x] Unit test coverage for `shared` ≥ 80%
 - [ ] Server route tests for every endpoint in the API spec
 - [ ] Compose UI tests for the check-in flow, logs, reports and account
 - [ ] Manual test on at least 3 phones (small screen, mid-range, Android 8 / API 26)
