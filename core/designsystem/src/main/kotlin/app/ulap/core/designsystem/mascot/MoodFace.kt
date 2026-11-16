@@ -1,11 +1,20 @@
 package app.ulap.core.designsystem.mascot
 
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.InfiniteTransition
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -18,6 +27,7 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import app.ulap.core.designsystem.motion.rememberReducedMotion
 import app.ulap.core.designsystem.theme.UlapColors
 import app.ulap.core.designsystem.theme.UlapTheme
 
@@ -272,10 +282,15 @@ internal enum class MoodFaceExtra(
  *
  * It's decorative: the tile's sentence already names the mood, so TalkBack skips the face (§11).
  * No shadow and no float. The viewBox is cropped to the cloud so the face draws as big as it can.
+ *
+ * Happy hops on the tile: up, a small squash on landing, then a rest (proposed D16, ulap-reference §13).
+ * Every other face stays still. With reduced motion, or [animate] false, Happy stays still too (§9).
  */
 @Composable
-fun MoodFaceIcon(face: MoodFace, modifier: Modifier = Modifier) {
+fun MoodFaceIcon(face: MoodFace, modifier: Modifier = Modifier, animate: Boolean = true) {
     val colors = UlapTheme.colors
+    val hops = animate && face == MoodFace.HAPPY && !rememberReducedMotion()
+    val hop = if (hops) rememberHop() else null
     Canvas(
         modifier = modifier.size(
             width = UlapSize.MoodTileFace,
@@ -284,11 +299,55 @@ fun MoodFaceIcon(face: MoodFace, modifier: Modifier = Modifier) {
     ) {
         scale(scale = size.width / CROP_WIDTH, pivot = Offset.Zero) {
             translate(left = -CROP_LEFT, top = -CROP_TOP) {
-                drawUlapBody(colors, BodyPath, strokeWidth = BODY_STROKE)
-                drawMoodFace(colors, face)
+                val squash = hop?.squash?.value ?: 1f
+                // Squash from the cloud's flat bottom, so it lands instead of shrinking in place.
+                translate(top = hop?.lift?.value ?: 0f) {
+                    scale(scaleX = 2f - squash, scaleY = squash, pivot = Offset(HOP_PIVOT_X, HOP_PIVOT_Y)) {
+                        drawUlapBody(colors, BodyPath, strokeWidth = BODY_STROKE)
+                        drawMoodFace(colors, face)
+                    }
+                }
             }
         }
     }
+}
+
+/** [lift] is in viewBox units (negative is up); [squash] is the vertical scale. */
+private class Hop(val lift: State<Float>, val squash: State<Float>)
+
+/** One 1.6s loop: rise, fall, squash, settle, then rest (the sample in proposed D16). */
+@Composable
+private fun rememberHop(): Hop {
+    val transition: InfiniteTransition = rememberInfiniteTransition(label = "moodFaceHop")
+    val lift = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            keyframes {
+                durationMillis = HOP_CYCLE_MILLIS
+                0f at 0 using EaseOut
+                -HOP_HEIGHT at HOP_PEAK_MILLIS using EaseIn
+                0f at HOP_LAND_MILLIS
+            },
+        ),
+        label = "moodFaceHopLift",
+    )
+    val squash = transition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            keyframes {
+                durationMillis = HOP_CYCLE_MILLIS
+                1f at 0
+                HOP_STRETCH at HOP_PEAK_MILLIS
+                HOP_SQUASH at HOP_LAND_MILLIS
+                HOP_REBOUND at HOP_REBOUND_MILLIS
+                1f at HOP_SETTLE_MILLIS
+            },
+        ),
+        label = "moodFaceHopSquash",
+    )
+    return remember(lift, squash) { Hop(lift, squash) }
 }
 
 private fun DrawScope.drawMoodFace(colors: UlapColors, face: MoodFace) {
@@ -332,6 +391,21 @@ private const val BODY_STROKE = 3.2f
 private const val EYE_BOOST = 0.5f
 private const val EXTRA_STROKE_BOOST = 1.35f
 
+// The hop (proposed D16). Height is in viewBox units: 8 of the 88-unit crop, so the cloud stays inside it.
+private const val HOP_HEIGHT = 8f
+private const val HOP_CYCLE_MILLIS = 1600
+private const val HOP_PEAK_MILLIS = 320
+private const val HOP_LAND_MILLIS = 640
+private const val HOP_REBOUND_MILLIS = 800
+private const val HOP_SETTLE_MILLIS = 960
+private const val HOP_STRETCH = 1.04f
+private const val HOP_SQUASH = 0.94f
+private const val HOP_REBOUND = 1.01f
+
+// The bottom middle of the cloud body.
+private const val HOP_PIVOT_X = 66f
+private const val HOP_PIVOT_Y = 90f
+
 private const val PREVIEW_COLUMNS = 6
 
 @Preview(showBackground = true, backgroundColor = 0xFFE8EFFC, widthDp = 360)
@@ -340,7 +414,9 @@ private fun MoodFacesPreview() {
     UlapTheme {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             MoodFace.entries.chunked(PREVIEW_COLUMNS).forEach { row ->
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) { row.forEach { MoodFaceIcon(it) } }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    row.forEach { MoodFaceIcon(it, animate = false) }
+                }
             }
         }
     }
