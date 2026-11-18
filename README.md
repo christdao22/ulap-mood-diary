@@ -200,7 +200,7 @@ ulap/
 │   ├── data/                          # repositories (CheckInRepository, SettingsRepository), LocalDataEraser
 │   ├── sync/                          # SyncEngine, SyncWorker, SyncTriggers
 │   ├── testing/                       # fakes, MainDispatcherRule
-│   └── compose-testing/               # accessibility checks for screen tests: 48dp, TalkBack names, 200% font
+│   └── compose-testing/               # screen test helpers: 48dp, TalkBack names, 200% font; HiltTestActivity
 │
 ├── feature/                           # one module per area, app.ulap.feature.<name>
 │   ├── onboarding/
@@ -586,7 +586,7 @@ git push -u origin feat/logs-date-filter
 |---|---|---|
 | `shared` | Mood catalog, ResponseRules, validation, insight text | `kotlin.test` |
 | Android data | Room DAOs, report queries (local day across midnight), SyncEngine merge, full resync, FAILED after 10 errors | JUnit, Room in-memory, Turbine, MockK |
-| Android UI | Check-in flow, language switch, mascot off, TalkBack labels. Every screen test also runs the `core:compose-testing` checks: touch targets ≥ 48dp with a name for TalkBack, and no text cut off at 200% font in all three languages. | Compose UI Test, Robolectric |
+| Android UI | Check-in flow, language switch, mascot off, TalkBack labels. Every screen test also runs the `core:compose-testing` checks: touch targets ≥ 48dp with a name for TalkBack, and no text cut off at 200% font in all three languages. A feature's flow test (e.g. `CheckInFlowTest`) runs its real screens, ViewModels and navigation graph in `HiltTestActivity`, with fakes swapped in by `@BindValue`. | Compose UI Test, Robolectric, Hilt testing |
 | Server | Auth flows, push/pull merge, rate limits, delete account | Ktor `testApplication`, Testcontainers (Postgres) |
 | End-to-end | Two emulators editing the same entry offline, then syncing | Manual checklist (`docs/technical-plan.md` §15) |
 

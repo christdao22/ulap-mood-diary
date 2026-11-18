@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Only test source sets depend on this module, so it never reaches the app. -->
+        <activity
+            android:name="app.ulap.core.composetesting.HiltTestActivity"
+            android:exported="false" />
+    </application>
+</manifest>

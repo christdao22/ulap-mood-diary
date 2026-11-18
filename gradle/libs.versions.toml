@@ -110,6 +110,8 @@ hikari = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikari" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-core = { group = "com.google.dagger", name = "hilt-core", version.ref = "hilt" }
+# @HiltAndroidTest and @BindValue: screen flow tests swap fakes into the real ViewModels.
+hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
 jakarta-mail = { group = "org.eclipse.angus", name = "jakarta.mail", version.ref = "jakartaMail" }
 java-jwt = { group = "com.auth0", name = "java-jwt", version.ref = "javaJwt" }
 # @Inject for plain Kotlin modules (core:domain); Hilt reads it from the app.

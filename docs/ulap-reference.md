@@ -214,7 +214,7 @@ Adopted from macro-tracker (MT §4–§5). D1 (multi-module) is accepted.
 | Room schema | Every schema change: a migration, a `MigrationTestHelper` test, and the exported schema JSON committed. CI fails if a build changes `core/database/schemas`. |
 | Session storage | Tokens in a DataStore file encrypted with a **Tink AEAD keyset wrapped by Android Keystore** (macro-tracker's `SessionStore` pattern) |
 | Network plugins | Ktor Client plugins replacing macro-tracker's OkHttp interceptors: bearer token + single-flight refresh, `X-Device-Id` / `X-App-Version` headers, a 426 handler that shows "Please update Ulap" ([API §2](api-spec.md#2-conventions)) |
-| Tests | ViewModels with fakes + `MainDispatcherRule`. Room on Robolectric in-memory. Compose with `createComposeRule`, plus the `core:compose-testing` accessibility checks (an Android module, so it isn't one of the pure modules). Network with Ktor `MockEngine`. Workers with work-testing. |
+| Tests | ViewModels with fakes + `MainDispatcherRule`. Room on Robolectric in-memory. Compose with `createComposeRule`, plus the `core:compose-testing` accessibility checks (an Android module, so it isn't one of the pure modules). Flow tests use `@HiltAndroidTest` with `HiltTestActivity` from that module and `@BindValue` fakes. Network with Ktor `MockEngine`. Workers with work-testing. |
 
 ---
 

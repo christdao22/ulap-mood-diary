@@ -97,6 +97,9 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 "testImplementation"(libs.findLibrary("androidx-compose-ui-test-junit4").get())
                 "testImplementation"(libs.findLibrary("kotlinx-coroutines-test").get())
                 "testImplementation"(libs.findLibrary("robolectric").get())
+                // Flow tests (@HiltAndroidTest) run the real ViewModels with fake repositories.
+                "kspTest"(libs.findLibrary("hilt-compiler").get())
+                "kspTest"(libs.findLibrary("kotlin-metadata").get())
                 "debugImplementation"(libs.findLibrary("androidx-compose-ui-test-manifest").get())
             }
         }
