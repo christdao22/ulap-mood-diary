@@ -109,6 +109,39 @@ class SessionRoutesTest {
     }
 
     @Test
+    fun logoutWorksWithoutTheRefreshTokenAndNeedsAnAccessToken() = withAuthServer {
+        // A phone that lost its refresh token can still sign out (api-spec.md §6.10).
+        val email = uniqueEmail()
+        val phone = registered(email, DEVICE_A)
+        val tablet = loggedIn(email, device = DEVICE_B)
+
+        assertEquals(HttpStatusCode.NoContent, post("/v1/auth/logout", "{}", token = phone.accessToken).status)
+        assertEquals(
+            ErrorCode.REFRESH_TOKEN_INVALID,
+            post("/v1/auth/refresh", RefreshRequest(phone.refreshToken)).error().code,
+        )
+        assertEquals(HttpStatusCode.OK, post("/v1/auth/refresh", RefreshRequest(tablet.refreshToken), DEVICE_B).status)
+
+        val anonymous = post("/v1/auth/logout", LogoutRequest(tablet.refreshToken))
+        assertEquals(HttpStatusCode.Unauthorized, anonymous.status)
+        assertEquals(ErrorCode.UNAUTHENTICATED, anonymous.error().code)
+    }
+
+    @Test
+    fun registerCountsTowardTheEmailSignInLimit() =
+        withAuthServer(RateLimitSettings(emailSignIn = RateLimitRule(2, 1.minutes))) {
+            val email = uniqueEmail()
+            registered(email)
+            assertEquals(HttpStatusCode.Conflict, register(email).status)
+
+            val limited = register(email)
+            assertEquals(HttpStatusCode.TooManyRequests, limited.status)
+            assertEquals(ErrorCode.RATE_LIMITED, limited.error().code)
+            // Login shares the count for this IP and email.
+            assertEquals(HttpStatusCode.TooManyRequests, login(email).status)
+        }
+
+    @Test
     fun emailSignInIsLimitedPerIpAndEmail() =
         withAuthServer(RateLimitSettings(emailSignIn = RateLimitRule(2, 1.minutes))) {
             val email = uniqueEmail()

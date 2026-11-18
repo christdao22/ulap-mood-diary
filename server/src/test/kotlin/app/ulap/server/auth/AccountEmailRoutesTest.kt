@@ -94,6 +94,30 @@ class AccountEmailRoutesTest {
     }
 
     @Test
+    fun forgotIsLimitedToThreeAnHourPerEmailWhetherOrNotTheAccountExists() = withAuthServer {
+        // api-spec.md §10: the limit is counted for unknown emails too, so a 429 doesn't reveal an account.
+        val known = uniqueEmail()
+        registered(known)
+        val unknown = uniqueEmail()
+
+        for (email in listOf(known, unknown)) {
+            repeat(3) {
+                assertEquals(HttpStatusCode.NoContent, forgot(email).status)
+            }
+            val limited = forgot(email)
+            assertEquals(HttpStatusCode.TooManyRequests, limited.status, email)
+            assertEquals(ErrorCode.RATE_LIMITED, limited.error().code)
+            assertTrue(limited.headers[HttpHeaders.RetryAfter] != null)
+        }
+        // The fourth request sent nothing: one verification email plus three reset links.
+        assertEquals(4, mailer.sent.size)
+
+        assertEquals(HttpStatusCode.NoContent, forgot(uniqueEmail()).status, "another email has its own count")
+        clock.advance(Duration.ofMinutes(61))
+        assertEquals(HttpStatusCode.NoContent, forgot(known).status, "the hour is up")
+    }
+
+    @Test
     fun resetChangesThePasswordAndSignsEveryDeviceOut() = withAuthServer {
         val email = uniqueEmail()
         val phone = registered(email, DEVICE_A)
@@ -149,4 +173,7 @@ class AccountEmailRoutesTest {
         )
         assertEquals(HttpStatusCode.OK, login(email).status)
     }
+
+    private suspend fun AuthTestContext.forgot(email: String) =
+        post("/v1/auth/password/forgot", ForgotPasswordRequest(email))
 }

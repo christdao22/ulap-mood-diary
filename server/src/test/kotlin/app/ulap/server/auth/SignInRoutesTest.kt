@@ -199,4 +199,29 @@ class SignInRoutesTest {
             post("/v1/auth/link/email", EmailRegisterRequest(uniqueEmail(), GOOD_PASSWORD), token = session.accessToken)
         assertEquals(ErrorCode.EMAIL_TAKEN, second.error().code)
     }
+
+    @Test
+    fun linkingNeedsASignedInCallerAndAValidCredential() = withAuthServer {
+        val session = registered()
+
+        val badGoogle = post("/v1/auth/link/google", GoogleSignInRequest("forged"), token = session.accessToken)
+        assertEquals(HttpStatusCode.Unauthorized, badGoogle.status)
+        assertEquals(ErrorCode.INVALID_GOOGLE_TOKEN, badGoogle.error().code)
+
+        val googleUser = post("/v1/auth/google", GoogleSignInRequest(google.account())).auth()
+        val weak = post(
+            "/v1/auth/link/email",
+            EmailRegisterRequest(uniqueEmail(), "1234567890"),
+            token = googleUser.accessToken,
+        )
+        assertEquals(HttpStatusCode.UnprocessableEntity, weak.status)
+        assertEquals(ErrorCode.WEAK_PASSWORD, weak.error().code)
+        assertTrue(mailer.sent.none { it.to != session.user.identities.single().email }, "a failed link sends nothing")
+
+        for (path in listOf("/v1/auth/link/google", "/v1/auth/link/email")) {
+            val anonymous = post(path, EmailRegisterRequest(uniqueEmail(), GOOD_PASSWORD))
+            assertEquals(HttpStatusCode.Unauthorized, anonymous.status, path)
+            assertEquals(ErrorCode.UNAUTHENTICATED, anonymous.error().code, path)
+        }
+    }
 }

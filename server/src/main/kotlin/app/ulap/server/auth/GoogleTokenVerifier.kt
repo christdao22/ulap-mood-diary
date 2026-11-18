@@ -1,6 +1,7 @@
 package app.ulap.server.auth
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
+import com.google.api.client.http.HttpTransport
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import java.io.IOException
@@ -30,9 +31,13 @@ object GoogleSignInDisabled : GoogleTokenVerifier {
     override fun verify(idToken: String): GoogleIdentity? = null
 }
 
-/** Google's own verifier: it fetches and caches Google's signing keys and checks `aud`, `iss` and `exp`. */
-class GoogleApiTokenVerifier(webClientId: String) : GoogleTokenVerifier {
-    private val verifier = GoogleIdTokenVerifier.Builder(NetHttpTransport(), GsonFactory.getDefaultInstance())
+/**
+ * Google's own verifier: it fetches and caches Google's signing keys and checks `aud`, `iss` and `exp`.
+ * [transport] fetches the keys; tests pass one that serves their own certificate.
+ */
+class GoogleApiTokenVerifier(webClientId: String, transport: HttpTransport = NetHttpTransport()) :
+    GoogleTokenVerifier {
+    private val verifier = GoogleIdTokenVerifier.Builder(transport, GsonFactory.getDefaultInstance())
         .setAudience(listOf(webClientId))
         .build()
 

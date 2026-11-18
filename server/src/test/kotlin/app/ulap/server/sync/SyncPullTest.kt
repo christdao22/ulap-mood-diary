@@ -1,21 +1,28 @@
 package app.ulap.server.sync
 
 import app.ulap.server.auth.withAuthServer
+import app.ulap.server.common.RateLimitRule
+import app.ulap.server.common.RateLimitSettings
 import app.ulap.server.db.Db
 import app.ulap.server.db.TestPostgres
 import app.ulap.server.error
 import app.ulap.shared.api.ErrorCode
 import app.ulap.shared.api.PullResponse
+import app.ulap.shared.api.PushStatus
 import app.ulap.shared.api.SyncStatusResponse
 import app.ulap.shared.model.Ids
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import java.time.Duration
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * `GET /sync/pull` and `GET /sync/status` (api-spec.md §8.3, §8.4), `resetRequired` (D6) and the
@@ -169,5 +176,41 @@ class SyncPullTest {
         assertEquals(1, after.checkInCount)
         assertEquals(deleteSeq, after.latestServerSeq)
         assertNotNull(after.lastPushAt)
+    }
+
+    @Test
+    fun statusIgnoresStalePushesAndOtherAccounts() = withAuthServer {
+        val token = syncUser()
+        val change = checkIn()
+        pushed(token, change)
+        val firstPushAt = assertNotNull(status(token).syncStatus().lastPushAt)
+
+        // A push of only STALE changes stores nothing, so lastPushAt stays (api-spec.md §8.4).
+        clock.advance(Duration.ofMinutes(1))
+        assertEquals(PushStatus.STALE, pushed(token, change).accepted.single().status)
+        assertEquals(firstPushAt, status(token).syncStatus().lastPushAt)
+
+        // Someone else's check-ins don't count here.
+        val other = syncUser()
+        pushed(other, checkIn(), checkIn())
+        assertEquals(1, status(token).syncStatus().checkInCount)
+        assertEquals(2, status(other).syncStatus().checkInCount)
+
+        pushed(token, change.copy(updatedAt = now() - 1.minutes))
+        assertNotEquals(firstPushAt, status(token).syncStatus().lastPushAt)
+    }
+
+    @Test
+    fun pullHasItsOwnRateLimitPerUser() = withAuthServer(RateLimitSettings(syncPull = RateLimitRule(2, 1.minutes))) {
+        val token = syncUser()
+        repeat(2) { pulled(token) }
+
+        val limited = pull(token)
+        assertEquals(HttpStatusCode.TooManyRequests, limited.status)
+        assertEquals(ErrorCode.RATE_LIMITED, limited.error().code)
+        assertNotNull(limited.headers[HttpHeaders.RetryAfter])
+        // Push isn't held back by pulling, and someone else can still pull.
+        pushed(token, checkIn())
+        pulled(syncUser())
     }
 }
