@@ -589,6 +589,7 @@ git push -u origin feat/logs-date-filter
 | Android UI | Check-in, edit, Logs, Reports and Account flows, language switch, mascot off, TalkBack labels. Every screen test also runs the `core:compose-testing` checks: touch targets ≥ 48dp with a name for TalkBack, and no text cut off at 200% font in all three languages. A feature's flow test (`CheckInFlowTest`, `EditCheckInFlowTest`, `LogsFlowTest`, `ReportsFlowTest`, `AccountFlowTest`) runs its real screens, ViewModels and navigation graph in `HiltTestActivity`, with fakes swapped in by `@BindValue`. Features never import each other, so a screen from another feature is a stand-in route. | Compose UI Test, Robolectric, Hilt testing |
 | Server | Auth flows, push/pull merge, rate limits, delete account | Ktor `testApplication`, Testcontainers (Postgres) |
 | End-to-end | Two emulators editing the same entry offline, then syncing | Manual checklist (`docs/technical-plan.md` §15) |
+| Load | 1,000 phones syncing at once, with pass thresholds | k6 in Docker, seeded accounts ([load-test runbook](docs/runbooks/load-test.md)) |
 
 **Rule:** every bug fix comes with a test that fails before the fix.
 
@@ -732,6 +733,7 @@ Each topic has **one owner document**. Other documents summarize it and link to 
 | [SECURITY.md](SECURITY.md) | How to report a vulnerability, and the disclosure policy | You found a security issue |
 | [docs/local-services.md](docs/local-services.md) | Local URLs, ports and dev logins | You need an address or a password for the local stack |
 | [docs/runbooks/deploy.md](docs/runbooks/deploy.md) | Getting the server onto the VPS, deploying and rolling back | You're deploying staging or production |
+| [docs/runbooks/load-test.md](docs/runbooks/load-test.md) | The sync load test: how to run it locally and on staging, its pass criteria and results | You're load testing or checking the server can take 1,000 phones |
 | [docs/ulap-reference.md](docs/ulap-reference.md) | What Ulap reuses from macro-tracker, repo tooling, Claude Code setup, and the decision log (D1–D14, all accepted) | You're setting up the repo or tooling, or deciding a new change |
 | Mockup canvas | Clickable visual reference | https://claude.ai/artifact/Ecjc7A7vEuqp2xtL3mbaiy |
 

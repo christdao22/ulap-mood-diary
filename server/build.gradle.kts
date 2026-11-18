@@ -29,7 +29,7 @@ kotlin {
 // `./gradlew :server:run` reads the repo's .env (README §6.2), so the server starts with the same
 // variables Docker would pass it. Lines are KEY=value; blank lines and # comments are skipped.
 // A missing .env is fine: the server then names every required variable that's missing.
-val dotEnv: Map<String, String> = providers.fileContents(rootProject.layout.projectDirectory.file(".env"))
+fun envFile(path: String): Map<String, String> = providers.fileContents(rootProject.layout.projectDirectory.file(path))
     .asText
     .map { text ->
         text.lineSequence()
@@ -39,12 +39,28 @@ val dotEnv: Map<String, String> = providers.fileContents(rootProject.layout.proj
     }
     .getOrElse(emptyMap())
 
+val dotEnv: Map<String, String> = envFile(".env")
+
 tasks.named<JavaExec>("run") {
     environment(dotEnv)
     // Ktor development mode (auto-reload with `run -t`) only when the .env says development.
     if (dotEnv["APP_ENV"] == "development") {
         jvmArgs("-Dio.ktor.development=true")
     }
+}
+
+// Seeds or removes the sync load-test accounts (docs/runbooks/load-test.md):
+//   ./gradlew :server:loadTestUsers --args="seed --users 1000"
+//   ./gradlew :server:loadTestUsers --args="cleanup"
+// It reads .env, or the env file of the server under test given as -PloadTestEnv=<path from the
+// repo root> (staging). The tool lives in the test source set, so it never ships in the server jar.
+tasks.register<JavaExec>("loadTestUsers") {
+    group = "verification"
+    description = "Seeds or removes the accounts the k6 sync load test runs as."
+    classpath = sourceSets["test"].runtimeClasspath
+    mainClass = "app.ulap.server.loadtest.LoadTestMainKt"
+    workingDir = layout.projectDirectory.asFile
+    environment(providers.gradleProperty("loadTestEnv").map(::envFile).getOrElse(dotEnv))
 }
 
 tasks.withType<Test>().configureEach {

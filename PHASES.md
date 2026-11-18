@@ -374,7 +374,7 @@ Spec: [Technical plan §15](docs/technical-plan.md#15-testing-checklist) · [API
 - [x] Compose UI tests for the check-in flow, logs, reports and account
 - [ ] Manual test on at least 3 phones (small screen, mid-range, Android 8 / API 26)
 - [ ] Manual test in all 3 languages
-- [ ] Load test: 1,000 users syncing at once on the staging server
+- [ ] Load test: 1,000 users syncing at once on the staging server ([runbook](docs/runbooks/load-test.md): script and seeder done, run locally; the staging run waits for the staging deploy)
 - [ ] Staging server deployed (HTTPS, managed PostgreSQL, backups)
 - [ ] Internal testing track on Google Play
 - [ ] Closed beta with 10–20 testers (friends, family, colleagues)
